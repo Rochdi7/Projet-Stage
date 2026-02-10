@@ -33,9 +33,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link d-flex align-items-center">
+                            <!-- <a href="javascript:void(0);" class="nav-link d-flex align-items-center">
                                 <i class="ti ti-file-invoice me-1"></i>Photos
-                            </a>
+                            </a> -->
                         </li>
                     </ul>
 
