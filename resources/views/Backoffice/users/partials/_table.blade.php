@@ -1,3 +1,14 @@
+<head>
+    <style>
+        /* GLOBAL FIX for action dropdowns in tables */
+.table-responsive,
+.custom-datatable-filter,
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+
+    </style>
+</head>
 <table class="table datatable">
     <thead class="thead-light">
         <tr>

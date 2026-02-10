@@ -24,7 +24,6 @@ class VehicleModelUpdateRequest extends FormRequest
             'transmission' => ['nullable', 'in:manual,automatic'],
             'fuel_type' => ['nullable', 'in:diesel,petrol,hybrid,electric,other'],
             'category' => ['nullable', 'string', 'max:100'],
-            'status' => ['required', 'in:active,inactive'],
         ];
     }
 }
