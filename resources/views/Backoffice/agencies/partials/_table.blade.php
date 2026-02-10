@@ -1,3 +1,12 @@
+<head>
+    <style>
+        .table-responsive,
+.custom-datatable-filter,
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+    </style>
+</head>
 <table class="table datatable">
     <thead class="thead-light">
         <tr>

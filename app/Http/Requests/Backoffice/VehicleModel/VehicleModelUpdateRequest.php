@@ -10,9 +10,12 @@ class VehicleModelUpdateRequest extends FormRequest
     {
         return true;
     }
+    
 
     public function rules(): array
     {
+        
+
         return [
             'vehicle_brand_id' => ['required', 'exists:vehicle_brands,id'],
             'name' => ['required', 'string', 'max:150'],
@@ -21,6 +24,7 @@ class VehicleModelUpdateRequest extends FormRequest
             'transmission' => ['nullable', 'in:manual,automatic'],
             'fuel_type' => ['nullable', 'in:diesel,petrol,hybrid,electric,other'],
             'category' => ['nullable', 'string', 'max:100'],
+            'status' => ['required', 'in:active,inactive'],
         ];
     }
 }

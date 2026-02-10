@@ -11,15 +11,15 @@
 
     <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 180px;">
         <li>
-            <a class="dropdown-item rounded-1 d-flex align-items-center"
-               href="javascript:void(0);"
-               data-bs-toggle="modal"
-               data-bs-target="#edit_model"
-               data-edit-action="{{ route('backoffice.vehicle-models.update', $model) }}"
-               data-model-name="{{ $model->name }}"
-               data-model-brand-id="{{ $model->vehicle_brand_id ?? ($model->brand->id ?? '') }}">
-                <i class="ti ti-edit me-2"></i> Modifier
-            </a>
+<a class="dropdown-item rounded-1 d-flex align-items-center edit-model-btn"
+   href="javascript:void(0);"
+   data-id="{{ $model->id }}"
+   data-name="{{ $model->name }}"
+   data-brand-id="{{ $model->vehicle_brand_id }}"
+   data-status="{{ $model->status }}">
+    <i class="ti ti-edit me-2"></i> Modifier
+</a>
+
         </li>
 
         <li><hr class="dropdown-divider my-1"></li>

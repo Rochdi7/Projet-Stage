@@ -82,7 +82,12 @@ public function create()
     {
         $this->authorize('update', $vehicleModel);
 
-        $vehicleModel->update($request->validated());
+       $vehicleModel->update([
+    'name' => $request->name,
+    'vehicle_brand_id' => $request->vehicle_brand_id,
+    'is_active' => $request->status === 'active',
+]);
+
 
         return redirect()
             ->route('backoffice.vehicle-models.index')

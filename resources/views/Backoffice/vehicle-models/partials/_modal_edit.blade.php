@@ -65,10 +65,7 @@
                         <label class="form-label">
                             Statut <span class="text-danger">*</span>
                         </label>
-                        <select name="status"
-                                id="editModelStatus"
-                                class="form-select"
-                                required>
+<select name="status" id="editModelStatus" class="form-select" required>
                             <option value="active" selected>Actif</option>
                             <option value="inactive">Inactif</option>
                             <option value="cancelled">Annulé</option>
@@ -123,4 +120,28 @@ document.querySelectorAll('.edit-model-btn').forEach(button => {
     });
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.edit-model-btn').forEach(button => {
+        button.addEventListener('click', function () {
+
+            const form = document.getElementById('editModelForm');
+
+            // Set form action
+            form.action = `/backoffice/vehicle-models/${this.dataset.id}`;
+
+            // Populate fields
+            document.getElementById('editModelId').value = this.dataset.id;
+            document.getElementById('editModelName').value = this.dataset.name;
+            document.getElementById('editModelBrand').value = this.dataset.brandId;
+            document.getElementById('editModelStatus').value = this.dataset.status;
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('edit_model')).show();
+        });
+    });
+});
+</script>
+
 <!-- /Edit Model -->
