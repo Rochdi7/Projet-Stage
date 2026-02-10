@@ -1,3 +1,13 @@
+<head>
+    <style>
+        /* FIX: allow dropdowns inside tables */
+.table-responsive,
+.custom-datatable-filter {
+    overflow: visible !important;
+}
+
+    </style>
+</head>
 <?php $page = 'models'; ?>
 @extends('layout.mainlayout_admin')
 @section('content')

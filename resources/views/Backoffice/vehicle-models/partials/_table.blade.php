@@ -9,7 +9,7 @@
             <th>MODÈLE</th>
             <th>MARQUE</th>
             <th>STATUT</th>
-            <th></th>
+            <th class="text-end no-sort">ACTIONS</th>
         </tr>
     </thead>
 
@@ -24,14 +24,14 @@
             {{-- Checkbox --}}
             <td>
                 <div class="form-check form-check-md">
-                    <input class="form-check-input" type="checkbox">
+                    <input class="form-check-input" type="checkbox" value="{{ $model->id }}">
                 </div>
             </td>
 
             {{-- Model --}}
             <td>
-                <div class="d-flex align-items-center file-name-icon">
-                    <div class="ms-0">
+                <div class="d-flex align-items-center">
+                    <div>
                         <h6 class="fw-medium mb-0">
                             <a href="javascript:void(0);">
                                 {{ $model->name }}
@@ -43,11 +43,11 @@
 
             {{-- Brand --}}
             <td>
-                <div class="d-flex align-items-center file-name-icon">
-                    <a href="javascript:void(0);" class="avatar avatar-lg border">
-                        <img src="{{ $brandLogo }}" class="img-fluid" alt="brand">
+                <div class="d-flex align-items-center">
+                    <a href="javascript:void(0);" class="avatar avatar-lg border me-2">
+                        <img src="{{ $brandLogo }}" class="img-fluid" alt="brand" style="object-fit: contain; width: 40px; height: 40px;">
                     </a>
-                    <div class="ms-2">
+                    <div>
                         <h6 class="fw-medium mb-0">
                             <a href="javascript:void(0);">
                                 {{ $brandName }}
@@ -57,7 +57,7 @@
                 </div>
             </td>
 
-            {{-- Status (static UI for now) --}}
+            {{-- Status --}}
             <td>
                 <span class="badge badge-success-transparent d-inline-flex align-items-center badge-sm">
                     <i class="ti ti-point-filled me-1"></i>Actif
@@ -65,18 +65,20 @@
             </td>
 
             {{-- Actions (EDIT / DELETE) --}}
-            <td onclick="event.stopPropagation();">
-                @include('backoffice.vehicle-models.partials._actions', [
-                'model' => $model,
-                ])
-            </td>
+<td class="text-end position-static">
+    @include('backoffice.vehicle-models.partials._actions', ['model' => $model])
+</td>
+
 
         </tr>
         @empty
         <tr>
-            <td></td>
-            <td colspan="3" class="text-center">Aucun modèle trouvé.</td>
-            <td></td>
+            <td colspan="5" class="text-center py-4">
+                <div class="text-muted">
+                    <i class="ti ti-car-off fs-4 mb-2"></i>
+                    <p class="mb-0">Aucun modèle trouvé.</p>
+                </div>
+            </td>
         </tr>
         @endforelse
     </tbody>

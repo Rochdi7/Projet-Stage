@@ -19,13 +19,14 @@ class VehicleModelController extends Controller
         $models = VehicleModel::where('agency_id', Auth::user()->agency_id)
             ->with('brand')
             ->latest()
+
             ->paginate(15);
 
         $brands = VehicleBrand::where('agency_id', Auth::user()->agency_id)
             ->orderBy('name')
             ->get();
 
-        return view('Backoffice.vehicle-models.index', compact('models', 'brands'));
+        return view('backoffice.vehicle-models.index', compact('models', 'brands'));
     }
 
 public function create()
@@ -35,7 +36,7 @@ public function create()
         ->orderBy('name')
         ->get();
 
-    return view('Backoffice.vehicles.create', compact('vehicleModels'));
+    return view('backoffice.vehicles.create', compact('vehicleModels'));
 }
 
 
@@ -63,7 +64,7 @@ public function create()
 
         $vehicleModel->load('brand');
 
-        return view('Backoffice.vehicle-models.show', compact('vehicleModel'));
+        return view('backoffice.vehicle-models.show', compact('vehicleModel'));
     }
 
     public function edit(VehicleModel $vehicleModel)
@@ -74,7 +75,7 @@ public function create()
             ->orderBy('name')
             ->get();
 
-        return view('Backoffice.vehicle-models.edit', compact('vehicleModel', 'brands'));
+        return view('backoffice.vehicle-models.edit', compact('vehicleModel', 'brands'));
     }
 
     public function update(VehicleModelUpdateRequest $request, VehicleModel $vehicleModel)
@@ -84,7 +85,7 @@ public function create()
         $vehicleModel->update($request->validated());
 
         return redirect()
-            ->route('Backoffice.vehicle-models.index')
+            ->route('backoffice.vehicle-models.index')
             ->with('toast', [
                 'title'   => 'Mis à jour',
                 'message' => 'Modèle de véhicule mis à jour avec succès.',
@@ -101,7 +102,7 @@ public function create()
         $vehicleModel->delete();
 
         return redirect()
-            ->route('Backoffice.vehicle-models.index')
+            ->route('backoffice.vehicle-models.index')
             ->with('toast', [
                 'title'   => 'Supprimé',
                 'message' => 'Modèle de véhicule supprimé.',
