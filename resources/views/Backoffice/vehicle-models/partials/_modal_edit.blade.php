@@ -10,6 +10,9 @@
                 @csrf
                 @method('PUT')
 
+                <!-- Hidden ID field -->
+                <input type="hidden" name="id" id="editModelId">
+
                 <div class="modal-header">
                     <h5 class="mb-0">Modifier le modèle</h5>
                     <button type="button" class="btn-close custom-btn-close"
@@ -29,8 +32,8 @@
                                name="name"
                                id="editModelName"
                                class="form-control"
+                               placeholder="Ex: 4x4"
                                required>
-
                         <div class="invalid-feedback">
                             Le nom du modèle est obligatoire.
                         </div>
@@ -43,30 +46,47 @@
                         </label>
                         <select name="vehicle_brand_id"
                                 id="editModelBrand"
-                                class="select"
+                                class="form-select"
                                 required>
-                            <option value="" disabled>Choisir</option>
+                            <option value="" disabled selected>Choisir une marque</option>
                             @foreach(($brands ?? []) as $brand)
                                 <option value="{{ $brand->id }}">
                                     {{ $brand->name }}
                                 </option>
                             @endforeach
                         </select>
-
                         <div class="invalid-feedback">
                             Veuillez sélectionner une marque.
+                        </div>
+                    </div>
+
+                    {{-- Status (optional, based on your table) --}}
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Statut <span class="text-danger">*</span>
+                        </label>
+                        <select name="status"
+                                id="editModelStatus"
+                                class="form-select"
+                                required>
+                            <option value="active" selected>Actif</option>
+                            <option value="inactive">Inactif</option>
+                            <option value="cancelled">Annulé</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Veuillez sélectionner un statut.
                         </div>
                     </div>
 
                 </div>
 
                 <div class="modal-footer">
-                    <div class="d-flex justify-content-center">
-                        <a href="javascript:void(0);"
-                           class="btn btn-light me-3"
-                           data-bs-dismiss="modal">
+                    <div class="d-flex justify-content-center w-100">
+                        <button type="button"
+                                class="btn btn-light me-3"
+                                data-bs-dismiss="modal">
                             Annuler
-                        </a>
+                        </button>
                         <button type="submit" class="btn btn-primary">
                             Enregistrer
                         </button>
@@ -78,4 +98,29 @@
         </div>
     </div>
 </div>
+<script>
+    // JavaScript to handle edit button click
+document.querySelectorAll('.edit-model-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const modelId = this.getAttribute('data-id');
+        const modelName = this.getAttribute('data-name');
+        const brandId = this.getAttribute('data-brand-id');
+        const status = this.getAttribute('data-status');
+        
+        // Set the form action with the correct route
+        const form = document.getElementById('editModelForm');
+        form.action = `/backoffice/vehicle-models/${modelId}`;
+        
+        // Populate form fields
+        document.getElementById('editModelId').value = modelId;
+        document.getElementById('editModelName').value = modelName;
+        document.getElementById('editModelBrand').value = brandId;
+        document.getElementById('editModelStatus').value = status;
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('edit_model'));
+        modal.show();
+    });
+});
+</script>
 <!-- /Edit Model -->

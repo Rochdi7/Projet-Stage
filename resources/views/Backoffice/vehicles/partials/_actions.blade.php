@@ -17,7 +17,7 @@
         <li>
             <a class="dropdown-item rounded-1" href="javascript:void(0);" data-bs-toggle="modal"
                 data-bs-target="#delete_model"
-                data-delete-action="{{ route('Backoffice.vehicle-models.destroy', $model) }}">
+                data-delete-action="{{ route('backoffice.vehicle-models.destroy', $model) }}">
                 <i class="ti ti-trash me-1"></i>Supprimer
             </a>
         </li>

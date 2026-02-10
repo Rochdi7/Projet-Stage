@@ -185,3 +185,45 @@
     @method('DELETE')
     {{-- Les ids[] seront clonés en JS depuis le tableau (si tu veux je te donne le JS après) --}}
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const selectAll = document.getElementById('select-all-vehicles');
+    const checkboxes = document.querySelectorAll('.vehicle-checkbox');
+    const bulkForm = document.getElementById('vehicles-bulk-delete-form');
+
+    // Select / unselect all
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        });
+    }
+
+    // Before submitting bulk delete
+    bulkForm?.addEventListener('submit', function (e) {
+
+        // Remove old inputs
+        bulkForm.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+
+        let checked = false;
+
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                checked = true;
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = cb.value;
+                bulkForm.appendChild(input);
+            }
+        });
+
+        if (!checked) {
+            e.preventDefault();
+            alert('Veuillez sélectionner au moins un véhicule.');
+        }
+    });
+});
+</script>
+

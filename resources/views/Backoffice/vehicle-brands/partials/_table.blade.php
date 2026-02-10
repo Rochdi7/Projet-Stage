@@ -1,3 +1,29 @@
+<head>
+    <style>
+        .table-responsive,
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+.brand-avatar-img {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+
+    border: 1px solid #dee2e6;      /* same as Vehicles */
+    border-radius: 0.5rem;          /* Bootstrap lg radius */
+    background-color: #fff;
+
+    object-fit: contain;            /* IMPORTANT for logos */
+    padding: 6px;
+
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
+    </style>
+</head>
 <table class="table datatable">
     <thead class="thead-light">
         <tr>

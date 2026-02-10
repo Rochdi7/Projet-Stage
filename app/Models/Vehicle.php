@@ -32,16 +32,23 @@ class Vehicle extends Model implements HasMedia
         'fuel_level_in',
     ];
 
-    protected $casts = [
-        'year' => 'integer',
-        'current_mileage' => 'integer',
-        'daily_rate' => 'decimal:2',
-        'deposit_amount' => 'decimal:2',
-        'has_gps' => 'boolean',
-        'has_air_conditioning' => 'boolean',
-        'fuel_level_out' => 'integer',
-        'fuel_level_in' => 'integer',
-    ];
+protected $casts = [
+    'year' => 'integer',
+    'current_mileage' => 'integer',
+    'daily_rate' => 'decimal:2',
+    'deposit_amount' => 'decimal:2',
+    'has_gps' => 'boolean',
+    'has_air_conditioning' => 'boolean',
+    'fuel_level_out' => 'decimal:2',
+    'fuel_level_in' => 'decimal:2',
+];
+
+// Alias accessor for Blade compatibility
+public function getFeaturedImageUrlAttribute(): string
+{
+    return $this->getMainPhotoUrlAttribute();
+}
+
 
     /* =======================
      |  MEDIA LIBRARY

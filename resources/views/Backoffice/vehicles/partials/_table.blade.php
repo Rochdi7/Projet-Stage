@@ -1,5 +1,20 @@
+<head>
+    <style>
+/* Fix DataTables dropdown clipping */
+.dataTables_wrapper,
+.dataTables_wrapper .table-responsive {
+    overflow: visible !important;
+}
+
+/* Ensure dropdown appears above table */
+.dataTables_wrapper .dropdown-menu {
+    z-index: 1055;
+}
+
+    </style>
+</head>
 <!-- Custom Data Table -->
-<div class="custom-datatable-filter table-responsive">
+<div class="custom-datatable-filter">create.blade.php
     <table class="table datatable">
         <thead class="thead-light">
             <tr>
@@ -131,47 +146,30 @@
 
                             <ul class="dropdown-menu dropdown-menu-end p-2">
                                 {{-- VIEW (optionnel) --}}
-                                <li>
-                                    <a class="dropdown-item rounded-1"
-                                        href="{{ route('Backoffice.vehicles.show', $vehicle) }}">
-                                        <i class="ti ti-eye me-1"></i>Voir détails
-                                    </a>
-                                </li>
+    <li>
+        <a class="dropdown-item rounded-1"
+           href="{{ route('backoffice.vehicles.show', $vehicle) }}">
+            <i class="ti ti-eye me-1"></i> Voir détails
+        </a>
+    </li>
 
                                 {{-- EDIT => ouvre ton modal edit --}}
-                                <li>
-                                    <a class="dropdown-item rounded-1" href="javascript:void(0);" data-bs-toggle="modal"
-                                        data-bs-target="#modal_vehicle_edit"
-                                        data-edit-action="{{ route('Backoffice.vehicles.update', $vehicle) }}"
-                                        data-vehicle-id="{{ $vehicle->id }}"
-                                        data-vehicle-model-id="{{ $vehicle->vehicle_model_id }}"
-                                        data-registration-number="{{ $vehicle->registration_number }}"
-                                        data-registration-city="{{ $vehicle->registration_city }}"
-                                        data-year="{{ $vehicle->year }}" data-color="{{ $vehicle->color }}"
-                                        data-current-mileage="{{ $vehicle->current_mileage }}"
-                                        data-status="{{ $vehicle->status }}"
-                                        data-daily-rate="{{ $vehicle->daily_rate }}"
-                                        data-deposit-amount="{{ $vehicle->deposit_amount }}"
-                                        data-has-gps="{{ (int) $vehicle->has_gps }}"
-                                        data-has-air-conditioning="{{ (int) $vehicle->has_air_conditioning }}"
-                                        data-notes="{{ $vehicle->notes }}" data-vin="{{ $vehicle->vin }}"
-                                        data-fuel-policy="{{ $vehicle->fuel_policy }}"
-                                        data-fuel-level-out="{{ $vehicle->fuel_level_out }}"
-                                        data-fuel-level-in="{{ $vehicle->fuel_level_in }}">
-                                        <i class="ti ti-edit me-1"></i>Modifier
-                                    </a>
-                                </li>
+    <li>
+        <a class="dropdown-item rounded-1"
+           href="{{ route('backoffice.vehicles.edit', $vehicle) }}">
+            <i class="ti ti-edit me-1"></i> Modifier
+        </a>
+    </li>
 
-                                {{-- DELETE => ouvre ton modal delete --}}
-                                <li>
-                                    <a class="dropdown-item rounded-1" href="javascript:void(0);" data-bs-toggle="modal"
-                                        data-bs-target="#modal_vehicle_delete"
-                                        data-delete-action="{{ route('Backoffice.vehicles.destroy', $vehicle) }}"
-                                        data-delete-name="{{ $carTitle }}">
-                                        <i class="ti ti-trash me-1"></i>Supprimer
-                                    </a>
-                                </li>
-                            </ul>
+{{-- DELETE --}}
+<li>
+    <button type="button" 
+            class="dropdown-item text-danger rounded-1 d-flex align-items-center"
+            onclick="showDeleteModal('{{ $vehicle->id }}', '{y{ addslashes($carTitle) }}', '{{ route('backoffice.vehicles.destroy', $vehicle) }}')">
+        <i class="ti ti-trash me-1"></i> Supprimer
+    </button>
+</li>
+</ul>
                         </div>
                     </td>
                 </tr>
@@ -193,4 +191,14 @@
     </div>
 @endif
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all checkbox (theme)
+        const selectAll = document.getElementById('select-all');
+        if (!selectAll) return;
 
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('.row-check').forEach(cb => cb.checked = selectAll.checked);
+        });
+    });
+</script>

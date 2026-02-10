@@ -14,6 +14,11 @@ class VehicleController extends Controller
 {
     use AuthorizesRequests;
 
+    private function user()
+{
+    return Auth::guard('backoffice')->user();
+}
+
     public function index()
     {
         $vehicles = Vehicle::where('agency_id', Auth::user()->agency_id)
@@ -21,7 +26,7 @@ class VehicleController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('Backoffice.vehicles.index', compact('vehicles'));
+        return view('backoffice.vehicles.index', compact('vehicles'));
     }
 
     public function create()
@@ -31,15 +36,15 @@ class VehicleController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('Backoffice.vehicles.create', compact('models'));
+        return view('backoffice.vehicles.create', compact('models'));
     }
 
     public function store(VehicleStoreRequest $request)
     {
         $data = $request->validated();
-        $data['agency_id'] = Auth::user()->agency_id;
+        $data['agency_id'] = Auth::guard('backoffice')->user()->agency_id;
 
-        // Important: si le form envoie has_gps/has_air_conditioning via checkbox
+// Important: si le form envoie has_gps/has_air_conditioning via checkbox
         $data['has_gps'] = (bool) ($data['has_gps'] ?? false);
         $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? false);
 
@@ -47,26 +52,26 @@ class VehicleController extends Controller
 
         $vehicle = Vehicle::create($data);
 
-        // Photos (multiple)
+// Photos (multiple)
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $file) {
-                if ($file) {
-                    $vehicle->addMedia($file)->toMediaCollection('vehicle_photos');
-                }
+if ($file) {
+                $vehicle->addMedia($file)->toMediaCollection('vehicle_photos');
+}
             }
         }
 
-        // Documents (optional)
+// Documents (optional)
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $file) {
-                if ($file) {
-                    $vehicle->addMedia($file)->toMediaCollection('vehicle_documents');
-                }
+if ($file) {
+                $vehicle->addMedia($file)->toMediaCollection('vehicle_documents');
+}
             }
         }
 
         return redirect()
-            ->route('Backoffice.vehicles.show', $vehicle)
+            ->route('backoffice.vehicles.show', $vehicle)
             ->with('success', 'Véhicule créé avec succès.');
     }
 
@@ -76,43 +81,43 @@ class VehicleController extends Controller
 
         $vehicle->load('model.brand');
 
-        return view('Backoffice.vehicles.show', compact('vehicle'));
+        return view('backoffice.vehicles.show', compact('vehicle'));
     }
 
-    public function edit(Vehicle $vehicle)
-    {
-        $this->authorize('update', $vehicle);
+public function edit(Vehicle $vehicle)
+{
+    $this->authorize('update', $vehicle);
 
-        $models = VehicleModel::where('agency_id', Auth::user()->agency_id)
-            ->with('brand')
-            ->orderBy('name')
-            ->get();
+    $models = VehicleModel::where('agency_id', Auth::user()->agency_id)
+        ->with('brand')
+        ->orderBy('name')
+        ->get();
 
-        $vehicle->load('model.brand');
+    $vehicle->load('model.brand');
 
-        return view('Backoffice.vehicles.edit', compact('vehicle', 'models'));
-    }
+    return view(        'backoffice.vehicles.edit',         compact('vehicle', 'models')    );
+}
 
-    public function update(VehicleUpdateRequest $request, Vehicle $vehicle)
-    {
-        $this->authorize('update', $vehicle);
+public function update(VehicleUpdateRequest $request, Vehicle $vehicle)
+{
+    $this->authorize('update', $vehicle);
 
-        $data = $request->validated();
+    $data = $request->validated();
 
         $data['has_gps'] = (bool) ($data['has_gps'] ?? false);
-        $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? false);
+    $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? false);
 
-        unset($data['photos'], $data['documents']);
+    unset($data['photos'], $data['documents']);
 
-        $vehicle->update($data);
+    $vehicle->update($data);
 
-        // Add new photos (append)
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $file) {
+    // Add new photos (append)
+    if ($request->hasFile('photos')) {
+        foreach ($request->file('photos') as $file) {
                 if ($file) {
-                    $vehicle->addMedia($file)->toMediaCollection('vehicle_photos');
-                }
-            }
+        $vehicle->addMedia($file)            ->toMediaCollection('vehicle_photos');
+    }
+}
         }
 
         // Add new documents (append)
@@ -125,18 +130,18 @@ class VehicleController extends Controller
         }
 
         return redirect()
-            ->route('Backoffice.vehicles.show', $vehicle)
-            ->with('success', 'Véhicule mis à jour avec succès.');
-    }
+            ->route('backoffice.vehicles.show', $vehicle)
+        ->with('success', 'Véhicule mis à jour avec succès.');
+}
 
-    public function destroy(Vehicle $vehicle)
-    {
-        $this->authorize('delete', $vehicle);
+public function destroy(Vehicle $vehicle)
+{
+    $this->authorize('delete', $vehicle);
 
-        $vehicle->delete();
+    $vehicle->delete();
 
-        return redirect()
-            ->route('Backoffice.vehicles.index')
-            ->with('success', 'Véhicule supprimé.');
-    }
+    return redirect()
+        ->route('backoffice.vehicles.index')
+        ->with('success', 'Véhicule supprimé.');
+}
 }
