@@ -6,7 +6,7 @@
     <div class="content me-4">
 
         {{-- Breadcrumb --}}
-        @include('Backoffice.roles-permissions.partials._breadcrumbs')
+        @include('backoffice.roles-permissions.partials._breadcrumbs')
 
         <!-- Table Header -->
         <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-3">
@@ -91,12 +91,12 @@
 <!-- /Page Wrapper -->
 
 {{-- Modals --}}
-@include('Backoffice.roles-permissions.partials._modal_create')
-@include('Backoffice.roles-permissions.partials._modal_edit')
-@include('Backoffice.roles-permissions.partials._modal_delete')
+@include('backoffice.roles-permissions.partials._modal_create')
+@include('backoffice.roles-permissions.partials._modal_edit')
+@include('backoffice.roles-permissions.partials._modal_delete')
 
 {{-- JS --}}
-@include('Backoffice.roles-permissions.partials._modals_js')
+@include('backoffice.roles-permissions.partials._modals_js')
 
 {{-- Small inline JS: search filter inside tabs (no extra file) --}}
 <script>

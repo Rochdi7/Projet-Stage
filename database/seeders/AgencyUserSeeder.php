@@ -70,6 +70,7 @@ class AgencyUserSeeder extends Seeder
             ]
         );
 
+
         $this->command?->info("Seed OK ✅");
         $this->command?->info("Login admin: admin@agency1.com / password123");
         $this->command?->info("Dashboard: /backoffice/dashboard");
