@@ -4,9 +4,8 @@ ADD ROLE
 <div class="modal fade" id="add_role">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
-            <form method="POST" action="{{ route('backoffice.roles.store') }}" class="needs-validation" novalidate>
-                
-
+<form method="POST" action="{{ route('backoffice.roles.store') }}" class="needs-validation" novalidate>
+    @csrf
                 <div class="modal-header">
                     <h5 class="mb-0">Ajouter un rôle</h5>
                     <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">

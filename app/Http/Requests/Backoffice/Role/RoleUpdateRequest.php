@@ -27,11 +27,12 @@ class RoleUpdateRequest extends FormRequest
                     ->ignore($roleId)
                     ->where(fn ($q) => $q->where('guard_name', 'backoffice')),
             ],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => [
-                'string',
-                Rule::exists('permissions', 'name')->where(fn ($q) => $q->where('guard_name', 'backoffice')),
-            ],
+'permissions' => ['nullable', 'array'],
+'permissions.*' => [
+    'integer',
+    Rule::exists('permissions', 'id')
+        ->where(fn ($q) => $q->where('guard_name', 'backoffice')),
+],
         ];
     }
 

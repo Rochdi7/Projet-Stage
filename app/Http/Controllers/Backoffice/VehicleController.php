@@ -14,15 +14,16 @@ class VehicleController extends Controller
 {
     use AuthorizesRequests;
 
-public function index()
-{
-    $vehicles = Vehicle::where('agency_id', Auth::user()->agency_id)
-        ->with('model.brand')
-        ->latest()
-        ->get();
+    public function index()
+    {
+        $vehicles = Vehicle::where('agency_id', Auth::user()->agency_id)
+            ->with('model.brand')
+            ->latest()
+            ->paginate(15);
 
-    return view('Backoffice.vehicles.index', compact('vehicles'));
-}
+        return view('Backoffice.vehicles.index', compact('vehicles'));
+    }
+
     public function create()
     {
         $models = VehicleModel::where('agency_id', Auth::user()->agency_id)

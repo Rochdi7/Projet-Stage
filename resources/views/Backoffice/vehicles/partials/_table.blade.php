@@ -193,14 +193,4 @@
     </div>
 @endif
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Select all checkbox (theme)
-        const selectAll = document.getElementById('select-all');
-        if (!selectAll) return;
 
-        selectAll.addEventListener('change', function() {
-            document.querySelectorAll('.row-check').forEach(cb => cb.checked = selectAll.checked);
-        });
-    });
-</script>

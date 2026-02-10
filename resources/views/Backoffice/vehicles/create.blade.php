@@ -116,7 +116,7 @@
                                                                 class="text-danger">*</span></label>
                                                         <select class="select" name="vehicle_model_id" required>
                                                             <option value="">Sélectionner</option>
-                                                            @foreach ($vehicleModels ?? [] as $model)
+                                                            @foreach ($models as $model)
                                                                 <option value="{{ $model->id }}"
                                                                     @selected(old('vehicle_model_id') == $model->id)>
                                                                     {{ $model->name }} @if ($model->brand)

@@ -8,6 +8,7 @@ use App\Http\Requests\Backoffice\Role\RoleUpdateRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends Controller
 {
@@ -24,7 +25,7 @@ class RoleController extends Controller
 
         $roles = $query->paginate(15)->withQueryString();
 
-        return view('Backoffice.roles.index', compact('roles'));
+        return view('backoffice.roles.index', compact('roles'));
     }
 
     public function create()
@@ -34,11 +35,13 @@ class RoleController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('Backoffice.roles.create', compact('permissions'));
+        return view('backoffice.roles.create', compact('permissions'));
     }
 
     public function store(RoleStoreRequest $request)
     {
+          app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         $data = $request->validated();
 
         $role = Role::create([
@@ -56,7 +59,7 @@ class RoleController extends Controller
         }
 
         return redirect()
-            ->route('Backoffice.roles-permissions.index', ['tab' => 'roles'])
+            ->route('backoffice.roles-permissions.index', ['tab' => 'roles'])
             ->with('toast', [
                 'title'   => 'Création réussie',
                 'message' => "Le rôle « {$role->name} » a été créé avec succès.",
@@ -72,7 +75,7 @@ class RoleController extends Controller
 
         $role->load('permissions');
 
-        return view('Backoffice.roles.show', compact('role'));
+        return view('backoffice.roles.show', compact('role'));
     }
 
     public function edit(Role $role)
@@ -87,11 +90,13 @@ class RoleController extends Controller
         $role->load('permissions');
         $assigned = $role->permissions->pluck('id')->all();
 
-        return view('Backoffice.roles.edit', compact('role', 'permissions', 'assigned'));
+        return view('backoffice.roles.edit', compact('role', 'permissions', 'assigned'));
     }
 
     public function update(RoleUpdateRequest $request, Role $role)
     {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         abort_unless($role->guard_name === 'backoffice', 404);
 
         $data = $request->validated();
@@ -108,7 +113,7 @@ class RoleController extends Controller
         $role->syncPermissions($permissions);
 
         return redirect()
-            ->route('Backoffice.roles-permissions.index', ['tab' => 'roles'])
+            ->route('backoffice.roles-permissions.index', ['tab' => 'roles'])
             ->with('toast', [
                 'title'   => 'Modification réussie',
                 'message' => "Le rôle « {$role->name} » a été mis à jour avec succès.",
@@ -120,6 +125,8 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         abort_unless($role->guard_name === 'backoffice', 404);
 
         if (in_array($role->name, ['super-admin', 'super_admin', 'Super Admin'], true)) {
@@ -136,7 +143,7 @@ class RoleController extends Controller
         $role->delete();
 
         return redirect()
-            ->route('Backoffice.roles-permissions.index', ['tab' => 'roles'])
+            ->route('backoffice.roles-permissions.index', ['tab' => 'roles'])
             ->with('toast', [
                 'title'   => 'Suppression réussie',
                 'message' => "Le rôle « {$name} » a été supprimé avec succès.",

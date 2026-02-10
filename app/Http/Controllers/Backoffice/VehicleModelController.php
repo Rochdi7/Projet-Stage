@@ -28,14 +28,16 @@ class VehicleModelController extends Controller
         return view('Backoffice.vehicle-models.index', compact('models', 'brands'));
     }
 
-    public function create()
-    {
-        $brands = VehicleBrand::where('agency_id', Auth::user()->agency_id)
-            ->orderBy('name')
-            ->get();
+public function create()
+{
+    $vehicleModels = VehicleModel::where('agency_id', Auth::user()->agency_id)
+        ->with('brand')
+        ->orderBy('name')
+        ->get();
 
-        return view('Backoffice.vehicle-models.create', compact('brands'));
-    }
+    return view('Backoffice.vehicles.create', compact('vehicleModels'));
+}
+
 
     public function store(VehicleModelStoreRequest $request)
     {
@@ -45,7 +47,7 @@ class VehicleModelController extends Controller
         VehicleModel::create($data);
 
         return redirect()
-            ->route('Backoffice.vehicle-models.index')
+            ->route('backoffice.vehicle-models.index')
             ->with('toast', [
                 'title'   => 'Créé',
                 'message' => 'Modèle de véhicule créé avec succès.',

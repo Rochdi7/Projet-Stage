@@ -28,7 +28,7 @@ class AgencySubscriptionController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('Backoffice.agency-subscriptions.index', compact('subscriptions', 'agencies'));
+        return view('backoffice.agency-subscriptions.index', compact('subscriptions', 'agencies'));
     }
 
 
@@ -40,7 +40,7 @@ class AgencySubscriptionController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('Backoffice.agency-subscriptions.create', compact('agencies'));
+        return view('backoffice.agency-subscriptions.create', compact('agencies'));
     }
 
     public function store(AgencySubscriptionStoreRequest $request): RedirectResponse
@@ -53,7 +53,7 @@ class AgencySubscriptionController extends Controller
         $agencyName = $subscription->agency?->name ?? 'Agence';
 
         return redirect()
-            ->route('Backoffice.agency-subscriptions.index')
+            ->route('backoffice.agency-subscriptions.index')
             ->with('toast', [
                 'title'   => 'Créé',
                 'message' => "L’abonnement de « {$agencyName} » a été créé avec succès.",
@@ -69,7 +69,7 @@ class AgencySubscriptionController extends Controller
 
         $agencySubscription->load('agency');
 
-        return view('Backoffice.agency-subscriptions.show', [
+        return view('backoffice.agency-subscriptions.show', [
             'subscription' => $agencySubscription,
         ]);
     }
@@ -84,7 +84,7 @@ class AgencySubscriptionController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('Backoffice.agency-subscriptions.edit', [
+        return view('backoffice.agency-subscriptions.edit', [
             'subscription' => $agencySubscription,
             'agencies'     => $agencies,
         ]);
@@ -100,7 +100,7 @@ class AgencySubscriptionController extends Controller
         $agencyName = $agencySubscription->agency?->name ?? 'Agence';
 
         return redirect()
-            ->route('Backoffice.agency-subscriptions.index')
+            ->route('backoffice.agency-subscriptions.index')
             ->with('toast', [
                 'title'   => 'Modifié',
                 'message' => "L’abonnement de « {$agencyName} » a été modifié avec succès.",
@@ -120,7 +120,7 @@ class AgencySubscriptionController extends Controller
         $agencySubscription->delete();
 
         return redirect()
-            ->route('Backoffice.agency-subscriptions.index')
+            ->route('backoffice.agency-subscriptions.index')
             ->with('toast', [
                 'title'   => 'Supprimé',
                 'message' => "L’abonnement de « {$agencyName} » a été supprimé avec succès.",
