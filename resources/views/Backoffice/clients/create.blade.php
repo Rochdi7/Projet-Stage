@@ -14,6 +14,19 @@
                     </a>
                 </div>
 
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show mb-3">
+                        <i class="ti ti-alert-circle me-1"></i>
+                        <strong>Erreur de validation</strong>
+                        <ul class="mb-0 mt-1">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
                 <div class="card">
                     <div class="card-header">
                         <h4 class="mb-0">
@@ -30,17 +43,22 @@
                               novalidate>
                             @csrf
 
-                            <!-- Photo Upload -->
+                            <!-- PHOTO UPLOAD WITH COMPLETE VALIDATION -->
                             <div class="mb-4">
-                                <label class="form-label fw-medium">Photo du client</label>
+                                <label class="form-label fw-medium">
+                                    Photo du client 
+                                    <span class="text-muted fs-12">(2MB max - JPG, PNG, GIF)</span>
+                                </label>
+                                
                                 <div class="d-flex align-items-center flex-wrap row-gap-3">
+                                    <!-- Photo Preview Frame -->
                                     <div id="avatarFrame"
                                          class="d-flex align-items-center justify-content-center avatar avatar-xxl border me-3 flex-shrink-0 text-dark frames"
                                          style="overflow:hidden;border-radius:16px; background: #f8f9fa; border: 2px dashed #dee2e6; width: 120px; height: 120px;">
                                         <i id="avatarIcon" class="ti ti-photo-up text-gray-4 fs-32"></i>
                                         <img id="avatarImg"
                                              src=""
-                                             alt="Preview"
+                                             alt="Aperçu"
                                              style="display:none;width:100%;height:100%;object-fit:cover;">
                                     </div>
 
@@ -53,7 +71,7 @@
                                                        name="avatar"
                                                        id="avatarInput"
                                                        class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
-                                                       accept="image/*"
+                                                       accept="image/jpeg,image/png,image/jpg,image/gif"
                                                        style="cursor: pointer;">
                                             </div>
                                             <button type="button" 
@@ -63,10 +81,20 @@
                                                 Effacer
                                             </button>
                                         </div>
-                                        <div class="mt-2">
+                                        
+                                        <!-- Photo Validation Messages -->
+                                        <div id="photoValidationMessage" class="mt-2">
+                                            @error('avatar')
+                                                <div class="text-danger small">
+                                                    <i class="ti ti-alert-circle me-1"></i>{{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                        
+                                        <div class="mt-1">
                                             <p class="fs-12 text-muted mb-0">
                                                 <i class="ti ti-info-circle me-1"></i>
-                                                Formats: JPG, PNG, GIF • Taille max: 2MB
+                                                Formats: JPG, PNG, GIF • Max: 2MB • Max: 2000x2000px
                                             </p>
                                         </div>
                                     </div>
@@ -89,7 +117,7 @@
                                     @endforeach
                                 </select>
                                 @error('agency_id')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -108,7 +136,7 @@
                                                maxlength="100"
                                                placeholder="Jean">
                                         @error('first_name')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -127,7 +155,7 @@
                                                maxlength="100"
                                                placeholder="Dupont">
                                         @error('last_name')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -143,7 +171,7 @@
                                                maxlength="150"
                                                placeholder="client@example.com">
                                         @error('email')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -162,7 +190,7 @@
                                                maxlength="50"
                                                placeholder="+33 1 23 45 67 89">
                                         @error('phone')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -176,7 +204,7 @@
                                                value="{{ old('birth_date') }}"
                                                class="form-control @error('birth_date') is-invalid @enderror">
                                         @error('birth_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -191,7 +219,7 @@
                                                class="form-control @error('nationality') is-invalid @enderror"
                                                placeholder="Française">
                                         @error('nationality')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -206,7 +234,7 @@
                                                class="form-control @error('address') is-invalid @enderror"
                                                placeholder="123 Rue de Paris">
                                         @error('address')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -221,7 +249,7 @@
                                                class="form-control @error('city') is-invalid @enderror"
                                                placeholder="Paris">
                                         @error('city')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -236,8 +264,7 @@
                                                class="form-control @error('country') is-invalid @enderror"
                                                placeholder="France">
                                         @error('country')
-                                            {{-- ✅ FIXED: Missing closing }} --}}
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -253,7 +280,7 @@
                                             <option value="blacklisted" {{ old('status') == 'blacklisted' ? 'selected' : '' }}>Blacklisté</option>
                                         </select>
                                         @error('status')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -268,7 +295,7 @@
                                                class="form-control @error('cin_number') is-invalid @enderror"
                                                placeholder="AB123456">
                                         @error('cin_number')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -281,7 +308,7 @@
                                                value="{{ old('cin_valid_until') }}"
                                                class="form-control @error('cin_valid_until') is-invalid @enderror">
                                         @error('cin_valid_until')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -296,7 +323,7 @@
                                                class="form-control @error('passport_number') is-invalid @enderror"
                                                placeholder="AB123456">
                                         @error('passport_number')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -309,7 +336,7 @@
                                                value="{{ old('passport_issue_date') }}"
                                                class="form-control @error('passport_issue_date') is-invalid @enderror">
                                         @error('passport_issue_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -324,7 +351,7 @@
                                                class="form-control @error('driving_license_number') is-invalid @enderror"
                                                placeholder="AB123456">
                                         @error('driving_license_number')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -337,7 +364,7 @@
                                                value="{{ old('driving_license_issue_date') }}"
                                                class="form-control @error('driving_license_issue_date') is-invalid @enderror">
                                         @error('driving_license_issue_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -351,7 +378,7 @@
                                                   rows="3"
                                                   placeholder="Informations complémentaires...">{{ old('notes') }}</textarea>
                                         @error('notes')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -383,6 +410,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const avatarIcon = document.getElementById('avatarIcon');
     const avatarClear = document.getElementById('avatarClearBtn');
     const avatarFrame = document.getElementById('avatarFrame');
+    const validationMessage = document.getElementById('photoValidationMessage');
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    const maxWidth = 2000;
+    const maxHeight = 2000;
+
+    function showError(message) {
+        if (validationMessage) {
+            validationMessage.innerHTML = `<div class="text-danger small"><i class="ti ti-alert-circle me-1"></i>${message}</div>`;
+        }
+    }
+
+    function clearError() {
+        if (validationMessage) {
+            validationMessage.innerHTML = '';
+        }
+    }
 
     function resetAvatar() {
         if (avatarInput) avatarInput.value = '';
@@ -391,32 +436,63 @@ document.addEventListener('DOMContentLoaded', function() {
             avatarImg.style.display = 'none';
         }
         if (avatarIcon) avatarIcon.style.display = 'flex';
-        if (avatarFrame) avatarFrame.style.border = '2px dashed #dee2e6';
+        if (avatarFrame) {
+            avatarFrame.style.border = '2px dashed #dee2e6';
+            avatarFrame.style.borderColor = '#dee2e6';
+        }
+        clearError();
     }
 
     if (avatarInput) {
         avatarInput.addEventListener('change', function() {
             const file = this.files[0];
-            if (!file) return resetAvatar();
-
-            if (file.size > 2 * 1024 * 1024) {
-                alert('La photo ne doit pas dépasser 2MB');
+            
+            clearError();
+            
+            if (!file) {
                 resetAvatar();
                 return;
             }
 
-            if (!file.type.match('image.*')) {
-                alert('Veuillez sélectionner une image valide');
+            // Validate file type
+            if (!allowedTypes.includes(file.type)) {
+                showError('Format non supporté. Utilisez JPG, PNG ou GIF.');
                 resetAvatar();
                 return;
             }
 
-            const url = URL.createObjectURL(file);
-            avatarImg.src = url;
-            avatarImg.style.display = '';
-            avatarIcon.style.display = 'none';
-            avatarFrame.style.border = '2px solid #0d6efd';
-            avatarImg.onload = () => URL.revokeObjectURL(url);
+            // Validate file size
+            if (file.size > maxSize) {
+                showError('L\'image ne doit pas dépasser 2MB.');
+                resetAvatar();
+                return;
+            }
+
+            // Validate image dimensions
+            const img = new Image();
+            img.onload = function() {
+                if (img.width > maxWidth || img.height > maxHeight) {
+                    showError(`Dimensions trop grandes. Maximum ${maxWidth}x${maxHeight} pixels.`);
+                    resetAvatar();
+                    return;
+                }
+                
+                const url = URL.createObjectURL(file);
+                avatarImg.src = url;
+                avatarImg.style.display = '';
+                avatarIcon.style.display = 'none';
+                avatarFrame.style.border = '2px solid #0d6efd';
+                avatarFrame.style.borderColor = '#0d6efd';
+                
+                avatarImg.onload = () => URL.revokeObjectURL(url);
+            };
+            
+            img.onerror = function() {
+                showError('L\'image est corrompue ou invalide.');
+                resetAvatar();
+            };
+            
+            img.src = URL.createObjectURL(file);
         });
     }
 
@@ -424,6 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
         avatarClear.addEventListener('click', resetAvatar);
     }
 
+    // Bootstrap validation
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
         form.addEventListener('submit', event => {

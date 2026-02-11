@@ -1,4 +1,4 @@
-{{-- Edit Client --}}
+{{-- Edit Client Modal --}}
 <div class="modal fade" id="edit_client">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -24,17 +24,19 @@
                 <div class="modal-body pb-1">
                     <div class="row">
 
-                        {{-- PHOTO UPLOAD --}}
-                        <div class="col-md-12 mb-3">
+                        {{-- IMAGE UPLOAD - PHOTO DU CLIENT --}}
+                        <div class="mb-3">
                             <label class="form-label">Photo du client</label>
-                            <div class="d-flex align-items-center flex-wrap row-gap-3">
+                            
+                            <div class="d-flex align-items-center flex-wrap row-gap-3 mb-3">
                                 <div id="editClientAvatarFrame"
                                      class="d-flex align-items-center justify-content-center avatar avatar-xxl border me-3 flex-shrink-0 text-dark frames position-relative"
-                                     style="overflow:hidden;border-radius:8px; background-color: #f8f9fa; width: 120px; height: 120px;">
+                                     style="overflow:hidden;border-radius:8px; background-color: #f8f9fa;">
                                     <img id="editClientAvatarImg"
                                          src=""
-                                         alt="Client photo"
-                                         style="display:none;width:100%;height:100%;object-fit:cover;">
+                                         class="img-fluid"
+                                         alt="img"
+                                         style="display:none;width:100%;height:100%;object-fit:cover;border-radius:6px;">
                                     <i id="editClientAvatarIcon" class="ti ti-photo-up text-gray-4 fs-24"></i>
                                     <a href="javascript:void(0);"
                                        id="editClientAvatarTrash"
@@ -57,8 +59,11 @@
                                         </div>
                                     </div>
                                     <div class="mt-2">
-                                        <p class="fs-14">Format: JPG, PNG, GIF • Taille max: 2MB</p>
+                                        <p class="fs-14">Upload Image size 180*180, within 5MB</p>
                                     </div>
+                                    @error('avatar')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -78,34 +83,26 @@
                                     @endforelse
                                 </select>
                                 <div class="invalid-feedback">Veuillez sélectionner une agence.</div>
+                                @error('agency_id')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        {{-- FIRST NAME --}}
+                        {{-- FULL NAME --}}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                                <label class="form-label">Nom complet <span class="text-danger">*</span></label>
                                 <input type="text"
-                                       id="editClientFirstName"
-                                       name="first_name"
-                                       class="form-control @error('first_name') is-invalid @enderror"
+                                       id="editClientFullName"
+                                       name="full_name"
+                                       class="form-control @error('full_name') is-invalid @enderror"
                                        required
-                                       maxlength="100">
-                                <div class="invalid-feedback">Veuillez saisir le prénom.</div>
-                            </div>
-                        </div>
-
-                        {{-- LAST NAME --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nom <span class="text-danger">*</span></label>
-                                <input type="text"
-                                       id="editClientLastName"
-                                       name="last_name"
-                                       class="form-control @error('last_name') is-invalid @enderror"
-                                       required
-                                       maxlength="100">
-                                <div class="invalid-feedback">Veuillez saisir le nom.</div>
+                                       maxlength="150">
+                                <div class="invalid-feedback">Veuillez saisir le nom complet.</div>
+                                @error('full_name')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -118,42 +115,38 @@
                                        name="email"
                                        class="form-control @error('email') is-invalid @enderror"
                                        maxlength="150">
+                                @error('email')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
                         {{-- PHONE --}}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                                <label class="form-label">Téléphone</label>
                                 <input type="text"
                                        id="editClientPhone"
                                        name="phone"
                                        class="form-control @error('phone') is-invalid @enderror"
-                                       required
                                        maxlength="50">
-                                <div class="invalid-feedback">Veuillez saisir le téléphone.</div>
+                                @error('phone')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        {{-- BIRTH DATE --}}
+                        {{-- DATE OF BIRTH --}}
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Date de naissance</label>
                                 <input type="date"
-                                       id="editClientBirthDate"
-                                       name="birth_date"
-                                       class="form-control @error('birth_date') is-invalid @enderror">
-                            </div>
-                        </div>
-
-                        {{-- NATIONALITY --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nationalité</label>
-                                <input type="text"
-                                       id="editClientNationality"
-                                       name="nationality"
-                                       class="form-control @error('nationality') is-invalid @enderror">
+                                       id="editClientDateOfBirth"
+                                       name="date_of_birth"
+                                       class="form-control @error('date_of_birth') is-invalid @enderror">
+                                @error('date_of_birth')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -165,6 +158,9 @@
                                        id="editClientAddress"
                                        name="address"
                                        class="form-control @error('address') is-invalid @enderror">
+                                @error('address')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -176,6 +172,23 @@
                                        id="editClientCity"
                                        name="city"
                                        class="form-control @error('city') is-invalid @enderror">
+                                @error('city')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- POSTAL CODE --}}
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Code postal</label>
+                                <input type="text"
+                                       id="editClientPostalCode"
+                                       name="postal_code"
+                                       class="form-control @error('postal_code') is-invalid @enderror">
+                                @error('postal_code')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -187,86 +200,86 @@
                                        id="editClientCountry"
                                        name="country"
                                        class="form-control @error('country') is-invalid @enderror">
+                                @error('country')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        {{-- STATUS --}}
-                        <div class="col-md-4">
+                        {{-- LICENSE NUMBER --}}
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Statut</label>
-                                <select id="editClientStatus"
-                                        name="status"
-                                        class="select @error('status') is-invalid @enderror">
-                                    <option value="active">Actif</option>
-                                    <option value="inactive">Inactif</option>
-                                    <option value="blacklisted">Blacklisté</option>
+                                <label class="form-label">Numéro de permis</label>
+                                <input type="text"
+                                       id="editClientLicenseNumber"
+                                       name="license_number"
+                                       class="form-control @error('license_number') is-invalid @enderror">
+                                @error('license_number')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- LICENSE EXPIRY --}}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Expiration du permis</label>
+                                <input type="date"
+                                       id="editClientLicenseExpiry"
+                                       name="license_expiry"
+                                       class="form-control @error('license_expiry') is-invalid @enderror">
+                                @error('license_expiry')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- ID CARD NUMBER --}}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Numéro de carte d'identité</label>
+                                <input type="text"
+                                       id="editClientIdCardNumber"
+                                       name="id_card_number"
+                                       class="form-control @error('id_card_number') is-invalid @enderror">
+                                @error('id_card_number')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- LINKED USER --}}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Utilisateur lié</label>
+                                <select id="editClientUser"
+                                        name="user_id"
+                                        class="select @error('user_id') is-invalid @enderror">
+                                    <option value="">Aucun utilisateur lié</option>
+                                    @forelse($users ?? [] as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                    @empty
+                                    @endforelse
                                 </select>
+                                @error('user_id')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        {{-- CIN NUMBER --}}
+                        {{-- IS ACTIVE --}}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Numéro CIN</label>
-                                <input type="text"
-                                       id="editClientCinNumber"
-                                       name="cin_number"
-                                       class="form-control @error('cin_number') is-invalid @enderror">
-                            </div>
-                        </div>
-
-                        {{-- CIN VALID UNTIL --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Validité CIN</label>
-                                <input type="date"
-                                       id="editClientCinValidUntil"
-                                       name="cin_valid_until"
-                                       class="form-control @error('cin_valid_until') is-invalid @enderror">
-                            </div>
-                        </div>
-
-                        {{-- PASSPORT NUMBER --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Numéro passeport</label>
-                                <input type="text"
-                                       id="editClientPassportNumber"
-                                       name="passport_number"
-                                       class="form-control @error('passport_number') is-invalid @enderror">
-                            </div>
-                        </div>
-
-                        {{-- PASSPORT ISSUE DATE --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Date délivrance passeport</label>
-                                <input type="date"
-                                       id="editClientPassportIssueDate"
-                                       name="passport_issue_date"
-                                       class="form-control @error('passport_issue_date') is-invalid @enderror">
-                            </div>
-                        </div>
-
-                        {{-- DRIVING LICENSE NUMBER --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Numéro permis</label>
-                                <input type="text"
-                                       id="editClientDrivingLicenseNumber"
-                                       name="driving_license_number"
-                                       class="form-control @error('driving_license_number') is-invalid @enderror">
-                            </div>
-                        </div>
-
-                        {{-- DRIVING LICENSE ISSUE DATE --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Date délivrance permis</label>
-                                <input type="date"
-                                       id="editClientDrivingLicenseIssueDate"
-                                       name="driving_license_issue_date"
-                                       class="form-control @error('driving_license_issue_date') is-invalid @enderror">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           name="is_active" 
+                                           id="editClientIsActive"
+                                           value="1">
+                                    <label class="form-check-label" for="editClientIsActive">
+                                        Client actif
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -278,6 +291,9 @@
                                           name="notes"
                                           class="form-control @error('notes') is-invalid @enderror"
                                           rows="3"></textarea>
+                                @error('notes')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 

@@ -118,7 +118,7 @@
                                     @endforeach
                                 </select>
                                 @error('agency_id')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -136,7 +136,7 @@
                                                required
                                                maxlength="100">
                                         @error('first_name')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -154,7 +154,7 @@
                                                required
                                                maxlength="100">
                                         @error('last_name')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -169,7 +169,7 @@
                                                class="form-control @error('email') is-invalid @enderror"
                                                maxlength="150">
                                         @error('email')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -187,7 +187,7 @@
                                                required
                                                maxlength="50">
                                         @error('phone')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -201,7 +201,7 @@
                                                value="{{ old('birth_date', $client->birth_date ? $client->birth_date->format('Y-m-d') : '') }}"
                                                class="form-control @error('birth_date') is-invalid @enderror">
                                         @error('birth_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -215,7 +215,7 @@
                                                value="{{ old('nationality', $client->nationality) }}"
                                                class="form-control @error('nationality') is-invalid @enderror">
                                         @error('nationality')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -229,7 +229,7 @@
                                                value="{{ old('address', $client->address) }}"
                                                class="form-control @error('address') is-invalid @enderror">
                                         @error('address')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -243,7 +243,7 @@
                                                value="{{ old('city', $client->city) }}"
                                                class="form-control @error('city') is-invalid @enderror">
                                         @error('city')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -257,8 +257,7 @@
                                                value="{{ old('country', $client->country) }}"
                                                class="form-control @error('country') is-invalid @enderror">
                                         @error('country')
-                                            {{-- ✅ FIXED: Missing closing }} --}}
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -274,7 +273,7 @@
                                             <option value="blacklisted" {{ old('status', $client->status) == 'blacklisted' ? 'selected' : '' }}>Blacklisté</option>
                                         </select>
                                         @error('status')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -288,7 +287,7 @@
                                                value="{{ old('cin_number', $client->cin_number) }}"
                                                class="form-control @error('cin_number') is-invalid @enderror">
                                         @error('cin_number')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -301,7 +300,7 @@
                                                value="{{ old('cin_valid_until', $client->cin_valid_until ? $client->cin_valid_until->format('Y-m-d') : '') }}"
                                                class="form-control @error('cin_valid_until') is-invalid @enderror">
                                         @error('cin_valid_until')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -315,7 +314,7 @@
                                                value="{{ old('passport_number', $client->passport_number) }}"
                                                class="form-control @error('passport_number') is-invalid @enderror">
                                         @error('passport_number')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -328,7 +327,7 @@
                                                value="{{ old('passport_issue_date', $client->passport_issue_date ? $client->passport_issue_date->format('Y-m-d') : '') }}"
                                                class="form-control @error('passport_issue_date') is-invalid @enderror">
                                         @error('passport_issue_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -342,7 +341,7 @@
                                                value="{{ old('driving_license_number', $client->driving_license_number) }}"
                                                class="form-control @error('driving_license_number') is-invalid @enderror">
                                         @error('driving_license_number')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -355,7 +354,7 @@
                                                value="{{ old('driving_license_issue_date', $client->driving_license_issue_date ? $client->driving_license_issue_date->format('Y-m-d') : '') }}"
                                                class="form-control @error('driving_license_issue_date') is-invalid @enderror">
                                         @error('driving_license_issue_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -368,7 +367,7 @@
                                                   class="form-control @error('notes') is-invalid @enderror"
                                                   rows="3">{{ old('notes', $client->notes) }}</textarea>
                                         @error('notes')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>

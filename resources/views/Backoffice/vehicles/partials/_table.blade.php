@@ -14,7 +14,7 @@
     </style>
 </head>
 <!-- Custom Data Table -->
-<div class="custom-datatable-filter">create.blade.php
+<div class="custom-datatable-filter">
     <table class="table datatable">
         <thead class="thead-light">
             <tr>

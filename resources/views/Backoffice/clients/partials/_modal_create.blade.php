@@ -1,4 +1,4 @@
-{{-- Add Client --}}
+{{-- Add Client Modal --}}
 <div class="modal fade" id="add_client">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -20,6 +20,51 @@
 
                 <div class="modal-body pb-1">
                     <div class="row">
+
+                        {{-- IMAGE UPLOAD - PHOTO DU CLIENT --}}
+                        <div class="mb-3">
+                            <label class="form-label">Photo du client</label>
+                            
+                            <div class="d-flex align-items-center flex-wrap row-gap-3 mb-3">
+                                <div id="addClientAvatarFrame"
+                                     class="d-flex align-items-center justify-content-center avatar avatar-xxl border me-3 flex-shrink-0 text-dark frames"
+                                     style="overflow:hidden;border-radius:8px; background-color: #f8f9fa;">
+                                    <i id="addClientAvatarIcon" class="ti ti-photo-up text-gray-4 fs-24"></i>
+                                    <img id="addClientAvatarImg"
+                                         src=""
+                                         alt="Client photo"
+                                         style="display:none;width:100%;height:100%;object-fit:cover;">
+                                </div>
+
+                                <div class="profile-upload">
+                                    <div class="profile-uploader d-flex align-items-center">
+                                        <div class="drag-upload-btn btn btn-md btn-dark">
+                                            <i class="ti ti-photo-up fs-14"></i>
+                                            Upload
+                                            <input type="file"
+                                                   name="avatar"
+                                                   id="addClientAvatarInput"
+                                                   class="form-control image-sign"
+                                                   accept="image/*">
+                                        </div>
+                                        <button type="button" 
+                                                class="btn btn-md btn-light ms-2" 
+                                                id="addClientAvatarClearBtn">
+                                            <i class="ti ti-trash me-1"></i>Retirer
+                                        </button>
+                                    </div>
+                                    <div class="mt-2">
+                                        <p class="fs-14 mb-0">
+                                            <i class="ti ti-info-circle me-1"></i>
+                                            Format: JPG, PNG, GIF • Taille max: 2MB • Dimensions: 300x300px
+                                        </p>
+                                    </div>
+                                    @error('avatar')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
 
                         {{-- AGENCY --}}
                         <div class="col-md-12">
@@ -44,37 +89,19 @@
                             </div>
                         </div>
 
-                        {{-- FIRST NAME --}}
+                        {{-- FULL NAME --}}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                                <label class="form-label">Nom complet <span class="text-danger">*</span></label>
                                 <input type="text"
-                                       name="first_name"
-                                       value="{{ old('first_name') }}"
-                                       class="form-control @error('first_name') is-invalid @enderror"
+                                       name="full_name"
+                                       value="{{ old('full_name') }}"
+                                       class="form-control @error('full_name') is-invalid @enderror"
                                        required
-                                       maxlength="100"
-                                       placeholder="Jean">
-                                <div class="invalid-feedback">Veuillez saisir le prénom.</div>
-                                @error('first_name')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- LAST NAME --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nom <span class="text-danger">*</span></label>
-                                <input type="text"
-                                       name="last_name"
-                                       value="{{ old('last_name') }}"
-                                       class="form-control @error('last_name') is-invalid @enderror"
-                                       required
-                                       maxlength="100"
-                                       placeholder="Dupont">
-                                <div class="invalid-feedback">Veuillez saisir le nom.</div>
-                                @error('last_name')
+                                       maxlength="150"
+                                       placeholder="Jean Dupont">
+                                <div class="invalid-feedback">Veuillez saisir le nom complet.</div>
+                                @error('full_name')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -99,45 +126,28 @@
                         {{-- PHONE --}}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                                <label class="form-label">Téléphone</label>
                                 <input type="text"
                                        name="phone"
                                        value="{{ old('phone') }}"
                                        class="form-control @error('phone') is-invalid @enderror"
-                                       required
                                        maxlength="50"
                                        placeholder="+33 1 23 45 67 89">
-                                <div class="invalid-feedback">Veuillez saisir le téléphone.</div>
                                 @error('phone')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
 
-                        {{-- BIRTH DATE --}}
+                        {{-- DATE OF BIRTH --}}
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Date de naissance</label>
                                 <input type="date"
-                                       name="birth_date"
-                                       value="{{ old('birth_date') }}"
-                                       class="form-control @error('birth_date') is-invalid @enderror">
-                                @error('birth_date')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- NATIONALITY --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nationalité</label>
-                                <input type="text"
-                                       name="nationality"
-                                       value="{{ old('nationality') }}"
-                                       class="form-control @error('nationality') is-invalid @enderror"
-                                       placeholder="Française">
-                                @error('nationality')
+                                       name="date_of_birth"
+                                       value="{{ old('date_of_birth') }}"
+                                       class="form-control @error('date_of_birth') is-invalid @enderror">
+                                @error('date_of_birth')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -173,6 +183,21 @@
                             </div>
                         </div>
 
+                        {{-- POSTAL CODE --}}
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Code postal</label>
+                                <input type="text"
+                                       name="postal_code"
+                                       value="{{ old('postal_code') }}"
+                                       class="form-control @error('postal_code') is-invalid @enderror"
+                                       placeholder="75001">
+                                @error('postal_code')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         {{-- COUNTRY --}}
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -188,106 +213,85 @@
                             </div>
                         </div>
 
-                        {{-- STATUS --}}
-                        <div class="col-md-4">
+                        {{-- LICENSE NUMBER --}}
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Statut</label>
-                                <select name="status"
-                                        class="select @error('status') is-invalid @enderror">
-                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Actif</option>
-                                    <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
-                                    <option value="blacklisted" {{ old('status') == 'blacklisted' ? 'selected' : '' }}>Blacklisté</option>
+                                <label class="form-label">Numéro de permis</label>
+                                <input type="text"
+                                       name="license_number"
+                                       value="{{ old('license_number') }}"
+                                       class="form-control @error('license_number') is-invalid @enderror"
+                                       placeholder="AB123456">
+                                @error('license_number')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- LICENSE EXPIRY --}}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Expiration du permis</label>
+                                <input type="date"
+                                       name="license_expiry"
+                                       value="{{ old('license_expiry') }}"
+                                       class="form-control @error('license_expiry') is-invalid @enderror">
+                                @error('license_expiry')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- ID CARD NUMBER --}}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Numéro de carte d'identité</label>
+                                <input type="text"
+                                       name="id_card_number"
+                                       value="{{ old('id_card_number') }}"
+                                       class="form-control @error('id_card_number') is-invalid @enderror"
+                                       placeholder="CNI123456">
+                                @error('id_card_number')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- LINKED USER (optional) --}}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Utilisateur lié (optionnel)</label>
+                                <select name="user_id"
+                                        class="select @error('user_id') is-invalid @enderror">
+                                    <option value="">Aucun utilisateur lié</option>
+                                    @forelse($users ?? [] as $user)
+                                        <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
+                                            {{ $user->name }} ({{ $user->email }})
+                                        </option>
+                                    @empty
+                                    @endforelse
                                 </select>
-                                @error('status')
+                                @error('user_id')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
+                                <small class="text-muted">Lier un compte utilisateur existant à ce client</small>
                             </div>
                         </div>
 
-                        {{-- CIN NUMBER --}}
+                        {{-- IS ACTIVE --}}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Numéro CIN</label>
-                                <input type="text"
-                                       name="cin_number"
-                                       value="{{ old('cin_number') }}"
-                                       class="form-control @error('cin_number') is-invalid @enderror"
-                                       placeholder="AB123456">
-                                @error('cin_number')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- CIN VALID UNTIL --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Validité CIN</label>
-                                <input type="date"
-                                       name="cin_valid_until"
-                                       value="{{ old('cin_valid_until') }}"
-                                       class="form-control @error('cin_valid_until') is-invalid @enderror">
-                                @error('cin_valid_until')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- PASSPORT NUMBER --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Numéro passeport</label>
-                                <input type="text"
-                                       name="passport_number"
-                                       value="{{ old('passport_number') }}"
-                                       class="form-control @error('passport_number') is-invalid @enderror"
-                                       placeholder="AB123456">
-                                @error('passport_number')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- PASSPORT ISSUE DATE --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Date délivrance passeport</label>
-                                <input type="date"
-                                       name="passport_issue_date"
-                                       value="{{ old('passport_issue_date') }}"
-                                       class="form-control @error('passport_issue_date') is-invalid @enderror">
-                                @error('passport_issue_date')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- DRIVING LICENSE NUMBER --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Numéro permis</label>
-                                <input type="text"
-                                       name="driving_license_number"
-                                       value="{{ old('driving_license_number') }}"
-                                       class="form-control @error('driving_license_number') is-invalid @enderror"
-                                       placeholder="AB123456">
-                                @error('driving_license_number')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- DRIVING LICENSE ISSUE DATE --}}
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Date délivrance permis</label>
-                                <input type="date"
-                                       name="driving_license_issue_date"
-                                       value="{{ old('driving_license_issue_date') }}"
-                                       class="form-control @error('driving_license_issue_date') is-invalid @enderror">
-                                @error('driving_license_issue_date')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           name="is_active" 
+                                           id="is_active"
+                                           value="1" 
+                                           {{ old('is_active', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_active">
+                                        Client actif
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

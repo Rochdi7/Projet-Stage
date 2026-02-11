@@ -53,7 +53,7 @@
 
                 <div class="mb-0">
                     <a href="{{ route('backoffice.agents.create') }}" class="btn btn-primary d-flex align-items-center">
-                        <i class="ti ti-plus me-2"></i>Ajouter un client
+                        <i class="ti ti-plus me-2"></i>Ajouter un agent
                     </a>
                 </div>
             </div>

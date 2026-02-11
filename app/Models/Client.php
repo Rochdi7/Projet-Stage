@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Client extends Model
+class Client extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'agency_id',
@@ -32,7 +34,6 @@ class Client extends Model
         'rating_average',
         'rating_count',
         'notes',
-        'avatar',
     ];
 
     protected $casts = [
@@ -47,34 +48,75 @@ class Client extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function agency()
-    {
-        return $this->belongsTo(Agency::class);
-    }
-
-    public function getAvatarUrlAttribute()
-    {
-        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
-            return Storage::url($this->avatar);
-        }
-        return null;
-    }
+    /* =======================
+     |  MEDIA LIBRARY
+     ======================= */
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('avatar')
+        $this->addMediaCollection('client_avatar')
             ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])
-            ->maxFileSize(2 * 1024 * 1024);
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'])
+            ->useFallbackUrl('/images/placeholder-client.jpg')
+            ->useFallbackPath('/images/placeholder-client.jpg');
     }
 
-    public function getAvatarInitialsAttribute()
+    public function registerMediaConversions(?Media $media = null): void
     {
-        return strtoupper(mb_substr($this->first_name, 0, 1) . mb_substr($this->last_name, 0, 1));
+        $this->addMediaConversion('thumb')
+            ->width(100)
+            ->height(100)
+            ->sharpen(10)
+            ->nonQueued();
     }
 
-    public function getFullNameAttribute()
+    /* =======================
+     |  ACCESSORS
+     ======================= */
+
+public function getAvatarUrlAttribute($value)
+{
+    if ($value && \Storage::disk('public')->exists($value)) {
+        return asset('storage/' . $value);
+    }
+
+    return null;
+}
+
+
+    public function getAvatarThumbUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('client_avatar', 'thumb') ?: null;
+    }
+
+    public function getAvatarMediaAttribute()
+    {
+        return $this->getFirstMedia('client_avatar');
+    }
+
+    public function getFullNameAttribute(): string
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getInitialsAttribute(): string
+    {
+        $first = substr($this->first_name, 0, 1);
+        $last = substr($this->last_name, 0, 1);
+        return strtoupper($first . $last);
+    }
+
+    public function hasAvatar(): bool
+    {
+        return $this->getFirstMedia('client_avatar') !== null;
+    }
+
+    /* =======================
+     |  RELATIONSHIPS
+     ======================= */
+
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
     }
 }

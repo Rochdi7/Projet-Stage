@@ -1,17 +1,5 @@
-<head>
-    <style>
-                /* FIX: allow dropdowns inside tables */
-        .table-responsive,
-        .custom-datatable-filter {
-            overflow: visible !important;
-        }
 
-        .dropdown-menu {
-    z-index: 1055 !important;
-}
 
-    </style>
-</head>
 <?php $page = 'clients'; ?>
 @extends('layout.mainlayout_admin')
 
@@ -20,6 +8,22 @@
     <div class="content me-4">
 
         @include('backoffice.clients.partials._breadcrumbs')
+
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-3">
+                <i class="ti ti-check-circle me-1"></i>
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mb-3">
+                <i class="ti ti-alert-circle me-1"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
 
         <!-- Table Header -->
         <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-3">
@@ -83,7 +87,7 @@
         </div>
 
         <!-- Custom Data Table -->
-        <div class="custom-datatable-filter table-responsive">
+        <div class="table-responsive">
             @include('backoffice.clients.partials._table', ['clients' => $clients])
         </div>
 
@@ -102,9 +106,18 @@
     </div>
 </div>
 
-{{-- Modals --}}
-@include('backoffice.clients.partials._modal_create')
-@include('backoffice.clients.partials._modal_edit')
+@push('styles')
+<style>
+.table-responsive {
+    overflow-x: auto;
+    overflow-y: visible; /* allow dropdown */
+}
+</style>
+@endpush
+
+
+
+{{-- Delete Modal --}}
 @include('backoffice.clients.partials._modal_delete')
 @include('backoffice.clients.partials._modals_js')
 @endsection

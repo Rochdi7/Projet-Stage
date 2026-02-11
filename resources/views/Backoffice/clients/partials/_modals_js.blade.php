@@ -256,6 +256,60 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* ======================
+ | ADD CLIENT AVATAR PREVIEW
+ ====================== */
+const addLogoInput = document.getElementById('addClientLogoInput');
+const addPreview = document.getElementById('addClientPreview');
+const addIcon = document.getElementById('addClientIcon');
+const addModalEl = document.getElementById('add_client');
+
+function resetAddPreview() {
+    if (addPreview) {
+        addPreview.src = '';
+        addPreview.style.display = 'none';
+    }
+    if (addIcon) addIcon.style.display = '';
+    if (addLogoInput) addLogoInput.value = '';
+
+    const clientErr = document.getElementById('addClientLogoClientError');
+    if (clientErr) clientErr.style.display = 'none';
+}
+
+if (addLogoInput && addPreview) {
+    addLogoInput.addEventListener('change', function () {
+        const file = this.files && this.files[0] ? this.files[0] : null;
+
+        if (!file || !file.type || !file.type.startsWith('image/')) {
+            resetAddPreview();
+            return;
+        }
+
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('L\'image ne doit pas dépasser 2MB');
+            resetAddPreview();
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            addPreview.src = e.target.result;
+            addPreview.style.display = 'block';
+            if (addIcon) addIcon.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+if (addModalEl) {
+    addModalEl.addEventListener('hidden.bs.modal', function () {
+        resetAddPreview();
+        const form = addModalEl.querySelector('form.needs-validation');
+        if (form) form.classList.remove('was-validated');
+    });
+}
+
+/* ======================
  | SELECT ALL CHECKBOX
  ====================== */
 document.addEventListener('DOMContentLoaded', function() {

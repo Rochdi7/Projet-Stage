@@ -5,17 +5,35 @@
         border-radius: 12px;
         object-fit: cover;
     }
-    .client-avatar-placeholder-table {
+    
+    .avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 42px;
         height: 42px;
+        border: 1px solid #e9ecef;
         border-radius: 12px;
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
+        text-decoration: none;
+        background: #f8f9fa;
+    }
+    
+    .avatar-md {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .avatar-title {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
+        width: 100%;
+        height: 100%;
         font-size: 16px;
+        font-weight: 600;
+        color: #495057;
+        background: #f8f9fa;
+        border-radius: 12px;
     }
 </style>
 
@@ -45,17 +63,24 @@
                     <input class="form-check-input client-checkbox" type="checkbox">
                 </div>
             </td>
-            <td>
-                @if($client->avatar_url)
-                    <img src="{{ $client->avatar_url }}" 
-                         alt="{{ $client->full_name }}"
-                         class="client-avatar-table">
-                @else
-                    <div class="client-avatar-placeholder-table">
-                        {{ $client->avatar_initials }}
-                    </div>
-                @endif
-            </td>
+<td>
+    <div class="position-relative" style="width:42px;height:42px;">
+        
+        <img src="{{ $client->avatar_url }}"
+             alt="{{ $client->full_name }}"
+             class="client-avatar-table"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+        <div class="avatar avatar-md border position-absolute top-0 start-0"
+             style="display: none;">
+            <span class="avatar-title">
+                {{ strtoupper(substr($client->first_name,0,1) . substr($client->last_name,0,1)) }}
+            </span>
+        </div>
+
+    </div>
+</td>
+
             <td>
                 <div class="d-flex flex-column">
                     <h6 class="fw-medium mb-0">

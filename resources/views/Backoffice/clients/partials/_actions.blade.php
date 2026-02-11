@@ -19,13 +19,12 @@
             <hr class="dropdown-divider">
         </li>
         <li>
-            {{-- ✅ DELETE BUTTON WITH ALL DATA ATTRIBUTES --}}
             <a class="dropdown-item rounded-1 text-danger" 
                href="#"
                data-bs-toggle="modal" 
                data-bs-target="#delete_client"
                data-delete-action="{{ route('backoffice.clients.destroy', $client->id) }}"
-               data-client-name="{{ $client->full_name ?? $client->first_name . ' ' . $client->last_name }}">
+               data-client-name="{{ $client->full_name }}">
                 <i class="ti ti-trash me-2"></i>
                 Supprimer
             </a>

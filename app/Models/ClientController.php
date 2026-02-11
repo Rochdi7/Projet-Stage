@@ -53,4 +53,29 @@ class ClientController extends Model
     {
         return $this->belongsTo(Agency::class);
     }
+
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getInitialsAttribute()
+    {
+        $first = substr($this->first_name, 0, 1);
+        $last = substr($this->last_name, 0, 1);
+        return strtoupper($first . $last);
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            return Storage::url($this->avatar);
+        }
+        return null;
+    }
+
+    public function hasAvatar()
+    {
+        return !is_null($this->avatar) && Storage::disk('public')->exists($this->avatar);
+    }
 }
