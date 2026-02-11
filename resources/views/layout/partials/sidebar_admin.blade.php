@@ -19,63 +19,93 @@
                 <li>
                     <ul>
                         @role('super-admin|admin|manager')
-                            <li class="{{ request()->routeIs('backoffice.dashboard') ? 'active' : '' }}">
-                                <a href="{{ route('backoffice.dashboard') }}">
-                                    <i class="ti ti-layout-dashboard"></i>
-                                    <span>Dashboard</span>
-                                </a>
-                            </li>
+                        <li class="{{ request()->routeIs('backoffice.dashboard') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.dashboard') }}">
+                                <i class="ti ti-layout-dashboard"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
                         @endrole
                     </ul>
                 </li>
 
                 @role('super-admin|admin')
-                    <li class="menu-title"><span>AGENCIES</span></li>
-                    <li>
-                        <ul>
-                            <li class="{{ request()->routeIs('backoffice.agencies.*') ? 'active' : '' }}">
-                                <a href="{{ route('backoffice.agencies.index') }}">
-                                    <i class="ti ti-building"></i>
-                                    <span>Agencies</span>
-                                </a>
-                            </li>
+                <li class="menu-title"><span>AGENCIES</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.agencies.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.agencies.index') }}">
+                                <i class="ti ti-building"></i>
+                                <span>Agencies</span>
+                            </a>
+                        </li>
 
-                            <li class="{{ request()->routeIs('backoffice.agency-subscriptions.*') ? 'active' : '' }}">
-                                <a href="{{ route('backoffice.agency-subscriptions.index') }}">
-                                    <i class="ti ti-credit-card"></i>
-                                    <span>Subscriptions</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                        <li class="{{ request()->routeIs('backoffice.agency-subscriptions.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.agency-subscriptions.index') }}">
+                                <i class="ti ti-credit-card"></i>
+                                <span>Subscriptions</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @endrole
 
                 @role('super-admin|admin')
-                    <li class="menu-title"><span>ACCÈS</span></li>
-                    <li>
-                        <ul>
-                            <li class="{{ request()->routeIs('backoffice.roles-permissions.*') ? 'active' : '' }}">
-                                <a href="{{ route('backoffice.roles-permissions.index') }}">
-                                    <i class="ti ti-shield"></i>
-                                    <span>Rôles & Permissions</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                <li class="menu-title"><span>ACCÈS</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.roles-permissions.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.roles-permissions.index') }}">
+                                <i class="ti ti-shield"></i>
+                                <span>Rôles & Permissions</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @endrole
 
                 @role('super-admin|admin|manager')
-                    <li class="menu-title"><span>MANAGEMENT</span></li>
-                    <li>
-                        <ul>
-                            <li class="{{ request()->routeIs('backoffice.users.*') ? 'active' : '' }}">
-                                <a href="{{ route('backoffice.users.index') }}">
-                                    <i class="ti ti-users"></i>
-                                    <span>Users</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                <li class="menu-title"><span>EMPLOYEE</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.agents.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.agents.index') }}">
+                                <i class="ti ti-users"></i>
+                                <span>Agents</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
+
+                @role('super-admin|admin|manager')
+    <li class="menu-title"><span>CLIENTS</span></li>
+    <li>
+        <ul>
+            <li class="{{ request()->routeIs('backoffice.clients.*') ? 'active' : '' }}">
+                <a href="{{ route('backoffice.clients.index') }}">
+                    <i class="ti ti-user-circle"></i>
+                    <span>Clients</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+@endrole
+
+
+
+                @role('super-admin|admin|manager')
+                <li class="menu-title"><span>MANAGEMENT</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.users.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.users.index') }}">
+                                <i class="ti ti-users"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @endrole
 
 
@@ -83,37 +113,37 @@
                 <li>
                     <ul>
                         @role('super-admin|admin|manager')
-                            <li class="{{ request()->routeIs('backoffice.vehicles.*') ? 'active' : '' }}">
-                                <a href="{{ route('backoffice.vehicles.index') }}">
-                                    <i class="ti ti-car"></i>
-                                    <span>Cars</span>
-                                </a>
-                            </li>
+                        <li class="{{ request()->routeIs('backoffice.vehicles.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.index') }}">
+                                <i class="ti ti-car"></i>
+                                <span>Cars</span>
+                            </a>
+                        </li>
 
-                            <li class="submenu">
-                                <a href="javascript:void(0);"
-                                    class="{{ request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*') ? 'active subdrop' : '' }}">
-                                    <i class="ti ti-device-camera-phone"></i>
-                                    <span>Car Attributes</span>
-                                    <span class="menu-arrow"></span>
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href="{{ route('backoffice.vehicle-brands.index') }}"
-                                            class="{{ request()->routeIs('backoffice.vehicle-brands.*') ? 'active' : '' }}">
-                                            Brands
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('backoffice.vehicle-models.index') }}"
-                                            class="{{ request()->routeIs('backoffice.vehicle-models.*') ? 'active' : '' }}">
-                                            Models
-                                        </a>
-                                    </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"
+                                class="{{ request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*') ? 'active subdrop' : '' }}">
+                                <i class="ti ti-device-camera-phone"></i>
+                                <span>Car Attributes</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <ul>
+                                <li>
+                                    <a href="{{ route('backoffice.vehicle-brands.index') }}"
+                                        class="{{ request()->routeIs('backoffice.vehicle-brands.*') ? 'active' : '' }}">
+                                        Brands
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('backoffice.vehicle-models.index') }}"
+                                        class="{{ request()->routeIs('backoffice.vehicle-models.*') ? 'active' : '' }}">
+                                        Models
+                                    </a>
+                                </li>
 
-                                    
-                                </ul>
-                            </li>
+
+                            </ul>
+                        </li>
                         @endrole
                     </ul>
                 </li>

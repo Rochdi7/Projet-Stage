@@ -7,21 +7,41 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-class Agent extends Model
+class Client extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'agency_id',
-        'user_id',
-        'full_name',
+        'first_name',
+        'last_name',
         'email',
         'phone',
+        'address',
+        'city',
+        'country',
+        'nationality',
+        'birth_date',
+        'cin_number',
+        'cin_valid_until',
+        'passport_number',
+        'passport_issue_date',
+        'driving_license_number',
+        'driving_license_issue_date',
+        'status',
+        'rating_average',
+        'rating_count',
         'notes',
         'avatar',
     ];
 
     protected $casts = [
+        'birth_date' => 'date',
+        'cin_valid_until' => 'date',
+        'passport_issue_date' => 'date',
+        'driving_license_issue_date' => 'date',
+        'rating_average' => 'decimal:2',
+        'rating_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -32,11 +52,6 @@ class Agent extends Model
         return $this->belongsTo(Agency::class);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
@@ -45,7 +60,7 @@ class Agent extends Model
         return null;
     }
 
-        public function registerMediaCollections(): void
+    public function registerMediaCollections(): void
     {
         $this->addMediaCollection('avatar')
             ->singleFile()
@@ -55,6 +70,11 @@ class Agent extends Model
 
     public function getAvatarInitialsAttribute()
     {
-        return strtoupper(mb_substr($this->full_name, 0, 2));
+        return strtoupper(mb_substr($this->first_name, 0, 1) . mb_substr($this->last_name, 0, 1));
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

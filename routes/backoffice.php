@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Backoffice\AuthController;
 use App\Http\Controllers\Backoffice\UserController;
 use App\Http\Controllers\Backoffice\ProfileController;
@@ -9,11 +8,12 @@ use App\Http\Controllers\Backoffice\VehicleBrandController;
 use App\Http\Controllers\Backoffice\VehicleModelController;
 use App\Http\Controllers\Backoffice\VehicleController;
 use App\Http\Controllers\Backoffice\AgencyController;
+use App\Http\Controllers\Backoffice\AgentController;
+use App\Http\Controllers\Backoffice\ClientController;
 use App\Http\Controllers\Backoffice\AgencySubscriptionController;
 use App\Http\Controllers\Backoffice\RoleController;
 use App\Http\Controllers\Backoffice\PermissionController;
 use App\Http\Controllers\Backoffice\RolesPermissionsController;
-
 use App\Http\Controllers\Backoffice\Vehicles\VignetteController;
 use App\Http\Controllers\Backoffice\Vehicles\InsuranceController;
 use App\Http\Controllers\Backoffice\Vehicles\TechnicalCheckController;
@@ -37,6 +37,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
             ->name('dashboard')
             ->middleware('role:super-admin|admin|manager,backoffice');
 
+        // ==================== USERS ====================
         Route::prefix('users')->name('users.')
             ->middleware('role:super-admin|admin,backoffice')
             ->group(function () {
@@ -49,14 +50,29 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
             });
 
+// ==================== CLIENTS ====================
+Route::prefix('clients')->name('clients.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [ClientController::class, 'index'])->name('index');
+        Route::get('/create', [ClientController::class, 'create'])->name('create');
+        Route::post('/', [ClientController::class, 'store'])->name('store');
+        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
+        Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
+        Route::put('/{client}', [ClientController::class, 'update'])->name('update');
+        Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
+    });
+
+
+        // ==================== PROFILE ====================
         Route::get('/profile', [ProfileController::class, 'edit'])
             ->name('profile.edit')
             ->middleware('role:super-admin|admin|manager,backoffice');
-
         Route::put('/profile', [ProfileController::class, 'update'])
             ->name('profile.update')
             ->middleware('role:super-admin|admin|manager,backoffice');
 
+        // ==================== AGENCIES ====================
         Route::prefix('agencies')->name('agencies.')
             ->middleware('role:super-admin|admin,backoffice')
             ->group(function () {
@@ -69,6 +85,21 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::delete('/{agency}', [AgencyController::class, 'destroy'])->name('destroy');
             });
 
+
+// ==================== AGENTS ====================
+Route::prefix('agents')->name('agents.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [AgentController::class, 'index'])->name('index');
+        Route::get('/create', [AgentController::class, 'create'])->name('create');
+        Route::post('/', [AgentController::class, 'store'])->name('store');
+        Route::get('/{agent}', [AgentController::class, 'show'])->name('show');
+        Route::get('/{agent}/edit', [AgentController::class, 'edit'])->name('edit');
+        Route::put('/{agent}', [AgentController::class, 'update'])->name('update');
+        Route::delete('/{agent}', [AgentController::class, 'destroy'])->name('destroy'); // ✅ THIS MUST EXIST
+    });
+
+        // ==================== AGENCY SUBSCRIPTIONS ====================
         Route::prefix('agency-subscriptions')->name('agency-subscriptions.')
             ->middleware('role:super-admin|admin,backoffice')
             ->group(function () {
@@ -81,6 +112,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::delete('/{agencySubscription}', [AgencySubscriptionController::class, 'destroy'])->name('destroy');
             });
 
+        // ==================== ROLES & PERMISSIONS ====================
         Route::middleware('role:super-admin|admin,backoffice')->group(function () {
             Route::get('/roles-permissions', [RolesPermissionsController::class, 'index'])->name('roles-permissions.index');
 
@@ -97,6 +129,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
             });
         });
 
+        // ==================== VEHICLE BRANDS ====================
         Route::prefix('vehicle-brands')->name('vehicle-brands.')
             ->middleware('role:super-admin|admin|manager,backoffice')
             ->group(function () {
@@ -109,6 +142,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::delete('/{vehicleBrand}', [VehicleBrandController::class, 'destroy'])->name('destroy');
             });
 
+        // ==================== VEHICLE MODELS ====================
         Route::prefix('vehicle-models')->name('vehicle-models.')
             ->middleware('role:super-admin|admin|manager,backoffice')
             ->group(function () {
@@ -121,6 +155,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::delete('/{vehicleModel}', [VehicleModelController::class, 'destroy'])->name('destroy');
             });
 
+        // ==================== VEHICLES ====================
         Route::prefix('vehicles')->name('vehicles.')
             ->middleware('role:super-admin|admin|manager,backoffice')
             ->group(function () {
@@ -135,6 +170,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::put('/{vehicle}', [VehicleController::class, 'update'])->name('update');
                 Route::delete('/{vehicle}', [VehicleController::class, 'destroy'])->name('destroy');
 
+                // VEHICLE VIGNETTES
                 Route::prefix('{vehicle}/vignettes')->name('vignettes.')->group(function () {
                     Route::get('/', [VignetteController::class, 'index'])->name('index');
                     Route::get('/create', [VignetteController::class, 'create'])->name('create');
@@ -144,6 +180,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::delete('/{vignette}', [VignetteController::class, 'destroy'])->name('destroy');
                 });
 
+                // VEHICLE INSURANCES
                 Route::prefix('{vehicle}/insurances')->name('insurances.')->group(function () {
                     Route::get('/', [InsuranceController::class, 'index'])->name('index');
                     Route::get('/create', [InsuranceController::class, 'create'])->name('create');
@@ -153,6 +190,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::delete('/{insurance}', [InsuranceController::class, 'destroy'])->name('destroy');
                 });
 
+                // VEHICLE TECHNICAL CHECKS
                 Route::prefix('{vehicle}/technical-checks')->name('technical-checks.')->group(function () {
                     Route::get('/', [TechnicalCheckController::class, 'index'])->name('index');
                     Route::get('/create', [TechnicalCheckController::class, 'create'])->name('create');
@@ -162,6 +200,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::delete('/{technicalCheck}', [TechnicalCheckController::class, 'destroy'])->name('destroy');
                 });
 
+                // VEHICLE OIL CHANGES
                 Route::prefix('{vehicle}/oil-changes')->name('oil-changes.')->group(function () {
                     Route::get('/', [OilChangeController::class, 'index'])->name('index');
                     Route::get('/create', [OilChangeController::class, 'create'])->name('create');
@@ -171,6 +210,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::delete('/{oilChange}', [OilChangeController::class, 'destroy'])->name('destroy');
                 });
 
+                // VEHICLE CONTROLS
                 Route::prefix('{vehicle}/controls')->name('controls.')->group(function () {
                     Route::get('/', [ControlController::class, 'index'])->name('index');
                     Route::get('/create', [ControlController::class, 'create'])->name('create');
@@ -180,6 +220,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::put('/{control}', [ControlController::class, 'update'])->name('update');
                     Route::delete('/{control}', [ControlController::class, 'destroy'])->name('destroy');
 
+                    // CONTROL ITEMS
                     Route::prefix('{control}/items')->name('items.')->group(function () {
                         Route::get('/', [ControlItemController::class, 'index'])->name('index');
                         Route::get('/create', [ControlItemController::class, 'create'])->name('create');
@@ -189,6 +230,6 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                         Route::delete('/{item}', [ControlItemController::class, 'destroy'])->name('destroy');
                     });
                 });
-            });
-    });
-});
+            }); // END VEHICLES GROUP
+    }); // END AUTH GROUP
+}); // END BACKOFFICE PREFIX
