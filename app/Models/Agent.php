@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Agent extends Model
+class Agent extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'agency_id',
@@ -37,20 +39,45 @@ class Agent extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getAvatarUrlAttribute()
+    /* =======================
+     |  MEDIA LIBRARY
+     ======================= */
+
+    public function registerMediaCollections(): void
     {
-        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
-            return Storage::url($this->avatar);
-        }
-        return null;
+        $this->addMediaCollection('agent_avatar')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'])
+            ->useFallbackUrl('/images/placeholder-agent.jpg')
+            ->useFallbackPath('/images/placeholder-agent.jpg');
     }
 
-        public function registerMediaCollections(): void
+    public function registerMediaConversions(?Media $media = null): void
     {
-        $this->addMediaCollection('avatar')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])
-            ->maxFileSize(2 * 1024 * 1024);
+        $this->addMediaConversion('thumb')
+            ->width(100)
+            ->height(100)
+            ->sharpen(10)
+            ->nonQueued();
+    }
+
+    /* =======================
+     |  ACCESSORS
+     ======================= */
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('agent_avatar') ?: null;
+    }
+
+    public function getAvatarThumbUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('agent_avatar', 'thumb') ?: null;
+    }
+
+    public function getAvatarMediaAttribute()
+    {
+        return $this->getFirstMedia('agent_avatar');
     }
 
     public function getAvatarInitialsAttribute()

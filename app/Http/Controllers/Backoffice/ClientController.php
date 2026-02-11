@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Backoffice;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Backoffice\Client\ClientStoreRequest;
+use App\Http\Requests\Backoffice\Client\ClientUpdateRequest;
 use App\Models\Client;
 use App\Models\Agency;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
 {
@@ -38,55 +38,39 @@ class ClientController extends Controller
     /**
      * Store a newly created client in storage.
      */
-    public function store(Request $request)
+    public function store(ClientStoreRequest $request)
     {
-        $validated = $request->validate([
-            'agency_id' => 'required|exists:agencies,id',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'nullable|email|max:150|unique:clients,email',
-            'phone' => 'required|string|max:50',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
-            'nationality' => 'nullable|string|max:100',
-            'birth_date' => 'nullable|date',
-            'cin_number' => 'nullable|string|max:50',
-            'cin_valid_until' => 'nullable|date',
-            'passport_number' => 'nullable|string|max:50',
-            'passport_issue_date' => 'nullable|date',
-            'driving_license_number' => 'nullable|string|max:50',
-            'driving_license_issue_date' => 'nullable|date',
-            'status' => 'nullable|in:active,inactive,blacklisted',
-            'notes' => 'nullable|string',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::beginTransaction();
 
-            // Handle avatar upload
-            if ($request->hasFile('avatar')) {
-                $path = $request->file('avatar')->store('clients/avatars', 'public');
-                $validated['avatar'] = $path;
-            }
+            // Extract avatar file from validated data
+            $avatar = $validated['avatar'] ?? null;
+            unset($validated['avatar']);
 
             // Set default values
             $validated['status'] = $validated['status'] ?? 'active';
             $validated['rating_average'] = null;
             $validated['rating_count'] = 0;
 
+            // Create client with non-file fields
             $client = Client::create($validated);
+
+            // Attach avatar to media collection if provided
+            if ($avatar) {
+                $client->addMediaFromRequest('avatar')
+                    ->toMediaCollection('client_avatar');
+            }
 
             DB::commit();
 
             return redirect()
                 ->route('backoffice.clients.index')
                 ->with('success', 'Client créé avec succès.');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -118,60 +102,41 @@ class ClientController extends Controller
     /**
      * Update the specified client in storage.
      */
-    public function update(Request $request, Client $client)
+    public function update(ClientUpdateRequest $request, Client $client)
     {
-        $validated = $request->validate([
-            'agency_id' => 'required|exists:agencies,id',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'nullable|email|max:150|unique:clients,email,' . $client->id,
-            'phone' => 'required|string|max:50',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
-            'nationality' => 'nullable|string|max:100',
-            'birth_date' => 'nullable|date',
-            'cin_number' => 'nullable|string|max:50',
-            'cin_valid_until' => 'nullable|date',
-            'passport_number' => 'nullable|string|max:50',
-            'passport_issue_date' => 'nullable|date',
-            'driving_license_number' => 'nullable|string|max:50',
-            'driving_license_issue_date' => 'nullable|date',
-            'status' => 'nullable|in:active,inactive,blacklisted',
-            'notes' => 'nullable|string',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'remove_avatar' => 'nullable|boolean',
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::beginTransaction();
 
-            // Handle avatar removal
-            if ($request->boolean('remove_avatar') && $client->avatar) {
-                Storage::disk('public')->delete($client->avatar);
-                $validated['avatar'] = null;
-            }
+            // Extract avatar file from validated data
+            $avatar = $validated['avatar'] ?? null;
+            unset($validated['avatar']);
+            unset($validated['remove_avatar']);
 
-            // Handle new avatar upload
-            if ($request->hasFile('avatar')) {
-                if ($client->avatar) {
-                    Storage::disk('public')->delete($client->avatar);
-                }
-                $path = $request->file('avatar')->store('clients/avatars', 'public');
-                $validated['avatar'] = $path;
-            }
-
+            // Update non-file fields
             $client->update($validated);
+
+            // Handle avatar removal
+            if ($request->boolean('remove_avatar')) {
+                $client->clearMediaCollection('client_avatar');
+            }
+
+            // Handle avatar update
+            if ($avatar) {
+                $client->clearMediaCollection('client_avatar');
+                $client->addMediaFromRequest('avatar')
+                    ->toMediaCollection('client_avatar');
+            }
 
             DB::commit();
 
             return redirect()
                 ->route('backoffice.clients.index')
                 ->with('success', 'Client mis à jour avec succès.');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -187,11 +152,7 @@ class ClientController extends Controller
         try {
             DB::beginTransaction();
 
-            // Delete avatar file
-            if ($client->avatar) {
-                Storage::disk('public')->delete($client->avatar);
-            }
-
+            // Media Library will automatically delete associated media on model deletion
             $client->delete();
 
             DB::commit();
@@ -199,10 +160,9 @@ class ClientController extends Controller
             return redirect()
                 ->route('backoffice.clients.index')
                 ->with('success', 'Client supprimé avec succès.');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->back()
                 ->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());

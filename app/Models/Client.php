@@ -74,15 +74,10 @@ class Client extends Model implements HasMedia
      |  ACCESSORS
      ======================= */
 
-public function getAvatarUrlAttribute($value)
-{
-    if ($value && \Storage::disk('public')->exists($value)) {
-        return asset('storage/' . $value);
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('client_avatar') ?: null;
     }
-
-    return null;
-}
-
 
     public function getAvatarThumbUrlAttribute(): ?string
     {
