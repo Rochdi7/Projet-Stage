@@ -218,32 +218,12 @@
 
                                 <div class="row mt-3">
                                     <div class="col-lg-12">
-                                        <a href="javascript:void(0);"
-                                           class="link-violet text-decoration-underline fw-medium"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#edit_client"
-                                           data-edit-action="{{ route('backoffice.clients.update', $client) }}"
-                                           data-client-first-name="{{ $client->first_name }}"
-                                           data-client-last-name="{{ $client->last_name }}"
-                                           data-client-email="{{ $client->email }}"
-                                           data-client-phone="{{ $client->phone }}"
-                                           data-client-birth-date="{{ $client->birth_date ? $client->birth_date->format('Y-m-d') : '' }}"
-                                           data-client-nationality="{{ $client->nationality }}"
-                                           data-client-address="{{ $client->address }}"
-                                           data-client-city="{{ $client->city }}"
-                                           data-client-country="{{ $client->country }}"
-                                           data-client-status="{{ $client->status }}"
-                                           data-client-cin-number="{{ $client->cin_number }}"
-                                           data-client-cin-valid-until="{{ $client->cin_valid_until ? $client->cin_valid_until->format('Y-m-d') : '' }}"
-                                           data-client-passport-number="{{ $client->passport_number }}"
-                                           data-client-passport-issue-date="{{ $client->passport_issue_date ? $client->passport_issue_date->format('Y-m-d') : '' }}"
-                                           data-client-driving-license-number="{{ $client->driving_license_number }}"
-                                           data-client-driving-license-issue-date="{{ $client->driving_license_issue_date ? $client->driving_license_issue_date->format('Y-m-d') : '' }}"
-                                           data-client-notes="{{ $client->notes }}"
-                                           data-client-agency="{{ $client->agency_id }}"
-                                           data-client-avatar="{{ $client->avatar_url }}">
-                                            <i class="ti ti-edit me-1"></i>Modifier
-                                        </a>
+<a href="{{ route('backoffice.clients.edit', $client) }}"
+   class="btn btn-primary btn-sm d-inline-flex align-items-center">
+    <i class="ti ti-edit me-1"></i>
+    Modifier
+</a>
+
                                     </div>
                                 </div>
                             </div>

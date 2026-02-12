@@ -17,30 +17,55 @@ class UserController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(): View
-    {
-        $this->authorize('viewAny', User::class);
+public function index(): View
+{
+    $this->authorize('viewAny', User::class);
 
-        /** @var \App\Models\User $currentUser */
-        $currentUser = Auth::guard('backoffice')->user();
+    /** @var \App\Models\User $currentUser */
+    $currentUser = Auth::guard('backoffice')->user();
 
-        $query = User::query();
+    $query = User::query();
 
-        // Multi-tenant: agency admin sees only their agency users
-        if (!$currentUser->hasRole('super-admin')) {
-            $query->where('agency_id', $currentUser->agency_id);
-        }
-
-        $users = $query->latest()->paginate(15);
-
-        // ✅ IMPORTANT: agencies needed for modals in index (create/edit)
-        $agencies = collect();
-        if ($currentUser->hasRole('super-admin')) {
-            $agencies = Agency::query()->orderBy('name')->get();
-        }
-
-        return view('Backoffice.users.index', compact('users', 'agencies'));
+    // 🔒 Multi-tenant
+    if (!$currentUser->hasRole('super-admin')) {
+        $query->where('agency_id', $currentUser->agency_id);
     }
+
+    // 🔎 SEARCH
+    if (request()->filled('search')) {
+        $search = request('search');
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%");
+        });
+    }
+
+    // 📌 STATUS FILTER
+    if (request()->filled('status')) {
+        $query->where('status', request('status'));
+    }
+
+    // 🔤 SORT
+    if (request('sort') === 'az') {
+        $query->orderBy('name', 'asc');
+    } elseif (request('sort') === 'za') {
+        $query->orderBy('name', 'desc');
+    } else {
+        $query->orderBy('created_at', 'desc');
+    }
+
+    $users = $query->paginate(15)->withQueryString();
+
+    $agencies = collect();
+    if ($currentUser->hasRole('super-admin')) {
+        $agencies = Agency::orderBy('name')->get();
+    }
+
+    return view('backoffice.users.index', compact('users', 'agencies'));
+}
+
 
     public function create(): View
     {

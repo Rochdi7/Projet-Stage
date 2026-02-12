@@ -16,10 +16,47 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::with(['agency'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Client::with(['agency']);
 
+        // 🔎 SEARCH
+        if (request()->filled('search')) {
+            $search = request('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('cin_number', 'like', "%{$search}%")
+                  ->orWhere('passport_number', 'like', "%{$search}%")
+                  ->orWhere('driving_license_number', 'like', "%{$search}%")
+                  ->orWhereHas('agency', function ($sub) use ($search) {
+                      $sub->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // 🏢 FILTER BY AGENCY
+        if (request()->filled('agency_id')) {
+            $query->where('agency_id', request('agency_id'));
+        }
+
+        // 📌 FILTER BY STATUS
+        if (request()->filled('status')) {
+            $query->where('status', request('status'));
+        }
+
+        // 🔤 SORT
+        if (request('sort') === 'az') {
+            $query->orderBy('first_name', 'asc');
+        } elseif (request('sort') === 'za') {
+            $query->orderBy('first_name', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $clients = $query->paginate(15)->withQueryString();
         $agencies = Agency::all();
 
         return view('backoffice.clients.index', compact('clients', 'agencies'));

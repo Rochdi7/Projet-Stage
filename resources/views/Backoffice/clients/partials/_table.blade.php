@@ -157,13 +157,13 @@
             <tr>
                 <td colspan="9" class="text-center py-5">
                     <div class="text-center">
-                        <i class="ti ti-users fs-48 text-gray-4 mb-3"></i>
+                        <!-- <i class="ti ti-users fs-48 text-gray-4 mb-3"></i> -->
                         <h5 class="mb-2">Aucun client trouvé</h5>
-                        <p class="text-muted mb-3">Commencez par ajouter un nouveau client</p>
+                        <!-- <p class="text-muted mb-3">Commencez par ajouter un nouveau client</p>
                         <a href="{{ route('backoffice.clients.create') }}" class="btn btn-primary">
                             <i class="ti ti-plus me-2"></i>
                             Ajouter un client
-                        </a>
+                        </a> -->
                     </div>
                 </td>
             </tr>

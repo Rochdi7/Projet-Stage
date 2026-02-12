@@ -14,18 +14,36 @@ class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Role::query()
+        $search = trim((string) $request->get('search'));
+
+        // ROLES
+        $rolesQuery = Role::query()
             ->where('guard_name', 'backoffice')
             ->withCount('permissions')
             ->orderBy('name');
 
-        if ($search = trim((string) $request->get('q'))) {
-            $query->where('name', 'like', "%{$search}%");
+        if ($search) {
+            $rolesQuery->where('name', 'like', "%{$search}%");
         }
 
-        $roles = $query->paginate(15)->withQueryString();
+        $roles = $rolesQuery
+            ->paginate(15, ['*'], 'roles_page')
+            ->withQueryString();
 
-        return view('backoffice.roles.index', compact('roles'));
+        // PERMISSIONS
+        $permissionsQuery = Permission::query()
+            ->where('guard_name', 'backoffice')
+            ->orderBy('name');
+
+        if ($search) {
+            $permissionsQuery->where('name', 'like', "%{$search}%");
+        }
+
+        $permissions = $permissionsQuery
+            ->paginate(15, ['*'], 'permissions_page')
+            ->withQueryString();
+
+        return view('backoffice.roles-permissions.index', compact('roles', 'permissions'));
     }
 
     public function create()

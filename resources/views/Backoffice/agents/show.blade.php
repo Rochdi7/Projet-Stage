@@ -140,21 +140,13 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-12">
-                                                <a href="javascript:void(0);"
-                                                   class="link-violet text-decoration-underline fw-medium"
-                                                   data-bs-toggle="modal"
-                                                   data-bs-target="#edit_agent"
-                                                   data-edit-action="{{ route('backoffice.agents.update', $agent) }}"
-                                                   data-agent-full-name="{{ $agent->full_name }}"
-                                                   data-agent-email="{{ $agent->email }}"
-                                                   data-agent-phone="{{ $agent->phone }}"
-                                                   data-agent-notes="{{ $agent->notes }}"
-                                                   data-agent-agency="{{ $agent->agency_id }}"
-                                                   data-agent-user="{{ $agent->user_id }}">
-                                                    <i class="ti ti-edit me-1"></i>Modifier
-                                                </a>
-                                            </div>
+<div class="col-lg-12">
+    <a href="{{ route('backoffice.agents.edit', $agent) }}"
+       class="btn btn-primary btn-sm d-inline-flex align-items-center">
+        <i class="ti ti-edit me-1"></i>
+        Modifier
+    </a>
+</div>
 
                                         </div>
                                     </div>

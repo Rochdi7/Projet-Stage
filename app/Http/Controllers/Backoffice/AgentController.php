@@ -15,17 +15,45 @@ class AgentController extends Controller
     /**
      * Display a listing of the agents.
      */
-    public function index()
-    {
-        $agents = Agent::with(['agency', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+public function index()
+{
+    $query = Agent::with(['agency', 'user']);
 
-        $agencies = Agency::all();
-        $users = User::all();
+    // 🔎 SEARCH
+    if (request()->filled('search')) {
+        $search = request('search');
 
-        return view('backoffice.agents.index', compact('agents', 'agencies', 'users'));
+        $query->where(function ($q) use ($search) {
+            $q->where('full_name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhereHas('agency', function ($sub) use ($search) {
+                  $sub->where('name', 'like', "%{$search}%");
+              });
+        });
     }
+
+    // 🏢 FILTER BY AGENCY
+    if (request()->filled('agency_id')) {
+        $query->where('agency_id', request('agency_id'));
+    }
+
+    // 🔤 SORT
+    if (request('sort') === 'az') {
+        $query->orderBy('full_name', 'asc');
+    } elseif (request('sort') === 'za') {
+        $query->orderBy('full_name', 'desc');
+    } else {
+        $query->orderBy('created_at', 'desc');
+    }
+
+    $agents = $query->paginate(15)->withQueryString();
+
+    $agencies = Agency::all();
+    $users = User::all();
+
+    return view('backoffice.agents.index', compact('agents', 'agencies', 'users'));
+}
 
     /**
      * Show the form for creating a new agent.

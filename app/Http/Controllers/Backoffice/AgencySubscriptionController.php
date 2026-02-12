@@ -15,21 +15,89 @@ class AgencySubscriptionController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(): View
-    {
-        $this->authorize('viewAny', AgencySubscription::class);
+public function index(): View
+{
+    $this->authorize('viewAny', AgencySubscription::class);
 
-        $subscriptions = AgencySubscription::query()
-            ->with(['agency'])
-            ->latest()
-            ->paginate(15);
+    $query = AgencySubscription::query()->with('agency');
 
-        $agencies = Agency::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        return view('backoffice.agency-subscriptions.index', compact('subscriptions', 'agencies'));
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH
+    |--------------------------------------------------------------------------
+    */
+    if (request()->filled('search')) {
+        $query->where(function ($q) {
+            $q->where('plan_name', 'like', '%' . request('search') . '%')
+              ->orWhereHas('agency', function ($sub) {
+                  $sub->where('name', 'like', '%' . request('search') . '%');
+              });
+        });
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS FILTER
+    |--------------------------------------------------------------------------
+    */
+    if (request()->filled('status')) {
+
+        switch (request('status')) {
+
+            case 'active':
+                $query->where('is_active', true)
+                      ->where(function ($q) {
+                          $q->whereNull('ends_at')
+                            ->orWhere('ends_at', '>=', now());
+                      });
+                break;
+
+            case 'inactive':
+                $query->where('is_active', false);
+                break;
+
+            case 'expired':
+                $query->whereNotNull('ends_at')
+                      ->where('ends_at', '<', now());
+                break;
+
+            case 'trial':
+                $query->whereNotNull('trial_ends_at')
+                      ->where('trial_ends_at', '>=', now());
+                break;
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROVIDER FILTER
+    |--------------------------------------------------------------------------
+    */
+    if (request()->filled('provider') && request('provider') !== 'all') {
+        $query->where('provider', request('provider'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SORT
+    |--------------------------------------------------------------------------
+    */
+    if (request('sort') === 'az') {
+        $query->orderBy('plan_name', 'asc');
+    } elseif (request('sort') === 'za') {
+        $query->orderBy('plan_name', 'desc');
+    } else {
+        $query->latest();
+    }
+
+    $subscriptions = $query->paginate(15)->withQueryString();
+
+    $agencies = Agency::orderBy('name')->get(['id', 'name']);
+
+    return view('backoffice.agency-subscriptions.index', compact('subscriptions', 'agencies'));
+}
+
+
 
 
     public function create(): View

@@ -19,15 +19,45 @@ class VehicleController extends Controller
     return Auth::guard('backoffice')->user();
 }
 
-    public function index()
-    {
-        $vehicles = Vehicle::where('agency_id', Auth::user()->agency_id)
-            ->with('model.brand')
-            ->latest()
-            ->paginate(15);
+public function index()
+{
+    $agencyId = Auth::guard('backoffice')->user()->agency_id;
 
-        return view('backoffice.vehicles.index', compact('vehicles'));
+    $query = Vehicle::where('agency_id', $agencyId)
+        ->with('model.brand');
+
+    // 🔎 SEARCH
+    if (request()->filled('search')) {
+        $search = request('search');
+
+        $query->where(function ($q) use ($search) {
+            $q->where('registration_number', 'like', "%{$search}%")
+              ->orWhere('vin', 'like', "%{$search}%")
+              ->orWhereHas('model', function ($sub) use ($search) {
+                  $sub->where('name', 'like', "%{$search}%");
+              });
+        });
     }
+
+    // 📌 STATUS FILTER
+    if (request()->filled('status')) {
+        $query->where('status', request('status'));
+    }
+
+    // 🔤 SORT
+    if (request('sort') === 'az') {
+        $query->orderBy('registration_number', 'asc');
+    } elseif (request('sort') === 'za') {
+        $query->orderBy('registration_number', 'desc');
+    } else {
+        $query->latest();
+    }
+
+    $vehicles = $query->paginate(15)->withQueryString();
+
+    return view('backoffice.vehicles.index', compact('vehicles'));
+}
+
 
     public function create()
     {
