@@ -8,19 +8,20 @@ use App\Http\Requests\Backoffice\Client\ClientUpdateRequest;
 use App\Models\Client;
 use App\Models\Agency;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
     /**
      * Display a listing of the clients.
      */
-    public function index()
+    public function index(Request $request)
     {
         $query = Client::with(['agency']);
 
         // 🔎 SEARCH
-        if (request()->filled('search')) {
-            $search = request('search');
+        if ($request->filled('search')) {
+            $search = $request->search;
 
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
@@ -38,19 +39,19 @@ class ClientController extends Controller
         }
 
         // 🏢 FILTER BY AGENCY
-        if (request()->filled('agency_id')) {
-            $query->where('agency_id', request('agency_id'));
+        if ($request->filled('agency_id')) {
+            $query->where('agency_id', $request->agency_id);
         }
 
         // 📌 FILTER BY STATUS
-        if (request()->filled('status')) {
-            $query->where('status', request('status'));
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
         // 🔤 SORT
-        if (request('sort') === 'az') {
+        if ($request->get('sort') === 'az') {
             $query->orderBy('first_name', 'asc');
-        } elseif (request('sort') === 'za') {
+        } elseif ($request->get('sort') === 'za') {
             $query->orderBy('first_name', 'desc');
         } else {
             $query->orderBy('created_at', 'desc');
@@ -104,14 +105,26 @@ class ClientController extends Controller
 
             return redirect()
                 ->route('backoffice.clients.index')
-                ->with('success', 'Client créé avec succès.');
+                ->with('toast', [
+                    'title'   => 'Créé',
+                    'message' => 'Client créé avec succès.',
+                    'dot'     => '#198754', // green
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Erreur lors de la création: ' . $e->getMessage());
+                ->with('toast', [
+                    'title'   => 'Erreur',
+                    'message' => 'Erreur lors de la création: ' . $e->getMessage(),
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         }
     }
 
@@ -170,14 +183,26 @@ class ClientController extends Controller
 
             return redirect()
                 ->route('backoffice.clients.index')
-                ->with('success', 'Client mis à jour avec succès.');
+                ->with('toast', [
+                    'title'   => 'Mis à jour',
+                    'message' => 'Client mis à jour avec succès.',
+                    'dot'     => '#0d6efd', // blue
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
+                ->with('toast', [
+                    'title'   => 'Erreur',
+                    'message' => 'Erreur lors de la mise à jour: ' . $e->getMessage(),
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         }
     }
 
@@ -196,13 +221,25 @@ class ClientController extends Controller
 
             return redirect()
                 ->route('backoffice.clients.index')
-                ->with('success', 'Client supprimé avec succès.');
+                ->with('toast', [
+                    'title'   => 'Supprimé',
+                    'message' => 'Client supprimé avec succès.',
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->back()
-                ->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+                ->with('toast', [
+                    'title'   => 'Erreur',
+                    'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         }
     }
 }

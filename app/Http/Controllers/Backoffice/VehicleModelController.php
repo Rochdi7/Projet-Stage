@@ -9,25 +9,36 @@ use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class VehicleModelController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
-    {
-        $models = VehicleModel::where('agency_id', Auth::user()->agency_id)
-            ->with('brand')
-            ->latest()
+public function index(Request $request)
+{
+    $query = VehicleModel::where('agency_id', Auth::user()->agency_id)
+        ->with('brand');
 
-            ->paginate(15);
-
-        $brands = VehicleBrand::where('agency_id', Auth::user()->agency_id)
-            ->orderBy('name')
-            ->get();
-
-        return view('backoffice.vehicle-models.index', compact('models', 'brands'));
+    // Search filter
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhereHas('brand', function($brandQuery) use ($search) {
+                  $brandQuery->where('name', 'LIKE', "%{$search}%");
+              });
+        });
     }
+
+    $models = $query->latest()->paginate(15);
+    
+    $brands = VehicleBrand::where('agency_id', Auth::user()->agency_id)
+        ->orderBy('name')
+        ->get();
+
+    return view('backoffice.vehicle-models.index', compact('models', 'brands'));
+}
 
 public function create()
 {

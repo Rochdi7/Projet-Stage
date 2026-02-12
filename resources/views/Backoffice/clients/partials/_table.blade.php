@@ -1,4 +1,11 @@
 <style>
+
+            .table-responsive,
+.custom-datatable-filter,
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+
     .client-avatar-table {
         width: 42px;
         height: 42px;

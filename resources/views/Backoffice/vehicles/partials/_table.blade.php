@@ -11,8 +11,19 @@
     z-index: 1055;
 }
 
+/* Empty state styling */
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+}
+.empty-state i {
+    font-size: 48px;
+    color: #adb5bd;
+    margin-bottom: 16px;
+}
     </style>
 </head>
+
 <!-- Custom Data Table -->
 <div class="custom-datatable-filter">
     <table class="table datatable">
@@ -66,12 +77,11 @@
                     $createdDate = optional($vehicle->created_at)->format('d M Y');
                     $createdTime = optional($vehicle->created_at)->format('h:i A');
 
-                    // “Base location” : on met registration_city (tu pourras changer par vraie location)
+                    // “Base location” : on met registration_city
                     $baseLocation = $vehicle->registration_city ?: '—';
 
                     $daily = $vehicle->daily_rate !== null ? number_format((float) $vehicle->daily_rate, 2) : null;
-                    $mileage =
-                        $vehicle->current_mileage !== null ? number_format((int) $vehicle->current_mileage) : null;
+                    $mileage = $vehicle->current_mileage !== null ? number_format((int) $vehicle->current_mileage) : null;
                 @endphp
 
                 <tr>
@@ -83,12 +93,12 @@
 
                     <td>
                         <div class="d-flex align-items-center">
-                            <a href="javascript:void(0);" class="avatar me-2 flex-shrink-0">
+                            <a href="{{ route('backoffice.vehicles.show', $vehicle) }}" class="avatar me-2 flex-shrink-0">
                                 <img src="{{ $photoUrl }}" class="rounded-3" alt="car">
                             </a>
                             <div>
                                 <h6 class="mb-1">
-                                    <a href="javascript:void(0);" class="fs-14 fw-semibold">
+                                    <a href="{{ route('backoffice.vehicles.show', $vehicle) }}" class="fs-14 fw-semibold">
                                         {{ $carTitle }}
                                     </a>
                                 </h6>
@@ -145,38 +155,42 @@
                             </button>
 
                             <ul class="dropdown-menu dropdown-menu-end p-2">
-                                {{-- VIEW (optionnel) --}}
-    <li>
-        <a class="dropdown-item rounded-1"
-           href="{{ route('backoffice.vehicles.show', $vehicle) }}">
-            <i class="ti ti-eye me-1"></i> Voir détails
-        </a>
-    </li>
-
-                                {{-- EDIT => ouvre ton modal edit --}}
-    <li>
-        <a class="dropdown-item rounded-1"
-           href="{{ route('backoffice.vehicles.edit', $vehicle) }}">
-            <i class="ti ti-edit me-1"></i> Modifier
-        </a>
-    </li>
-
-{{-- DELETE --}}
-<li>
-    <button type="button" 
-            class="dropdown-item text-danger rounded-1 d-flex align-items-center"
-            onclick="showDeleteModal('{{ $vehicle->id }}', '{y{ addslashes($carTitle) }}', '{{ route('backoffice.vehicles.destroy', $vehicle) }}')">
-        <i class="ti ti-trash me-1"></i> Supprimer
-    </button>
-</li>
-</ul>
+                                <li>
+                                    <a class="dropdown-item rounded-1"
+                                       href="{{ route('backoffice.vehicles.show', $vehicle) }}">
+                                        <i class="ti ti-eye me-1"></i> Voir détails
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item rounded-1"
+                                       href="{{ route('backoffice.vehicles.edit', $vehicle) }}">
+                                        <i class="ti ti-edit me-1"></i> Modifier
+                                    </a>
+                                </li>
+                                <li>
+                                    <button type="button" 
+                                            class="dropdown-item text-danger rounded-1 d-flex align-items-center"
+                                            onclick="showDeleteModal('{{ $vehicle->id }}', '{{ addslashes($carTitle) }}', '{{ route('backoffice.vehicles.destroy', $vehicle) }}')">
+                                        <i class="ti ti-trash me-1"></i> Supprimer
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center py-4">
-                        <span class="text-muted">Aucun véhicule trouvé.</span>
+                    <td colspan="8" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="ti ti-car-off"></i>
+                            <h6 class="mt-2">Aucun véhicule trouvé</h6>
+                            <!-- <p class="text-muted mb-3">Essayez d'ajuster vos filtres ou d'effectuer une nouvelle recherche.</p>
+                            @if(request()->hasAny(['search', 'status', 'select_cars', 'type', 'location', 'date_from', 'date_to', 'model_id']))
+                                <a href="{{ route('backoffice.vehicles.index') }}" class="btn btn-primary btn-sm"> -->
+                                    <!-- <i class="ti ti-refresh me-1"></i> Effacer tous les filtres -->
+                                </a>
+                            @endif
+                        </div>
                     </td>
                 </tr>
             @endforelse
@@ -185,20 +199,40 @@
 </div>
 <!-- /Custom Data Table -->
 
-@if (method_exists($vehicles, 'links'))
-    <div class="mt-3">
-        {{ $vehicles->links() }}
+@if (method_exists($vehicles, 'links') && $vehicles->total() > 0)
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="text-muted">
+            Affichage de {{ $vehicles->firstItem() }} à {{ $vehicles->lastItem() }} sur {{ $vehicles->total() }} véhicules
+        </div>
+        <div>
+            {{ $vehicles->withQueryString()->links() }}
+        </div>
     </div>
 @endif
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Select all checkbox (theme)
+        // Select all checkbox
         const selectAll = document.getElementById('select-all');
-        if (!selectAll) return;
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                document.querySelectorAll('.row-check').forEach(cb => {
+                    cb.checked = selectAll.checked;
+                });
+            });
+        }
 
-        selectAll.addEventListener('change', function() {
-            document.querySelectorAll('.row-check').forEach(cb => cb.checked = selectAll.checked);
-        });
+        // Individual checkbox - update select all state
+        const rowCheckboxes = document.querySelectorAll('.row-check');
+        if (rowCheckboxes.length > 0 && selectAll) {
+            rowCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const allChecked = Array.from(rowCheckboxes).every(c => c.checked);
+                    const anyChecked = Array.from(rowCheckboxes).some(c => c.checked);
+                    selectAll.checked = allChecked;
+                    selectAll.indeterminate = !allChecked && anyChecked;
+                });
+            });
+        }
     });
 </script>

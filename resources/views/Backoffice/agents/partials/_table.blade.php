@@ -1,23 +1,12 @@
-<style>
-    .agent-avatar-table {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        object-fit: cover;
-    }
-    .agent-avatar-placeholder-table {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 16px;
-    }
-</style>
+<head>
+    <style>
+        .table-responsive,
+.custom-datatable-filter,
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+    </style>
+</head>
 
 <table class="table datatable">
     <thead class="thead-light">

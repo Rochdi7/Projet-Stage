@@ -9,51 +9,52 @@ use App\Models\Agent;
 use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class AgentController extends Controller
 {
     /**
      * Display a listing of the agents.
      */
-public function index()
-{
-    $query = Agent::with(['agency', 'user']);
+    public function index(Request $request)
+    {
+        $query = Agent::with(['agency', 'user']);
 
-    // 🔎 SEARCH
-    if (request()->filled('search')) {
-        $search = request('search');
+        // 🔎 SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
 
-        $query->where(function ($q) use ($search) {
-            $q->where('full_name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%")
-              ->orWhere('phone', 'like', "%{$search}%")
-              ->orWhereHas('agency', function ($sub) use ($search) {
-                  $sub->where('name', 'like', "%{$search}%");
-              });
-        });
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhereHas('agency', function ($sub) use ($search) {
+                      $sub->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // 🏢 FILTER BY AGENCY
+        if ($request->filled('agency_id')) {
+            $query->where('agency_id', $request->agency_id);
+        }
+
+        // 🔤 SORT
+        if ($request->get('sort') === 'az') {
+            $query->orderBy('full_name', 'asc');
+        } elseif ($request->get('sort') === 'za') {
+            $query->orderBy('full_name', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $agents = $query->paginate(15)->withQueryString();
+
+        $agencies = Agency::all();
+        $users = User::all();
+
+        return view('backoffice.agents.index', compact('agents', 'agencies', 'users'));
     }
-
-    // 🏢 FILTER BY AGENCY
-    if (request()->filled('agency_id')) {
-        $query->where('agency_id', request('agency_id'));
-    }
-
-    // 🔤 SORT
-    if (request('sort') === 'az') {
-        $query->orderBy('full_name', 'asc');
-    } elseif (request('sort') === 'za') {
-        $query->orderBy('full_name', 'desc');
-    } else {
-        $query->orderBy('created_at', 'desc');
-    }
-
-    $agents = $query->paginate(15)->withQueryString();
-
-    $agencies = Agency::all();
-    $users = User::all();
-
-    return view('backoffice.agents.index', compact('agents', 'agencies', 'users'));
-}
 
     /**
      * Show the form for creating a new agent.
@@ -93,17 +94,28 @@ public function index()
 
             return redirect()
                 ->route('backoffice.agents.index')
-                ->with('success', 'Agent créé avec succès.');
+                ->with('toast', [
+                    'title'   => 'Créé',
+                    'message' => 'Agent créé avec succès.',
+                    'dot'     => '#198754', // green
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Erreur lors de la création: ' . $e->getMessage());
+                ->with('toast', [
+                    'title'   => 'Erreur',
+                    'message' => 'Erreur lors de la création: ' . $e->getMessage(),
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         }
     }
-
 
     /**
      * Display the specified agent.
@@ -161,14 +173,26 @@ public function index()
 
             return redirect()
                 ->route('backoffice.agents.index')
-                ->with('success', 'Agent mis à jour avec succès.');
+                ->with('toast', [
+                    'title'   => 'Mis à jour',
+                    'message' => 'Agent mis à jour avec succès.',
+                    'dot'     => '#0d6efd', // blue
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
+                ->with('toast', [
+                    'title'   => 'Erreur',
+                    'message' => 'Erreur lors de la mise à jour: ' . $e->getMessage(),
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         }
     }
 
@@ -187,13 +211,25 @@ public function index()
 
             return redirect()
                 ->route('backoffice.agents.index')
-                ->with('success', 'Agent supprimé avec succès.');
+                ->with('toast', [
+                    'title'   => 'Supprimé',
+                    'message' => 'Agent supprimé avec succès.',
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->back()
-                ->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+                ->with('toast', [
+                    'title'   => 'Erreur',
+                    'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
+                    'dot'     => '#dc3545', // red
+                    'delay'   => 3500,
+                    'time'    => 'now',
+                ]);
         }
     }
 }

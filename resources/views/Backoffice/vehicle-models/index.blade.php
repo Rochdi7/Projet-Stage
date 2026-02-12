@@ -1,11 +1,10 @@
 <head>
     <style>
         /* FIX: allow dropdowns inside tables */
-.table-responsive,
-.custom-datatable-filter {
-    overflow: visible !important;
-}
-
+        .table-responsive,
+        .custom-datatable-filter {
+            overflow: visible !important;
+        }
     </style>
 </head>
 <?php $page = 'models'; ?>
@@ -15,35 +14,68 @@
     <div class="page-wrapper">
         <div class="content me-4">
 
-            {{-- Breadcrumb (same design) --}}
+            {{-- Breadcrumb --}}
             @include('backoffice.vehicle-models.partials._breadcrumbs')
 
-            <!-- Table Header -->
-            <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-3">
-                <div class="top-search me-2">
-                    <div class="top-search-group">
-                        <span class="input-icon">
-                            <i class="ti ti-search"></i>
-                        </span>
-                        <input type="text" class="form-control" placeholder="Rechercher">
+            <!-- FILTER FORM -->
+            <form method="GET" id="filterForm" action="{{ route('backoffice.vehicle-models.index') }}">
+                <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-3">
+                    
+                    <!-- SEARCH -->
+                    <div class="top-search me-2">
+                        <div class="top-search-group position-relative">
+                            <span class="input-icon">
+                                <i class="ti ti-search"></i>
+                            </span>
+                            <input 
+                                type="text" 
+                                name="search"
+                                id="searchInput"
+                                class="form-control" 
+                                placeholder="Rechercher un modèle ou une marque..." 
+                                value="{{ request('search') }}" 
+                                autocomplete="off"
+                            >
+                            @if(request('search'))
+                                <button 
+                                    type="button" 
+                                    class="btn btn-link position-absolute" 
+                                    style="right: 5px; top: 50%; transform: translateY(-50%); padding: 0; color: #6c757d; z-index: 10;"
+                                    onclick="clearSearch()"
+                                >
+                                    <i class="ti ti-x"></i>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- STATUS DROPDOWN - VISUAL ONLY, NO FUNCTIONALITY -->
+                    <div class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                            data-bs-toggle="dropdown">
+                            <i class="ti ti-badge me-1"></i> Statut
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end p-2">
+                            <li>
+                                <a href="javascript:void(0);" class="dropdown-item rounded-1">
+                                    Tous
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="dropdown-item rounded-1">
+                                    Actif
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="dropdown-item rounded-1">
+                                    Inactif
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                <div class="dropdown">
-                    <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                        data-bs-toggle="dropdown">
-                        <i class="ti ti-badge me-1"></i> Statut
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end p-2">
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item rounded-1">Actif</a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item rounded-1">Inactif</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- /Table Header -->
+            </form>
+            <!-- /FILTER FORM -->
 
             <!-- Custom Data Table -->
             <div class="custom-datatable-filter table-responsive">
@@ -51,15 +83,16 @@
             </div>
             <!-- Custom Data Table -->
 
+            <!-- Pagination -->
             <div class="table-footer">
                 <div class="d-flex justify-content-end">
-                    {{ $models->links() }}
+                    {{ $models->withQueryString()->links() }}
                 </div>
             </div>
 
         </div>
 
-        <!-- Footer-->
+        <!-- Footer -->
         <div class="footer d-sm-flex align-items-center justify-content-between bg-white p-3">
             <p class="mb-0">
                 <a href="#">Politique de confidentialité</a>
@@ -69,19 +102,44 @@
                 <a href="#" class="text-secondary">Dreams</a>
             </p>
         </div>
-        <!-- /Footer-->
+        <!-- /Footer -->
     </div>
     <!-- /Page Wrapper -->
 
-    {{-- Add Modal (Form) --}}
+    {{-- Modals --}}
     @include('backoffice.vehicle-models.partials._modal_create')
-
-    {{-- Edit Modal (Form) --}}
     @include('backoffice.vehicle-models.partials._modal_edit')
-
-    {{-- Delete Modal (Form) --}}
     @include('backoffice.vehicle-models.partials._modal_delete')
-
-    {{-- JS for modals --}}
     @include('backoffice.vehicle-models.partials._modals_js')
 @endsection
+
+<!-- AUTO SEARCH SCRIPT -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+
+    if (!form || !searchInput) {
+        console.error('Form or search input not found');
+        return;
+    }
+
+    let timer;
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            form.submit();
+        }, 400);
+    });
+});
+
+// Clear search function
+function clearSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        document.getElementById('filterForm').submit();
+    }
+}
+</script>

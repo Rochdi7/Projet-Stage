@@ -8,17 +8,25 @@ use App\Http\Requests\Backoffice\VehicleBrand\VehicleBrandStoreRequest;
 use App\Http\Requests\Backoffice\VehicleBrand\VehicleBrandUpdateRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 
 class VehicleBrandController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(Request $request)
     {
-        $brands = VehicleBrand::where('agency_id', Auth::user()->agency_id)
-            ->latest()
-            ->paginate(15);
+        $query = VehicleBrand::where('agency_id', Auth::user()->agency_id)
+            ->with('vehicles'); // Eager load vehicles for count
 
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%{$search}%");
+        }
+
+        $brands = $query->latest()->paginate(15);
+        
         return view('backoffice.vehicle-brands.index', compact('brands'));
     }
 

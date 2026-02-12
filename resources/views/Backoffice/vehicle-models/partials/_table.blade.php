@@ -59,17 +59,21 @@
 
             {{-- Status --}}
             <td>
-                <span class="badge badge-success-transparent d-inline-flex align-items-center badge-sm">
-                    <i class="ti ti-point-filled me-1"></i>Actif
-                </span>
+                @if($model->is_active ?? true)
+                    <span class="badge badge-success-transparent d-inline-flex align-items-center badge-sm">
+                        <i class="ti ti-point-filled me-1"></i>Actif
+                    </span>
+                @else
+                    <span class="badge badge-danger-transparent d-inline-flex align-items-center badge-sm">
+                        <i class="ti ti-point-filled me-1"></i>Inactif
+                    </span>
+                @endif
             </td>
 
             {{-- Actions (EDIT / DELETE) --}}
-<td class="text-end position-static">
-    @include('backoffice.vehicle-models.partials._actions', ['model' => $model])
-</td>
-
-
+            <td class="text-end position-static">
+                @include('backoffice.vehicle-models.partials._actions', ['model' => $model])
+            </td>
         </tr>
         @empty
         <tr>
@@ -77,6 +81,11 @@
                 <div class="text-muted">
                     <i class="ti ti-car-off fs-4 mb-2"></i>
                     <p class="mb-0">Aucun modèle trouvé.</p>
+                    @if(request('search') || request('status'))
+                        <!-- <a href="{{ route('backoffice.vehicle-models.index') }}" class="btn btn-sm btn-primary mt-3">
+                            Effacer les filtres
+                        </a> -->
+                    @endif
                 </div>
             </td>
         </tr>
