@@ -170,15 +170,20 @@ Route::prefix('agents')->name('agents.')
                 Route::put('/{vehicle}', [VehicleController::class, 'update'])->name('update');
                 Route::delete('/{vehicle}', [VehicleController::class, 'destroy'])->name('destroy');
 
-                // VEHICLE VIGNETTES
-                Route::prefix('{vehicle}/vignettes')->name('vignettes.')->group(function () {
-                    Route::get('/', [VignetteController::class, 'index'])->name('index');
-                    Route::get('/create', [VignetteController::class, 'create'])->name('create');
-                    Route::post('/', [VignetteController::class, 'store'])->name('store');
-                    Route::get('/{vignette}/edit', [VignetteController::class, 'edit'])->name('edit');
-                    Route::put('/{vignette}', [VignetteController::class, 'update'])->name('update');
-                    Route::delete('/{vignette}', [VignetteController::class, 'destroy'])->name('destroy');
-                });
+// VEHICLE VIGNETTES - Move store outside or create a separate global route
+Route::prefix('vignettes')->name('vignettes.')->group(function () {
+    Route::post('/', [VignetteController::class, 'store'])->name('store');
+});
+
+// Keep the nested routes for vehicle-specific views
+Route::prefix('{vehicle}/vignettes')->name('vignettes.')->group(function () {
+    Route::get('/', [VignetteController::class, 'index'])->name('index');
+    Route::get('/create', [VignetteController::class, 'create'])->name('create');
+    Route::get('/{vignette}', [VignetteController::class, 'show'])->name('show');
+    Route::get('/{vignette}/edit', [VignetteController::class, 'edit'])->name('edit');
+    Route::put('/{vignette}', [VignetteController::class, 'update'])->name('update');
+    Route::delete('/{vignette}', [VignetteController::class, 'destroy'])->name('destroy');
+});
 
                 // VEHICLE INSURANCES
                 Route::prefix('{vehicle}/insurances')->name('insurances.')->group(function () {

@@ -10,6 +10,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
          Vehicle::class => VehiclePolicy::class,
         VehicleModel::class => VehicleModelPolicy::class,
+         VehicleVignette::class => VehicleVignettePolicy::class,
     ];
 
     public function boot(): void

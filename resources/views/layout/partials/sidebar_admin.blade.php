@@ -79,20 +79,18 @@
                 @endrole
 
                 @role('super-admin|admin|manager')
-    <li class="menu-title"><span>CLIENTS</span></li>
-    <li>
-        <ul>
-            <li class="{{ request()->routeIs('backoffice.clients.*') ? 'active' : '' }}">
-                <a href="{{ route('backoffice.clients.index') }}">
-                    <i class="ti ti-user-circle"></i>
-                    <span>Clients</span>
-                </a>
-            </li>
-        </ul>
-    </li>
-@endrole
-
-
+                <li class="menu-title"><span>CLIENTS</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.clients.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.clients.index') }}">
+                                <i class="ti ti-user-circle"></i>
+                                <span>Clients</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
 
                 @role('super-admin|admin|manager')
                 <li class="menu-title"><span>MANAGEMENT</span></li>
@@ -108,18 +106,20 @@
                 </li>
                 @endrole
 
-
+                {{-- ==================== RENTALS ==================== --}}
+                @role('super-admin|admin|manager')
                 <li class="menu-title"><span>RENTALS</span></li>
                 <li>
                     <ul>
-                        @role('super-admin|admin|manager')
-                        <li class="{{ request()->routeIs('backoffice.vehicles.*') ? 'active' : '' }}">
+                        {{-- Cars --}}
+                        <li class="{{ request()->routeIs('backoffice.vehicles.*') && !request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*', 'backoffice.vehicles.vignettes.*') ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.index') }}">
                                 <i class="ti ti-car"></i>
                                 <span>Cars</span>
                             </a>
                         </li>
 
+                        {{-- Car Attributes Submenu --}}
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*') ? 'active subdrop' : '' }}">
@@ -131,22 +131,38 @@
                                 <li>
                                     <a href="{{ route('backoffice.vehicle-brands.index') }}"
                                         class="{{ request()->routeIs('backoffice.vehicle-brands.*') ? 'active' : '' }}">
+                                        <i class="ti ti-brand-tabler me-1"></i>
                                         Brands
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{{ route('backoffice.vehicle-models.index') }}"
                                         class="{{ request()->routeIs('backoffice.vehicle-models.*') ? 'active' : '' }}">
+                                        <i class="ti ti-model me-1"></i>
                                         Models
                                     </a>
                                 </li>
-
-
                             </ul>
                         </li>
-                        @endrole
                     </ul>
                 </li>
+                @endrole
+
+{{-- ==================== VIGNETTES ==================== --}}
+@role('super-admin|admin|manager')
+<li class="menu-title"><span>VIGNETTES</span></li>
+<li>
+    <ul>
+        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.create') || request()->routeIs('backoffice.vehicles.vignettes.index') ? 'active' : '' }}">
+            <a href="{{ route('backoffice.vehicles.vignettes.create', ['vehicle' => 1]) }}">
+                <i class="ti ti-ticket"></i>
+                <span>Vignettes</span>
+            </a>
+        </li>
+    </ul>
+</li>
+@endrole
+
             </ul>
         </div>
     </div>
