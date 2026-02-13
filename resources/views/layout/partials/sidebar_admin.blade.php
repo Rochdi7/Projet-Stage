@@ -142,50 +142,45 @@
                     </ul>
                 </li>
                 @endrole
-                                {{-- ==================== VÉHICULE SUIVI ==================== --}}
-                @role('super-admin|admin|manager')
-                @php
-                $firstVehicle = App\Models\Vehicle::first();
-                $vehicleId = $firstVehicle ? $firstVehicle->id : 1;
-                @endphp
+{{-- ==================== VÉHICULE SUIVI ==================== --}}
+@role('super-admin|admin|manager')
+<li class="menu-title"><span>VÉHICULE SUIVI</span></li>
+<li>
+    <ul>
+        {{-- Vignettes - GLOBAL VIEW (ALL VEHICLES) --}}
+        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+            <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => 'all']) }}">
+                <i class="ti ti-ticket"></i>
+                <span>Vignettes</span>
+            </a>
+        </li>
 
-                <li class="menu-title"><span>VÉHICULE SUIVI</span></li>
-                <li>
-                    <ul>
-                        {{-- Vignettes --}}
-                        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.index*') ? 'active' : '' }}">
-                            <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => $vehicleId]) }}">
-                                <i class="ti ti-ticket"></i>
-                                <span>Vignettes</span>
-                            </a>
-                        </li>
+        {{-- Assurances - GLOBAL VIEW (ALL VEHICLES) --}}
+        <li class="{{ request()->routeIs('backoffice.vehicles.insurances.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+            <a href="{{ route('backoffice.vehicles.insurances.index', ['vehicle' => 'all']) }}">
+                <i class="ti ti-shield"></i>
+                <span>Assurances</span>
+            </a>
+        </li>
 
-                        {{-- Assurances --}}
-                        <li class="{{ request()->routeIs('backoffice.vehicles.insurances.index*') ? 'active' : '' }}">
-                            <a href="{{ route('backoffice.vehicles.insurances.index', ['vehicle' => $vehicleId]) }}">
-                                <i class="ti ti-shield"></i>
-                                <span>Assurances</span>
-                            </a>
-                        </li>
+        {{-- Vidanges - GLOBAL VIEW (ALL VEHICLES) --}}
+        <li class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+            <a href="{{ route('backoffice.vehicles.oil-changes.index', ['vehicle' => 'all']) }}">
+                <i class="ti ti-droplet"></i>
+                <span>Vidanges</span>
+            </a>
+        </li>
 
-                        {{-- Vidanges --}}
-                        <li class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index*') ? 'active' : '' }}">
-                            <a href="{{ route('backoffice.vehicles.oil-changes.index', ['vehicle' => $vehicleId]) }}">
-                                <i class="ti ti-droplet"></i>
-                                <span>Vidanges</span>
-                            </a>
-                        </li>
-                        {{-- Technical Checks - ALWAYS goes to INDEX page with vehicle_id=1 --}}
-                        <li
-                            class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index*') ? 'active' : '' }}">
-                            <a href="{{ route('backoffice.vehicles.technical-checks.index', ['vehicle' => 1]) }}">
-                                <i class="ti ti-clipboard-check"></i>
-                                <span>Contrôle technique</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                @endrole
+        {{-- Contrôles techniques - GLOBAL VIEW (ALL VEHICLES) --}}
+        <li class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+            <a href="{{ route('backoffice.vehicles.technical-checks.index', ['vehicle' => 'all']) }}">
+                <i class="ti ti-clipboard-check"></i>
+                <span>Contrôle technique</span>
+            </a>
+        </li>
+    </ul>
+</li>
+@endrole
             </ul>
         </div>
     </div>

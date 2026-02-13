@@ -1,4 +1,5 @@
 <?php $page = 'insurances'; ?>
+
 @extends('layout.mainlayout_admin')
 
 @section('content')

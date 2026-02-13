@@ -160,4 +160,5 @@ function clearSearch() {
 </script>
 
 @include('Backoffice.vignettes.partials._modal_delete')
+@include('Backoffice.vignettes.partials._modals_js')
 @endsection

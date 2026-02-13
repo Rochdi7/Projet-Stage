@@ -83,3 +83,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* ======================
+     | BOOTSTRAP VALIDATION
+     ====================== */
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    /* ======================
+     | DELETE TECHNICAL CHECK MODAL
+     ====================== */
+    const deleteTechnicalCheckModal = document.getElementById('delete_technical_check');
+    if (deleteTechnicalCheckModal) {
+        deleteTechnicalCheckModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            const action = button ? button.getAttribute('data-delete-action') : null;
+            const details = button ? button.getAttribute('data-delete-details') : null;
+
+            const form = document.getElementById('deleteTechnicalCheckForm');
+            const text = document.getElementById('deleteTechnicalCheckText');
+
+            if (action && form) form.action = action;
+            if (text && details) text.innerHTML = details;
+        });
+    }
+
+});
+</script>

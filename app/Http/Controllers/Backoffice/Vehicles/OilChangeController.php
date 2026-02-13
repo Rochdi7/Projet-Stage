@@ -16,15 +16,103 @@ class OilChangeController extends Controller
 {
     use AuthorizesRequests;
 
+    /**
+     * Display a listing of the oil changes.
+     * Route: /backoffice/vehicles/{vehicle}/oil-changes
+     */
     public function index(Request $request, $vehicleId)
     {
+        // ============ GLOBAL VIEW - ALL VEHICLES ============
+        if ($vehicleId === 'all') {
+            $query = VehicleOilChange::with('vehicle');
+            
+            // 🔎 SEARCH
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('mechanic_name', 'like', "%{$search}%")
+                      ->orWhere('mileage', 'like', "%{$search}%")
+                      ->orWhere('next_mileage', 'like', "%{$search}%")
+                      ->orWhere('amount', 'like', "%{$search}%")
+                      ->orWhere('observations', 'like', "%{$search}%")
+                      ->orWhereHas('vehicle', function ($sub) use ($search) {
+                          $sub->where('registration_number', 'like', "%{$search}%")
+                              ->orWhere('registration_city', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // 📅 FILTER BY DATE RANGE
+            if ($request->filled('date_from')) {
+                $query->whereDate('date', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('date', '<=', $request->date_to);
+            }
+
+            // 👨‍🔧 FILTER BY MECHANIC
+            if ($request->filled('mechanic')) {
+                $query->where('mechanic_name', 'like', "%{$request->mechanic}%");
+            }
+
+            // 🔢 FILTER BY MILEAGE RANGE
+            if ($request->filled('mileage_min')) {
+                $query->where('mileage', '>=', $request->mileage_min);
+            }
+            if ($request->filled('mileage_max')) {
+                $query->where('mileage', '<=', $request->mileage_max);
+            }
+
+            // 💰 FILTER BY AMOUNT RANGE
+            if ($request->filled('amount_min')) {
+                $query->where('amount', '>=', $request->amount_min);
+            }
+            if ($request->filled('amount_max')) {
+                $query->where('amount', '<=', $request->amount_max);
+            }
+
+            // 🔤 SORT
+            $sort = $request->get('sort', 'latest');
+            if ($sort === 'oldest') {
+                $query->orderBy('date', 'asc');
+            } elseif ($sort === 'mileage_asc') {
+                $query->orderBy('mileage', 'asc');
+            } elseif ($sort === 'mileage_desc') {
+                $query->orderBy('mileage', 'desc');
+            } elseif ($sort === 'amount_asc') {
+                $query->orderBy('amount', 'asc');
+            } elseif ($sort === 'amount_desc') {
+                $query->orderBy('amount', 'desc');
+            } else {
+                $query->orderBy('date', 'desc');
+            }
+
+            $oilChanges = $query->paginate(15)->withQueryString();
+
+            // Get available mechanics for filter
+            $availableMechanics = VehicleOilChange::whereNotNull('mechanic_name')
+                ->select('mechanic_name')
+                ->distinct()
+                ->orderBy('mechanic_name')
+                ->pluck('mechanic_name');
+
+            return view('Backoffice.oil-changes.index', [
+                'vehicle' => null,
+                'oilChanges' => $oilChanges,
+                'availableMechanics' => $availableMechanics,
+                'isGlobalView' => true
+            ]);
+        }
+        
+        // ============ SINGLE VEHICLE VIEW ============
         $vehicle = Vehicle::find($vehicleId);
         
         if (!$vehicle) {
             return view('Backoffice.oil-changes.index', [
                 'vehicle' => null,
                 'oilChanges' => new LengthAwarePaginator([], 0, 15),
-                'availableMechanics' => collect([])
+                'availableMechanics' => collect([]),
+                'isGlobalView' => false
             ]);
         }
         
@@ -32,6 +120,7 @@ class OilChangeController extends Controller
 
         $query = $vehicle->oilChanges();
 
+        // 🔎 SEARCH
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -43,6 +132,7 @@ class OilChangeController extends Controller
             });
         }
 
+        // 📅 FILTER BY DATE RANGE
         if ($request->filled('date_from')) {
             $query->whereDate('date', '>=', $request->date_from);
         }
@@ -50,10 +140,12 @@ class OilChangeController extends Controller
             $query->whereDate('date', '<=', $request->date_to);
         }
 
+        // 👨‍🔧 FILTER BY MECHANIC
         if ($request->filled('mechanic')) {
             $query->where('mechanic_name', 'like', "%{$request->mechanic}%");
         }
 
+        // 🔢 FILTER BY MILEAGE RANGE
         if ($request->filled('mileage_min')) {
             $query->where('mileage', '>=', $request->mileage_min);
         }
@@ -61,6 +153,7 @@ class OilChangeController extends Controller
             $query->where('mileage', '<=', $request->mileage_max);
         }
 
+        // 💰 FILTER BY AMOUNT RANGE
         if ($request->filled('amount_min')) {
             $query->where('amount', '>=', $request->amount_min);
         }
@@ -68,6 +161,7 @@ class OilChangeController extends Controller
             $query->where('amount', '<=', $request->amount_max);
         }
 
+        // 🔤 SORT
         $sort = $request->get('sort', 'latest');
         
         if ($sort === 'oldest') {
@@ -86,15 +180,18 @@ class OilChangeController extends Controller
 
         $oilChanges = $query->paginate(15)->withQueryString();
 
-        $availableMechanics = $vehicle ? VehicleOilChange::where('vehicle_id', $vehicle->id)
+        // Get available mechanics for filter
+        $availableMechanics = VehicleOilChange::where('vehicle_id', $vehicle->id)
             ->whereNotNull('mechanic_name')
             ->select('mechanic_name')
             ->distinct()
             ->orderBy('mechanic_name')
-            ->pluck('mechanic_name') : collect([]);
+            ->pluck('mechanic_name');
 
         return view('Backoffice.oil-changes.index', compact('vehicle', 'oilChanges', 'availableMechanics'));
     }
+
+    // ... rest of your methods (create, store, show, edit, update, destroy) ...
 
     public function create(Vehicle $vehicle = null)
     {
@@ -177,25 +274,69 @@ class OilChangeController extends Controller
         }
     }
 
-    public function destroy(Vehicle $vehicle, VehicleOilChange $oilChange)
-    {
-        $this->authorize('delete', $vehicle);
-        $this->verifyResource($vehicle, $oilChange);
+    
 
-        try {
-            DB::beginTransaction();
-            $oilChange->delete();
-            DB::commit();
-            return redirect()->route('backoffice.vehicles.oil-changes.index', $vehicle->id)
-                ->with('toast', ['title' => 'Supprimé', 'message' => 'Vidange supprimée avec succès.', 'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('toast', [
-                'title' => 'Erreur', 'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
-                'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now'
-            ]);
-        }
+/**
+ * Remove the specified oil change from storage.
+ * Route: /backoffice/vehicles/{vehicle}/oil-changes/{oilChange} (DELETE)
+ */
+public function destroy(Request $request, $vehicleId, VehicleOilChange $oilChange)
+{
+    // Verify the oil change belongs to the vehicle
+    if ($oilChange->vehicle_id != $vehicleId) {
+        abort(404);
     }
+    
+    //$this->authorize('delete', $oilChange->vehicle);
+    
+    try {
+        DB::beginTransaction();
+        
+        $vehicleId = $oilChange->vehicle_id;
+        $oilChange->delete();
+        
+        DB::commit();
+        
+        // Check if we came from a global view (all vehicles)
+        $referer = $request->header('referer');
+        $isGlobalView = str_contains($referer, '/vehicles/all/');
+        
+        // Smart redirect - go back to same view
+        if ($isGlobalView) {
+            return redirect()
+                ->route('backoffice.vehicles.oil-changes.index', ['vehicle' => 'all'])
+                ->with('toast', [
+                    'title' => 'Supprimé',
+                    'message' => 'Vidange supprimée avec succès.',
+                    'dot' => '#dc3545',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        } else {
+            return redirect()
+                ->route('backoffice.vehicles.oil-changes.index', ['vehicle' => $vehicleId])
+                ->with('toast', [
+                    'title' => 'Supprimé',
+                    'message' => 'Vidange supprimée avec succès.',
+                    'dot' => '#dc3545',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        }
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()
+            ->back()
+            ->with('toast', [
+                'title' => 'Erreur',
+                'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
+                'dot' => '#dc3545',
+                'delay' => 3500,
+                'time' => 'now',
+            ]);
+    }
+}
 
     private function verifyResource(Vehicle $vehicle, VehicleOilChange $oilChange): void
     {

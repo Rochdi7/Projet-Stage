@@ -1,5 +1,7 @@
 <?php $page = 'oil-changes'; ?>
+
 @extends('layout.mainlayout_admin')
+
 
 @section('content')
 <div class="page-wrapper">
@@ -156,6 +158,6 @@ function clearSearch() {
     if (input) { input.value = ''; document.getElementById('filterForm').submit(); }
 }
 </script>
-@include('Backoffice.oil-changes.partials._modals_js')
 @include('Backoffice.oil-changes.partials._modal_delete')
+@include('Backoffice.oil-changes.partials._modals_js')
 @endsection

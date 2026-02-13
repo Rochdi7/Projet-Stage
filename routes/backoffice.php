@@ -254,7 +254,23 @@ Route::prefix('{vehicle}/technical-checks')->name('technical-checks.')->group(fu
     Route::delete('/{technicalCheck}', [TechnicalCheckController::class, 'destroy'])->name('destroy');
     // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
 });
-
+// ==================== GLOBAL VEHICLE DOCUMENTS (NO VEHICLE ID) ====================
+Route::prefix('vehicle-documents')->name('vehicle-documents.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        
+        // Global Vignettes - Show ALL vignettes for ALL vehicles
+        Route::get('/vignettes', [VignetteController::class, 'globalIndex'])->name('vignettes.index');
+        
+        // Global Insurance - Show ALL insurance for ALL vehicles
+        Route::get('/insurances', [InsuranceController::class, 'globalIndex'])->name('insurances.index');
+        
+        // Global Oil Changes - Show ALL oil changes for ALL vehicles
+        Route::get('/oil-changes', [OilChangeController::class, 'globalIndex'])->name('oil-changes.index');
+        
+        // Global Technical Checks - Show ALL technical checks for ALL vehicles
+        Route::get('/technical-checks', [TechnicalCheckController::class, 'globalIndex'])->name('technical-checks.index');
+    });
                 // ==================== VEHICLE CONTROLS ====================
                 Route::prefix('{vehicle}/controls')->name('controls.')->group(function () {
                     Route::get('/', [ControlController::class, 'index'])->name('index');

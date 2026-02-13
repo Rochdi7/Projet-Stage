@@ -16,15 +16,102 @@ class InsuranceController extends Controller
 {
     use AuthorizesRequests;
 
+    /**
+     * Display a listing of the insurances.
+     * Route: /backoffice/vehicles/{vehicle}/insurances
+     */
     public function index(Request $request, $vehicleId)
     {
+        // ============ GLOBAL VIEW - ALL VEHICLES ============
+        if ($vehicleId === 'all') {
+            $query = VehicleInsurance::with('vehicle');
+            
+            // 🔎 SEARCH
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('company_name', 'like', "%{$search}%")
+                      ->orWhere('policy_number', 'like', "%{$search}%")
+                      ->orWhere('amount', 'like', "%{$search}%")
+                      ->orWhere('notes', 'like', "%{$search}%")
+                      ->orWhereHas('vehicle', function ($sub) use ($search) {
+                          $sub->where('registration_number', 'like', "%{$search}%")
+                              ->orWhere('registration_city', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // 🏢 FILTER BY COMPANY
+            if ($request->filled('company')) {
+                $query->where('company_name', 'like', "%{$request->company}%");
+            }
+
+            // 📅 FILTER BY DATE RANGE
+            if ($request->filled('date_from')) {
+                $query->whereDate('date', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('date', '<=', $request->date_to);
+            }
+
+            // 📅 FILTER BY NEXT INSURANCE DATE RANGE
+            if ($request->filled('next_date_from')) {
+                $query->whereDate('next_insurance_date', '>=', $request->next_date_from);
+            }
+            if ($request->filled('next_date_to')) {
+                $query->whereDate('next_insurance_date', '<=', $request->next_date_to);
+            }
+
+            // 💰 FILTER BY AMOUNT RANGE
+            if ($request->filled('amount_min')) {
+                $query->where('amount', '>=', $request->amount_min);
+            }
+            if ($request->filled('amount_max')) {
+                $query->where('amount', '<=', $request->amount_max);
+            }
+
+            // 🔤 SORT
+            $sort = $request->get('sort', 'latest');
+            if ($sort === 'oldest') {
+                $query->orderBy('date', 'asc');
+            } elseif ($sort === 'amount_asc') {
+                $query->orderBy('amount', 'asc');
+            } elseif ($sort === 'amount_desc') {
+                $query->orderBy('amount', 'desc');
+            } elseif ($sort === 'next_date_asc') {
+                $query->orderBy('next_insurance_date', 'asc');
+            } elseif ($sort === 'next_date_desc') {
+                $query->orderBy('next_insurance_date', 'desc');
+            } else {
+                $query->orderBy('date', 'desc');
+            }
+
+            $insurances = $query->paginate(15)->withQueryString();
+
+            // Get available companies for filter
+            $availableCompanies = VehicleInsurance::whereNotNull('company_name')
+                ->select('company_name')
+                ->distinct()
+                ->orderBy('company_name')
+                ->pluck('company_name');
+
+            return view('Backoffice.insurances.index', [
+                'vehicle' => null,
+                'insurances' => $insurances,
+                'availableCompanies' => $availableCompanies,
+                'isGlobalView' => true
+            ]);
+        }
+        
+        // ============ SINGLE VEHICLE VIEW ============
         $vehicle = Vehicle::find($vehicleId);
         
         if (!$vehicle) {
             return view('Backoffice.insurances.index', [
                 'vehicle' => null,
                 'insurances' => new LengthAwarePaginator([], 0, 15),
-                'availableCompanies' => collect([])
+                'availableCompanies' => collect([]),
+                'isGlobalView' => false
             ]);
         }
         
@@ -32,6 +119,7 @@ class InsuranceController extends Controller
 
         $query = $vehicle->insurances();
 
+        // 🔎 SEARCH
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -42,10 +130,12 @@ class InsuranceController extends Controller
             });
         }
 
+        // 🏢 FILTER BY COMPANY
         if ($request->filled('company')) {
             $query->where('company_name', 'like', "%{$request->company}%");
         }
 
+        // 📅 FILTER BY DATE RANGE
         if ($request->filled('date_from')) {
             $query->whereDate('date', '>=', $request->date_from);
         }
@@ -53,6 +143,7 @@ class InsuranceController extends Controller
             $query->whereDate('date', '<=', $request->date_to);
         }
 
+        // 📅 FILTER BY NEXT INSURANCE DATE RANGE
         if ($request->filled('next_date_from')) {
             $query->whereDate('next_insurance_date', '>=', $request->next_date_from);
         }
@@ -60,6 +151,7 @@ class InsuranceController extends Controller
             $query->whereDate('next_insurance_date', '<=', $request->next_date_to);
         }
 
+        // 💰 FILTER BY AMOUNT RANGE
         if ($request->filled('amount_min')) {
             $query->where('amount', '>=', $request->amount_min);
         }
@@ -67,6 +159,7 @@ class InsuranceController extends Controller
             $query->where('amount', '<=', $request->amount_max);
         }
 
+        // 🔤 SORT
         $sort = $request->get('sort', 'latest');
         
         if ($sort === 'oldest') {
@@ -85,15 +178,18 @@ class InsuranceController extends Controller
 
         $insurances = $query->paginate(15)->withQueryString();
 
-        $availableCompanies = $vehicle ? VehicleInsurance::where('vehicle_id', $vehicle->id)
+        // Get available companies for filter
+        $availableCompanies = VehicleInsurance::where('vehicle_id', $vehicle->id)
             ->whereNotNull('company_name')
             ->select('company_name')
             ->distinct()
             ->orderBy('company_name')
-            ->pluck('company_name') : collect([]);
+            ->pluck('company_name');
 
         return view('Backoffice.insurances.index', compact('vehicle', 'insurances', 'availableCompanies'));
     }
+
+    // ... rest of your methods (create, store, show, edit, update, destroy) ...
 
     public function create(Vehicle $vehicle = null)
     {
@@ -176,25 +272,38 @@ class InsuranceController extends Controller
         }
     }
 
-    public function destroy(Vehicle $vehicle, VehicleInsurance $insurance)
-    {
-        $this->authorize('delete', $vehicle);
-        $this->verifyResource($vehicle, $insurance);
+    
 
-        try {
-            DB::beginTransaction();
-            $insurance->delete();
-            DB::commit();
-            return redirect()->route('backoffice.vehicles.insurances.index', $vehicle->id)
-                ->with('toast', ['title' => 'Supprimé', 'message' => 'Assurance supprimée avec succès.', 'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('toast', [
-                'title' => 'Erreur', 'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
-                'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now'
-            ]);
-        }
+public function destroy(Request $request, $vehicleId, VehicleInsurance $insurance)
+{
+    if ($insurance->vehicle_id != $vehicleId) {
+        abort(404);
     }
+    
+    //$this->authorize('delete', $insurance->vehicle);
+    
+    try {
+        DB::beginTransaction();
+        $insurance->delete();
+        DB::commit();
+        
+        $referer = $request->header('referer');
+        $isGlobalView = str_contains($referer, '/vehicles/all/');
+        
+        if ($isGlobalView) {
+            return redirect()
+                ->route('backoffice.vehicles.insurances.index', ['vehicle' => 'all'])
+                ->with('toast', ['title' => 'Supprimé', 'message' => 'Assurance supprimée avec succès.', 'dot' => '#dc3545']);
+        } else {
+            return redirect()
+                ->route('backoffice.vehicles.insurances.index', ['vehicle' => $vehicleId])
+                ->with('toast', ['title' => 'Supprimé', 'message' => 'Assurance supprimée avec succès.', 'dot' => '#dc3545']);
+        }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('toast', ['title' => 'Erreur', 'message' => 'Erreur lors de la suppression', 'dot' => '#dc3545']);
+    }
+}
 
     private function verifyResource(Vehicle $vehicle, VehicleInsurance $insurance): void
     {
