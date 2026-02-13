@@ -50,19 +50,18 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
             });
 
-// ==================== CLIENTS ====================
-Route::prefix('clients')->name('clients.')
-    ->middleware('role:super-admin|admin|manager,backoffice')
-    ->group(function () {
-        Route::get('/', [ClientController::class, 'index'])->name('index');
-        Route::get('/create', [ClientController::class, 'create'])->name('create');
-        Route::post('/', [ClientController::class, 'store'])->name('store');
-        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
-        Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
-        Route::put('/{client}', [ClientController::class, 'update'])->name('update');
-        Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
-    });
-
+        // ==================== CLIENTS ====================
+        Route::prefix('clients')->name('clients.')
+            ->middleware('role:super-admin|admin|manager,backoffice')
+            ->group(function () {
+                Route::get('/', [ClientController::class, 'index'])->name('index');
+                Route::get('/create', [ClientController::class, 'create'])->name('create');
+                Route::post('/', [ClientController::class, 'store'])->name('store');
+                Route::get('/{client}', [ClientController::class, 'show'])->name('show');
+                Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
+                Route::put('/{client}', [ClientController::class, 'update'])->name('update');
+                Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
+            });
 
         // ==================== PROFILE ====================
         Route::get('/profile', [ProfileController::class, 'edit'])
@@ -85,19 +84,18 @@ Route::prefix('clients')->name('clients.')
                 Route::delete('/{agency}', [AgencyController::class, 'destroy'])->name('destroy');
             });
 
-
-// ==================== AGENTS ====================
-Route::prefix('agents')->name('agents.')
-    ->middleware('role:super-admin|admin|manager,backoffice')
-    ->group(function () {
-        Route::get('/', [AgentController::class, 'index'])->name('index');
-        Route::get('/create', [AgentController::class, 'create'])->name('create');
-        Route::post('/', [AgentController::class, 'store'])->name('store');
-        Route::get('/{agent}', [AgentController::class, 'show'])->name('show');
-        Route::get('/{agent}/edit', [AgentController::class, 'edit'])->name('edit');
-        Route::put('/{agent}', [AgentController::class, 'update'])->name('update');
-        Route::delete('/{agent}', [AgentController::class, 'destroy'])->name('destroy'); // ✅ THIS MUST EXIST
-    });
+        // ==================== AGENTS ====================
+        Route::prefix('agents')->name('agents.')
+            ->middleware('role:super-admin|admin|manager,backoffice')
+            ->group(function () {
+                Route::get('/', [AgentController::class, 'index'])->name('index');
+                Route::get('/create', [AgentController::class, 'create'])->name('create');
+                Route::post('/', [AgentController::class, 'store'])->name('store');
+                Route::get('/{agent}', [AgentController::class, 'show'])->name('show');
+                Route::get('/{agent}/edit', [AgentController::class, 'edit'])->name('edit');
+                Route::put('/{agent}', [AgentController::class, 'update'])->name('update');
+                Route::delete('/{agent}', [AgentController::class, 'destroy'])->name('destroy');
+            });
 
         // ==================== AGENCY SUBSCRIPTIONS ====================
         Route::prefix('agency-subscriptions')->name('agency-subscriptions.')
@@ -163,6 +161,7 @@ Route::prefix('agents')->name('agents.')
                 Route::delete('/bulk-destroy', [VehicleController::class, 'bulkDestroy'])->name('bulkDestroy');
 
                 Route::get('/', [VehicleController::class, 'index'])->name('index');
+                Route::post('/check-duplicate', [VehicleController::class, 'checkDuplicate'])->name('check-duplicate');
                 Route::get('/create', [VehicleController::class, 'create'])->name('create');
                 Route::post('/', [VehicleController::class, 'store'])->name('store');
                 Route::get('/{vehicle}', [VehicleController::class, 'show'])->name('show');
@@ -170,52 +169,93 @@ Route::prefix('agents')->name('agents.')
                 Route::put('/{vehicle}', [VehicleController::class, 'update'])->name('update');
                 Route::delete('/{vehicle}', [VehicleController::class, 'destroy'])->name('destroy');
 
-// VEHICLE VIGNETTES - Move store outside or create a separate global route
-Route::prefix('vignettes')->name('vignettes.')->group(function () {
-    Route::post('/', [VignetteController::class, 'store'])->name('store');
-});
+                /**
+                 * ==================== VEHICLE VIGNETTES ====================
+                 * ORDER IS CRITICAL:
+                 * 1. GLOBAL ROUTES (no {vehicle}) - MUST COME FIRST
+                 * 2. VEHICLE-SPECIFIC ROUTES (with {vehicle}) - MUST COME SECOND
+                 */
 
-// Keep the nested routes for vehicle-specific views
-Route::prefix('{vehicle}/vignettes')->name('vignettes.')->group(function () {
-    Route::get('/', [VignetteController::class, 'index'])->name('index');
-    Route::get('/create', [VignetteController::class, 'create'])->name('create');
-    Route::get('/{vignette}', [VignetteController::class, 'show'])->name('show');
-    Route::get('/{vignette}/edit', [VignetteController::class, 'edit'])->name('edit');
-    Route::put('/{vignette}', [VignetteController::class, 'update'])->name('update');
-    Route::delete('/{vignette}', [VignetteController::class, 'destroy'])->name('destroy');
-});
+                // ✅ 1. GLOBAL VIGNETTES ROUTES (NO VEHICLE PARAMETER)
+                Route::prefix('vignettes')->name('vignettes.')->group(function () {
+                    Route::get('/create', [VignetteController::class, 'create'])->name('create');
+                    Route::post('/', [VignetteController::class, 'store'])->name('store');
+                });
 
-                // VEHICLE INSURANCES
-                Route::prefix('{vehicle}/insurances')->name('insurances.')->group(function () {
-                    Route::get('/', [InsuranceController::class, 'index'])->name('index');
+                // ✅ 2. VEHICLE-SPECIFIC VIGNETTES ROUTES (WITH VEHICLE PARAMETER)
+                Route::prefix('{vehicle}/vignettes')->name('vignettes.')->group(function () {
+                    Route::get('/', [VignetteController::class, 'index'])->name('index');
+                    Route::get('/{vignette}', [VignetteController::class, 'show'])->name('show');
+                    Route::get('/{vignette}/edit', [VignetteController::class, 'edit'])->name('edit');
+                    Route::put('/{vignette}', [VignetteController::class, 'update'])->name('update');
+                    Route::delete('/{vignette}', [VignetteController::class, 'destroy'])->name('destroy');
+                    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
+                });
+
+                /**
+                 * ==================== VEHICLE INSURANCES ====================
+                 * ORDER IS CRITICAL:
+                 * 1. GLOBAL ROUTES (no {vehicle}) - MUST COME FIRST
+                 * 2. VEHICLE-SPECIFIC ROUTES (with {vehicle}) - MUST COME SECOND
+                 */
+
+                // ✅ 1. GLOBAL INSURANCES ROUTES (NO VEHICLE PARAMETER)
+                Route::prefix('insurances')->name('insurances.')->group(function () {
                     Route::get('/create', [InsuranceController::class, 'create'])->name('create');
                     Route::post('/', [InsuranceController::class, 'store'])->name('store');
+                });
+
+                // ✅ 2. VEHICLE-SPECIFIC INSURANCES ROUTES (WITH VEHICLE PARAMETER)
+                Route::prefix('{vehicle}/insurances')->name('insurances.')->group(function () {
+                    Route::get('/', [InsuranceController::class, 'index'])->name('index');
+                    Route::get('/{insurance}', [InsuranceController::class, 'show'])->name('show');
                     Route::get('/{insurance}/edit', [InsuranceController::class, 'edit'])->name('edit');
                     Route::put('/{insurance}', [InsuranceController::class, 'update'])->name('update');
                     Route::delete('/{insurance}', [InsuranceController::class, 'destroy'])->name('destroy');
+                    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
                 });
 
-                // VEHICLE TECHNICAL CHECKS
-                Route::prefix('{vehicle}/technical-checks')->name('technical-checks.')->group(function () {
-                    Route::get('/', [TechnicalCheckController::class, 'index'])->name('index');
-                    Route::get('/create', [TechnicalCheckController::class, 'create'])->name('create');
-                    Route::post('/', [TechnicalCheckController::class, 'store'])->name('store');
-                    Route::get('/{technicalCheck}/edit', [TechnicalCheckController::class, 'edit'])->name('edit');
-                    Route::put('/{technicalCheck}', [TechnicalCheckController::class, 'update'])->name('update');
-                    Route::delete('/{technicalCheck}', [TechnicalCheckController::class, 'destroy'])->name('destroy');
-                });
+                /**
+                 * ==================== VEHICLE OIL CHANGES ====================
+                 * ORDER IS CRITICAL:
+                 * 1. GLOBAL ROUTES (no {vehicle}) - MUST COME FIRST
+                 * 2. VEHICLE-SPECIFIC ROUTES (with {vehicle}) - MUST COME SECOND
+                 */
 
-                // VEHICLE OIL CHANGES
-                Route::prefix('{vehicle}/oil-changes')->name('oil-changes.')->group(function () {
-                    Route::get('/', [OilChangeController::class, 'index'])->name('index');
+                // ✅ 1. GLOBAL OIL CHANGES ROUTES (NO VEHICLE PARAMETER)
+                Route::prefix('oil-changes')->name('oil-changes.')->group(function () {
                     Route::get('/create', [OilChangeController::class, 'create'])->name('create');
                     Route::post('/', [OilChangeController::class, 'store'])->name('store');
+                });
+
+                // ✅ 2. VEHICLE-SPECIFIC OIL CHANGES ROUTES (WITH VEHICLE PARAMETER)
+                Route::prefix('{vehicle}/oil-changes')->name('oil-changes.')->group(function () {
+                    Route::get('/', [OilChangeController::class, 'index'])->name('index');
+                    Route::get('/{oilChange}', [OilChangeController::class, 'show'])->name('show');
                     Route::get('/{oilChange}/edit', [OilChangeController::class, 'edit'])->name('edit');
                     Route::put('/{oilChange}', [OilChangeController::class, 'update'])->name('update');
                     Route::delete('/{oilChange}', [OilChangeController::class, 'destroy'])->name('destroy');
+                    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
                 });
 
-                // VEHICLE CONTROLS
+// ==================== VEHICLE TECHNICAL CHECKS ====================
+// ✅ GLOBAL CREATE ROUTES (NO VEHICLE PARAMETER) - MUST COME FIRST
+Route::prefix('technical-checks')->name('technical-checks.')->group(function () {
+    Route::get('/create', [TechnicalCheckController::class, 'create'])->name('create');
+    Route::post('/', [TechnicalCheckController::class, 'store'])->name('store');
+});
+
+// ✅ VEHICLE-SPECIFIC ROUTES (WITH VEHICLE PARAMETER) - MUST COME SECOND
+Route::prefix('{vehicle}/technical-checks')->name('technical-checks.')->group(function () {
+    Route::get('/', [TechnicalCheckController::class, 'index'])->name('index');
+    Route::get('/{technicalCheck}', [TechnicalCheckController::class, 'show'])->name('show');
+    Route::get('/{technicalCheck}/edit', [TechnicalCheckController::class, 'edit'])->name('edit');
+    Route::put('/{technicalCheck}', [TechnicalCheckController::class, 'update'])->name('update');
+    Route::delete('/{technicalCheck}', [TechnicalCheckController::class, 'destroy'])->name('destroy');
+    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
+});
+
+                // ==================== VEHICLE CONTROLS ====================
                 Route::prefix('{vehicle}/controls')->name('controls.')->group(function () {
                     Route::get('/', [ControlController::class, 'index'])->name('index');
                     Route::get('/create', [ControlController::class, 'create'])->name('create');
@@ -230,6 +270,7 @@ Route::prefix('{vehicle}/vignettes')->name('vignettes.')->group(function () {
                         Route::get('/', [ControlItemController::class, 'index'])->name('index');
                         Route::get('/create', [ControlItemController::class, 'create'])->name('create');
                         Route::post('/', [ControlItemController::class, 'store'])->name('store');
+                        Route::get('/{item}', [ControlItemController::class, 'show'])->name('show');
                         Route::get('/{item}/edit', [ControlItemController::class, 'edit'])->name('edit');
                         Route::put('/{item}', [ControlItemController::class, 'update'])->name('update');
                         Route::delete('/{item}', [ControlItemController::class, 'destroy'])->name('destroy');

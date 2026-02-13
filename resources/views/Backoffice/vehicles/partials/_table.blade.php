@@ -1,35 +1,71 @@
 <head>
     <style>
-/* Fix DataTables dropdown clipping */
-.dataTables_wrapper,
-.dataTables_wrapper .table-responsive {
-    overflow: visible !important;
-}
+        /* Fix DataTables dropdown clipping */
+        .dataTables_wrapper,
+        .dataTables_wrapper .table-responsive {
+            overflow: visible !important;
+        }
 
-/* Ensure dropdown appears above table */
-.dataTables_wrapper .dropdown-menu {
-    z-index: 1055;
-}
+        /* Ensure dropdown appears above table */
+        .dataTables_wrapper .dropdown-menu {
+            z-index: 1055;
+        }
 
-/* Empty state styling */
-.empty-state {
-    padding: 40px 20px;
-    text-align: center;
-}
-.empty-state i {
-    font-size: 48px;
-    color: #adb5bd;
-    margin-bottom: 16px;
-}
+        /* Empty state styling */
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .empty-state i {
+            font-size: 48px;
+            color: #adb5bd;
+            margin-bottom: 16px;
+        }
+        
+        /* Action button styling */
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #6c757d;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .btn-icon:hover {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+            color: #0d6efd;
+        }
+        .btn-icon i {
+            font-size: 18px;
+        }
+        
+        /* Checkbox centering */
+        .form-check {
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Table cell vertical alignment */
+        .table td, .table th {
+            vertical-align: middle;
+        }
     </style>
 </head>
 
 <!-- Custom Data Table -->
 <div class="custom-datatable-filter">
-    <table class="table datatable">
+    <table class="table datatable align-middle">
         <thead class="thead-light">
             <tr>
-                <th class="no-sort">
+                <th class="no-sort" width="50" style="text-align: center;">
                     <div class="form-check form-check-md">
                         <input class="form-check-input" type="checkbox" id="select-all">
                     </div>
@@ -40,7 +76,7 @@
                 <th>MILEAGE</th>
                 <th>CREATED DATE</th>
                 <th>STATUS</th>
-                <th></th>
+                <th width="80" style="text-align: center;">ACTIONS</th>
             </tr>
         </thead>
 
@@ -85,16 +121,16 @@
                 @endphp
 
                 <tr>
-                    <td>
+                    <td style="text-align: center; vertical-align: middle;">
                         <div class="form-check form-check-md">
                             <input class="form-check-input row-check" type="checkbox" value="{{ $vehicle->id }}">
                         </div>
                     </td>
 
-                    <td>
+                    <td style="vertical-align: middle;">
                         <div class="d-flex align-items-center">
                             <a href="{{ route('backoffice.vehicles.show', $vehicle) }}" class="avatar me-2 flex-shrink-0">
-                                <img src="{{ $photoUrl }}" class="rounded-3" alt="car">
+                                <img src="{{ $photoUrl }}" class="rounded-3" alt="car" style="width: 50px; height: 50px; object-fit: cover;">
                             </a>
                             <div>
                                 <h6 class="mb-1">
@@ -112,12 +148,12 @@
                         </div>
                     </td>
 
-                    <td>
+                    <td style="vertical-align: middle;">
                         {{ $baseLocation }}
                     </td>
 
-                    <td>
-                        <p class="fs-14 fw-semibold text-gray-9">
+                    <td style="vertical-align: middle;">
+                        <p class="fs-14 fw-semibold text-gray-9 mb-0">
                             @if ($daily !== null)
                                 {{ $daily }} MAD
                             @else
@@ -126,8 +162,8 @@
                         </p>
                     </td>
 
-                    <td>
-                        <p class="text-gray-9">
+                    <td style="vertical-align: middle;">
+                        <p class="text-gray-9 mb-0">
                             @if ($mileage !== null)
                                 {{ $mileage }} km
                             @else
@@ -136,21 +172,20 @@
                         </p>
                     </td>
 
-                    <td>
-                        <h6 class="fs-14 fw-normal">{{ $createdDate ?: '—' }}</h6>
-                        <p class="fs-13">{{ $createdTime ?: '' }}</p>
+                    <td style="vertical-align: middle;">
+                        <h6 class="fs-14 fw-normal mb-0">{{ $createdDate ?: '—' }}</h6>
+                        <p class="fs-13 mb-0">{{ $createdTime ?: '' }}</p>
                     </td>
 
-                    <td>
+                    <td style="vertical-align: middle;">
                         <span class="badge badge-dark-transparent">
                             <i class="ti ti-point-filled {{ $statusDot }} me-1"></i>{{ $statusLabel }}
                         </span>
                     </td>
 
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-icon btn-sm" type="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
+                    <td style="text-align: center; vertical-align: middle;">
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-icon btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="ti ti-dots-vertical"></i>
                             </button>
 
@@ -168,8 +203,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
                                     <button type="button" 
-                                            class="dropdown-item text-danger rounded-1 d-flex align-items-center"
+                                            class="dropdown-item text-danger rounded-1"
                                             onclick="showDeleteModal('{{ $vehicle->id }}', '{{ addslashes($carTitle) }}', '{{ route('backoffice.vehicles.destroy', $vehicle) }}')">
                                         <i class="ti ti-trash me-1"></i> Supprimer
                                     </button>
@@ -182,13 +220,16 @@
                 <tr>
                     <td colspan="8" class="text-center py-5">
                         <div class="empty-state">
-                            <i class="ti ti-car-off"></i>
-                            <h6 class="mt-2">Aucun véhicule trouvé</h6>
-                            <!-- <p class="text-muted mb-3">Essayez d'ajuster vos filtres ou d'effectuer une nouvelle recherche.</p>
+                            <!-- <i class="ti ti-car-off fs-48 text-gray-4 mb-3"></i> -->
+                            <h5 class="mb-2">Aucun véhicule trouvé</h5>
                             @if(request()->hasAny(['search', 'status', 'select_cars', 'type', 'location', 'date_from', 'date_to', 'model_id']))
-                                <a href="{{ route('backoffice.vehicles.index') }}" class="btn btn-primary btn-sm"> -->
-                                    <!-- <i class="ti ti-refresh me-1"></i> Effacer tous les filtres -->
-                                </a>
+                                <!-- <a href="{{ route('backoffice.vehicles.index') }}" class="btn btn-primary mt-3">
+                                    <i class="ti ti-refresh me-2"></i> Effacer tous les filtres
+                                </a> -->
+                            @else
+                                <!-- <a href="{{ route('backoffice.vehicles.create') }}" class="btn btn-primary mt-3">
+                                    <i class="ti ti-plus me-2"></i> Ajouter un véhicule
+                                </a> -->
                             @endif
                         </div>
                     </td>
@@ -199,16 +240,7 @@
 </div>
 <!-- /Custom Data Table -->
 
-@if (method_exists($vehicles, 'links') && $vehicles->total() > 0)
-    <div class="d-flex justify-content-between align-items-center mt-4">
-        <div class="text-muted">
-            Affichage de {{ $vehicles->firstItem() }} à {{ $vehicles->lastItem() }} sur {{ $vehicles->total() }} véhicules
-        </div>
-        <div>
-            {{ $vehicles->withQueryString()->links() }}
-        </div>
-    </div>
-@endif
+{{-- PAGINATION SUPPRIMÉE D'ICI - ELLE DOIT ÊTRE DANS INDEX.BLADE.PHP --}}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

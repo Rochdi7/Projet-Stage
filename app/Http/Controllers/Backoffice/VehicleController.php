@@ -15,102 +15,113 @@ class VehicleController extends Controller
 {
     use AuthorizesRequests;
 
-public function index(Request $request)
-{
-    $agencyId = Auth::guard('backoffice')->user()->agency_id;
+    public function index(Request $request)
+    {
+        $agencyId = Auth::guard('backoffice')->user()->agency_id;
 
-    $query = Vehicle::where('agency_id', $agencyId)
-        ->with('model.brand');
+        $query = Vehicle::where('agency_id', $agencyId)
+            ->with('model.brand');
 
-    // 🔎 SEARCH (global search)
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('registration_number', 'like', "%{$search}%")
-              ->orWhere('vin', 'like', "%{$search}%")
-              ->orWhereHas('model', function ($sub) use ($search) {
-                  $sub->where('name', 'like', "%{$search}%");
-              })
-              ->orWhereHas('model.brand', function ($sub) use ($search) {
-                  $sub->where('name', 'like', "%{$search}%");
-              });
-        });
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('registration_number', 'like', "%{$search}%")
+                  ->orWhere('vin', 'like', "%{$search}%")
+                  ->orWhereHas('model', function ($sub) use ($search) {
+                      $sub->where('name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('model.brand', function ($sub) use ($search) {
+                      $sub->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('select_cars')) {
+            $query->where('vehicle_model_id', $request->select_cars);
+        }
+
+        if ($request->filled('type')) {
+            $type = $request->type;
+            $query->whereHas('model', function($q) use ($type) {
+                $q->where('name', 'like', "%{$type}%")
+                  ->orWhereHas('brand', function($sub) use ($type) {
+                      $sub->where('name', 'like', "%{$type}%");
+                  });
+            });
+        }
+
+        if ($request->filled('location')) {
+            $location = $request->location;
+            $query->where('registration_city', 'like', "%{$location}%");
+        }
+
+        if ($request->filled('model_id')) {
+            $query->where('vehicle_model_id', $request->model_id);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->get('sort') === 'az') {
+            $query->orderBy('registration_number', 'asc');
+        } elseif ($request->get('sort') === 'za') {
+            $query->orderBy('registration_number', 'desc');
+        } elseif ($request->get('sort') === 'price_asc') {
+            $query->orderBy('daily_rate', 'asc');
+        } elseif ($request->get('sort') === 'price_desc') {
+            $query->orderBy('daily_rate', 'desc');
+        } elseif ($request->get('sort') === 'mileage_asc') {
+            $query->orderBy('current_mileage', 'asc');
+        } elseif ($request->get('sort') === 'mileage_desc') {
+            $query->orderBy('current_mileage', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $vehicles = $query->paginate(15)->withQueryString();
+        
+        $models = VehicleModel::where('agency_id', $agencyId)
+            ->with('brand')
+            ->orderBy('name')
+            ->get();
+
+        return view('backoffice.vehicles.index', compact('vehicles', 'models'));
     }
-
-    // 📌 STATUS FILTER
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
-    // 🚗 SELECT CARS (by model)
-    if ($request->filled('select_cars')) {
-        $query->where('vehicle_model_id', $request->select_cars);
-    }
-
-    // 🚘 TYPE FILTER (brand or model)
-    if ($request->filled('type')) {
-        $type = $request->type;
-        $query->whereHas('model', function($q) use ($type) {
-            $q->where('name', 'like', "%{$type}%")
-              ->orWhereHas('brand', function($sub) use ($type) {
-                  $sub->where('name', 'like', "%{$type}%");
-              });
-        });
-    }
-
-    // 📍 LOCATION FILTER - FIXED: ONLY registration_city, NO location column
-    if ($request->filled('location')) {
-        $location = $request->location;
-        $query->where('registration_city', 'like', "%{$location}%");
-    }
-
-    // 🏢 FILTER BY MODEL (for filters collapse)
-    if ($request->filled('model_id')) {
-        $query->where('vehicle_model_id', $request->model_id);
-    }
-
-    // 📅 DATE RANGE FILTER
-    if ($request->filled('date_from')) {
-        $query->whereDate('created_at', '>=', $request->date_from);
-    }
-    if ($request->filled('date_to')) {
-        $query->whereDate('created_at', '<=', $request->date_to);
-    }
-
-    // 🔤 SORT
-    if ($request->get('sort') === 'az') {
-        $query->orderBy('registration_number', 'asc');
-    } elseif ($request->get('sort') === 'za') {
-        $query->orderBy('registration_number', 'desc');
-    } elseif ($request->get('sort') === 'price_asc') {
-        $query->orderBy('daily_rate', 'asc');
-    } elseif ($request->get('sort') === 'price_desc') {
-        $query->orderBy('daily_rate', 'desc');
-    } elseif ($request->get('sort') === 'mileage_asc') {
-        $query->orderBy('current_mileage', 'asc');
-    } elseif ($request->get('sort') === 'mileage_desc') {
-        $query->orderBy('current_mileage', 'desc');
-    } else {
-        $query->latest();
-    }
-
-    $vehicles = $query->paginate(15)->withQueryString();
-    
-    $models = VehicleModel::where('agency_id', $agencyId)
-        ->with('brand')
-        ->orderBy('name')
-        ->get();
-
-    return view('backoffice.vehicles.index', compact('vehicles', 'models'));
-}
 
     public function create()
     {
-        $models = VehicleModel::where('agency_id', Auth::user()->agency_id)
+        $models = VehicleModel::where('agency_id', Auth::guard('backoffice')->user()->agency_id)
             ->with('brand')
             ->orderBy('name')
             ->get();
         return view('backoffice.vehicles.create', compact('models'));
+    }
+
+    /**
+     * Check if registration number already exists (AJAX)
+     */
+    public function checkDuplicate(Request $request)
+    {
+        $request->validate([
+            'registration_number' => 'required|string|max:50'
+        ]);
+
+        $exists = Vehicle::where('agency_id', Auth::guard('backoffice')->user()->agency_id)
+                        ->where('registration_number', $request->registration_number)
+                        ->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Ce numéro d\'immatriculation existe déjà.' : 'Numéro disponible'
+        ]);
     }
 
     public function store(VehicleStoreRequest $request)
@@ -156,7 +167,7 @@ public function index(Request $request)
     public function edit(Vehicle $vehicle)
     {
         $this->authorize('update', $vehicle);
-        $models = VehicleModel::where('agency_id', Auth::user()->agency_id)
+        $models = VehicleModel::where('agency_id', Auth::guard('backoffice')->user()->agency_id)
             ->with('brand')
             ->orderBy('name')
             ->get();

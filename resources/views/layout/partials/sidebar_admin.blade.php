@@ -39,7 +39,6 @@
                                 <span>Agencies</span>
                             </a>
                         </li>
-
                         <li class="{{ request()->routeIs('backoffice.agency-subscriptions.*') ? 'active' : '' }}">
                             <a href="{{ route('backoffice.agency-subscriptions.index') }}">
                                 <i class="ti ti-credit-card"></i>
@@ -105,21 +104,19 @@
                     </ul>
                 </li>
                 @endrole
-
                 {{-- ==================== RENTALS ==================== --}}
                 @role('super-admin|admin|manager')
                 <li class="menu-title"><span>RENTALS</span></li>
                 <li>
                     <ul>
-                        {{-- Cars --}}
-                        <li class="{{ request()->routeIs('backoffice.vehicles.*') && !request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*', 'backoffice.vehicles.vignettes.*') ? 'active' : '' }}">
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.index') && !request()->routeIs('backoffice.vehicles.vignettes.*', 'backoffice.vehicles.insurances.*', 'backoffice.vehicles.oil-changes.*') ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.index') }}">
                                 <i class="ti ti-car"></i>
                                 <span>Cars</span>
                             </a>
                         </li>
 
-                        {{-- Car Attributes Submenu --}}
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*') ? 'active subdrop' : '' }}">
@@ -131,14 +128,12 @@
                                 <li>
                                     <a href="{{ route('backoffice.vehicle-brands.index') }}"
                                         class="{{ request()->routeIs('backoffice.vehicle-brands.*') ? 'active' : '' }}">
-                                        <i class="ti ti-brand-tabler me-1"></i>
                                         Brands
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{{ route('backoffice.vehicle-models.index') }}"
                                         class="{{ request()->routeIs('backoffice.vehicle-models.*') ? 'active' : '' }}">
-                                        <i class="ti ti-model me-1"></i>
                                         Models
                                     </a>
                                 </li>
@@ -147,22 +142,50 @@
                     </ul>
                 </li>
                 @endrole
+                                {{-- ==================== VÉHICULE SUIVI ==================== --}}
+                @role('super-admin|admin|manager')
+                @php
+                $firstVehicle = App\Models\Vehicle::first();
+                $vehicleId = $firstVehicle ? $firstVehicle->id : 1;
+                @endphp
 
-{{-- ==================== VIGNETTES ==================== --}}
-@role('super-admin|admin|manager')
-<li class="menu-title"><span>VIGNETTES</span></li>
-<li>
-    <ul>
-        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.create') || request()->routeIs('backoffice.vehicles.vignettes.index') ? 'active' : '' }}">
-            <a href="{{ route('backoffice.vehicles.vignettes.create', ['vehicle' => 1]) }}">
-                <i class="ti ti-ticket"></i>
-                <span>Vignettes</span>
-            </a>
-        </li>
-    </ul>
-</li>
-@endrole
+                <li class="menu-title"><span>VÉHICULE SUIVI</span></li>
+                <li>
+                    <ul>
+                        {{-- Vignettes --}}
+                        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.index*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => $vehicleId]) }}">
+                                <i class="ti ti-ticket"></i>
+                                <span>Vignettes</span>
+                            </a>
+                        </li>
 
+                        {{-- Assurances --}}
+                        <li class="{{ request()->routeIs('backoffice.vehicles.insurances.index*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.insurances.index', ['vehicle' => $vehicleId]) }}">
+                                <i class="ti ti-shield"></i>
+                                <span>Assurances</span>
+                            </a>
+                        </li>
+
+                        {{-- Vidanges --}}
+                        <li class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.oil-changes.index', ['vehicle' => $vehicleId]) }}">
+                                <i class="ti ti-droplet"></i>
+                                <span>Vidanges</span>
+                            </a>
+                        </li>
+                        {{-- Technical Checks - ALWAYS goes to INDEX page with vehicle_id=1 --}}
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.technical-checks.index', ['vehicle' => 1]) }}">
+                                <i class="ti ti-clipboard-check"></i>
+                                <span>Contrôle technique</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
             </ul>
         </div>
     </div>

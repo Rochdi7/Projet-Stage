@@ -5,268 +5,159 @@
 <div class="page-wrapper">
     <div class="content me-4">
 
-        @include('Backoffice.vignettes.partials._breadcrumbs', ['vehicle' => $vehicle])
+        @include('Backoffice.vignettes.partials._breadcrumbs', ['vehicle' => $vehicle ?? null])
 
-        <!-- FILTER + SEARCH FORM -->
-        <form method="GET" id="filterForm">
+        <!-- @if(!isset($vehicle) || !$vehicle)
+            <div class="d-flex align-items-center justify-content-between p-4 mb-4 bg-light rounded border">
+                <div class="d-flex align-items-center">
+                    <i class="ti ti-info-circle fs-5 text-primary me-2"></i>
+                    <span>Aucun véhicule trouvé. Veuillez créer un véhicule pour ajouter des vignettes.</span>
+                </div>
+                <a href="{{ route('backoffice.vehicles.create') }}" class="btn btn-primary">
+                    <i class="ti ti-plus me-1"></i>Créer un véhicule
+                </a>
+            </div>
+        @endif -->
 
+        <form method="GET" id="filterForm" action="{{ request()->url() }}">
             <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-3">
-
                 <div class="d-flex align-items-center flex-wrap row-gap-3">
-
-                    <!-- SORT -->
                     <div class="dropdown me-2">
-                        <a href="#" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                           data-bs-toggle="dropdown">
-                            <i class="ti ti-filter me-1"></i>
-                            Trier :
-                            @if(request('sort') == 'oldest')
-                                Plus anciennes
-                            @elseif(request('sort') == 'amount_asc')
-                                Montant ↑
-                            @elseif(request('sort') == 'amount_desc')
-                                Montant ↓
-                            @elseif(request('sort') == 'year_asc')
-                                Année ↑
-                            @elseif(request('sort') == 'year_desc')
-                                Année ↓
-                            @else
-                                Plus récentes
-                            @endif
+                        <a href="#" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                            <i class="ti ti-filter me-1"></i> Trier : 
+                            @if(request('sort') == 'oldest') Plus anciennes
+                            @elseif(request('sort') == 'amount_asc') Montant ↑
+                            @elseif(request('sort') == 'amount_desc') Montant ↓
+                            @elseif(request('sort') == 'year_asc') Année ↑
+                            @elseif(request('sort') == 'year_desc') Année ↓
+                            @else Plus récentes @endif
                         </a>
-
                         <ul class="dropdown-menu dropdown-menu-end p-2">
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'latest'])) }}">
-                                    Plus récentes
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'oldest'])) }}">
-                                    Plus anciennes
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'amount_desc'])) }}">
-                                    Montant (plus élevé)
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'amount_asc'])) }}">
-                                    Montant (moins élevé)
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'year_desc'])) }}">
-                                    Année (récente)
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'year_asc'])) }}">
-                                    Année (ancienne)
-                                </a>
-                            </li>
+                            @if(isset($vehicle) && $vehicle)
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'latest'])) }}">Plus récentes</a></li>
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'oldest'])) }}">Plus anciennes</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'amount_desc'])) }}">Montant (plus élevé)</a></li>
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'amount_asc'])) }}">Montant (moins élevé)</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'year_desc'])) }}">Année (récente)</a></li>
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', array_merge(['vehicle' => $vehicle->id], request()->except('sort'), ['sort'=>'year_asc'])) }}">Année (ancienne)</a></li>
+                            @else
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => 1]) }}">Plus récentes</a></li>
+                                <li><a class="dropdown-item" href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => 1, 'sort' => 'oldest']) }}">Plus anciennes</a></li>
+                            @endif
                         </ul>
                     </div>
-
-                    <!-- FILTER TOGGLE -->
                     <div>
-                        <a href="#filtercollapse"
-                           class="filtercollapse coloumn d-inline-flex align-items-center"
-                           data-bs-toggle="collapse">
+                        <a href="#filtercollapse" class="filtercollapse coloumn d-inline-flex align-items-center" data-bs-toggle="collapse">
                             <i class="ti ti-filter me-1"></i> Filtres
                         </a>
                     </div>
-
                 </div>
 
-                <!-- SEARCH -->
                 <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-
                     <div class="top-search me-2">
-                        <div class="top-search-group">
-                            <span class="input-icon">
-                                <i class="ti ti-search"></i>
-                            </span>
-                            <input type="text"
-                                   name="search"
-                                   id="searchInput"
-                                   value="{{ request('search') }}"
-                                   class="form-control"
-                                   placeholder="Rechercher une vignette...">
+                        <div class="top-search-group position-relative">
+                            <span class="input-icon"><i class="ti ti-search"></i></span>
+                            <input type="text" name="search" id="searchInput" value="{{ request('search') }}" class="form-control" placeholder="Rechercher une vignette...">
+                            @if(request('search'))
+                                <button type="button" class="btn btn-link position-absolute" style="right: 5px; top: 50%; transform: translateY(-50%); padding: 0; color: #6c757d; z-index: 10;" onclick="clearSearch()">
+                                    <i class="ti ti-x"></i>
+                                </button>
+                            @endif
                         </div>
                     </div>
-
                     <div class="mb-0">
-                        <a href="{{ route('backoffice.vehicles.vignettes.create', $vehicle) }}"
-                           class="btn btn-primary d-flex align-items-center">
+                        <a href="{{ route('backoffice.vehicles.vignettes.create') }}" class="btn btn-primary d-flex align-items-center">
                             <i class="ti ti-plus me-2"></i>Ajouter une vignette
                         </a>
                     </div>
-
                 </div>
-
             </div>
 
-        </form>
-        <!-- END HEADER -->
-
-
-        <!-- FILTER COLLAPSE -->
-        <div class="collapse" id="filtercollapse">
-            <div class="filterbox mb-3 d-flex align-items-center">
-                <h6 class="me-3">Filtres</h6>
-
-                <div class="dropdown me-3">
-                    <a href="#" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                       data-bs-toggle="dropdown">
-                        Année :
-                        @if(request('year'))
-                            {{ request('year') }}
-                        @else
-                            Toutes
-                        @endif
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-md p-2">
-                        <li>
-                            <a class="dropdown-item"
-                               href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => $vehicle->id]) }}">
-                                Toutes
+            <div class="collapse" id="filtercollapse">
+                <div class="filterbox p-3 mb-3 bg-light-100 rounded">
+                    <div class="row align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Année</label>
+                            <select name="year" form="filterForm" class="form-select" onchange="this.form.submit()">
+                                <option value="">Toutes</option>
+                                @foreach($availableYears ?? [] as $year)
+                                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Date du</label>
+                            <input type="date" form="filterForm" name="date_from" value="{{ request('date_from') }}" class="form-control" onchange="this.form.submit()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Date au</label>
+                            <input type="date" form="filterForm" name="date_to" value="{{ request('date_to') }}" class="form-control" onchange="this.form.submit()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Montant min (DH)</label>
+                            <input type="number" form="filterForm" name="amount_min" value="{{ request('amount_min') }}" class="form-control" placeholder="0.00" step="0.01" onchange="this.form.submit()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Montant max (DH)</label>
+                            <input type="number" form="filterForm" name="amount_max" value="{{ request('amount_max') }}" class="form-control" placeholder="9999.99" step="0.01" onchange="this.form.submit()">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => $vehicle->id ?? 1]) }}" class="btn btn-sm btn-outline-danger w-100">
+                                <i class="ti ti-x me-1"></i>Tout effacer
                             </a>
-                        </li>
-                        @foreach($availableYears ?? [] as $year)
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => $vehicle->id, 'year' => $year]) }}">
-                                    {{ $year }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="dropdown me-3">
-                    <a href="#" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                       data-bs-toggle="dropdown">
-                        Montant min :
-                        @if(request('amount_min'))
-                            {{ request('amount_min') }} €
-                        @else
-                            Aucun
-                        @endif
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-md p-3" style="min-width: 250px;">
-                        <li>
-                            <div class="px-2">
-                                <label class="form-label">Montant minimum</label>
-                                <input type="number" 
-                                       form="filterForm"
-                                       name="amount_min" 
-                                       value="{{ request('amount_min') }}"
-                                       class="form-control mb-2"
-                                       placeholder="0.00"
-                                       step="0.01">
-                                <button type="submit" form="filterForm" class="btn btn-primary btn-sm w-100">
-                                    Appliquer
-                                </button>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="dropdown me-3">
-                    <a href="#" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                       data-bs-toggle="dropdown">
-                        Montant max :
-                        @if(request('amount_max'))
-                            {{ request('amount_max') }} €
-                        @else
-                            Aucun
-                        @endif
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-md p-3" style="min-width: 250px;">
-                        <li>
-                            <div class="px-2">
-                                <label class="form-label">Montant maximum</label>
-                                <input type="number" 
-                                       form="filterForm"
-                                       name="amount_max" 
-                                       value="{{ request('amount_max') }}"
-                                       class="form-control mb-2"
-                                       placeholder="9999.99"
-                                       step="0.01">
-                                <button type="submit" form="filterForm" class="btn btn-primary btn-sm w-100">
-                                    Appliquer
-                                </button>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => $vehicle->id]) }}"
-                   class="text-danger links">
-                    Tout effacer
-                </a>
             </div>
-        </div>
+        </form>
 
-
-        <!-- TABLE -->
         <div class="custom-datatable-filter table-responsive">
             @include('Backoffice.vignettes.partials._table')
         </div>
 
-        <!-- PAGINATION -->
+        @if(isset($vignettes) && $vignettes->total() > 0)
         <div class="table-footer">
             <div class="d-flex justify-content-end">
                 {{ $vignettes->withQueryString()->links() }}
             </div>
         </div>
+        @endif
 
     </div>
 
     <div class="footer d-sm-flex align-items-center justify-content-between bg-white p-3">
-        <p class="mb-0">2024 © Rental Car. All rights reserved.</p>
-        <p class="mb-0">v1.0</p>
+        <p class="mb-0">
+            <a href="javascript:void(0);">Privacy Policy</a>
+            <a href="javascript:void(0);" class="ms-4">Terms of Use</a>
+        </p>
+        <p>&copy; 2025 Dreamsrent, Made with <span class="text-danger">❤</span> by
+            <a href="javascript:void(0);" class="text-secondary">Dreams</a>
+        </p>
     </div>
 </div>
 
-
-<!-- AUTO SEARCH SCRIPT -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const form = document.getElementById('filterForm');
     const input = document.getElementById('searchInput');
-
     if (!form || !input) return;
-
     let debounceTimer;
-
     input.addEventListener('input', function () {
-
         clearTimeout(debounceTimer);
-
-        debounceTimer = setTimeout(function () {
-            form.submit();
-        }, 400);
-
+        debounceTimer = setTimeout(function () { form.submit(); }, 400);
     });
-
 });
+
+function clearSearch() {
+    const input = document.getElementById('searchInput');
+    if (input) {
+        input.value = '';
+        document.getElementById('filterForm').submit();
+    }
+}
 </script>
 
 @include('Backoffice.vignettes.partials._modal_delete')
-
 @endsection

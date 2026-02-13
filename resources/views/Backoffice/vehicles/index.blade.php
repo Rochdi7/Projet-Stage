@@ -104,16 +104,14 @@
                     </div>
 
                     <!-- FILTER BUTTON -->
-                    <div>
-                        <a href="#filtercollapse"
-                           class="filtercollapse coloumn d-inline-flex align-items-center"
-                           data-bs-toggle="collapse">
-                            <i class="ti ti-filter me-1"></i> Filter
-                            @if(request()->hasAny(['status', 'model_id', 'location', 'type', 'select_cars']))
-                                <span class="badge bg-primary ms-1">●</span>
-                            @endif
-                        </a>
-                    </div>
+<!-- FILTER BUTTON - NO BADGE -->
+<div>
+    <a href="#filtercollapse"
+       class="filtercollapse coloumn d-inline-flex align-items-center"
+       data-bs-toggle="collapse">
+        <i class="ti ti-filter me-1"></i> Filter
+    </a>
+</div>
                 </div>
 
                 <!-- SEARCH -->
@@ -142,8 +140,8 @@
                 </div>
             </div>
 
-            <!-- FILTERS ROW - Select Cars, Type, Location, Status, Apply, Clear All -->
-            <div class="filter-row collapse {{ request()->hasAny(['status', 'model_id', 'location', 'type', 'select_cars']) ? 'show' : '' }}" id="filtercollapse">
+            <!-- FILTERS ROW - HIDDEN BY DEFAULT - REMOVED CONDITIONAL SHOW -->
+            <div class="filter-row collapse" id="filtercollapse">
                 
                 <!-- Select Cars -->
                 <div class="filter-item">
@@ -195,21 +193,20 @@
         </form>
         <!-- /FILTER FORM -->
 
-        <!-- {{-- Collapse filters (block “Filters”) --}}
-        @include('backoffice.vehicles.partials._filters') -->
-
         {{-- Data table --}}
         @include('backoffice.vehicles.partials._table', ['vehicles' => $vehicles])
 
         <!-- Pagination with counter -->
+        @if(isset($vehicles) && $vehicles->total() > 0)
         <div class="d-flex justify-content-between align-items-center mt-3">
             <div class="text-muted">
-                Showing {{ $vehicles->firstItem() }} to {{ $vehicles->lastItem() }} of {{ $vehicles->total() }} entries
+                Affichage de {{ $vehicles->firstItem() }} à {{ $vehicles->lastItem() }} sur {{ $vehicles->total() }} véhicules
             </div>
             <div>
                 {{ $vehicles->withQueryString()->links() }}
             </div>
         </div>
+        @endif
 
     </div>
 
@@ -239,6 +236,8 @@
         </div>
     </div>
 </div>
+
+@include('Backoffice.vignettes.partials._modals_js')
 
 <!-- AUTO SEARCH SCRIPT -->
 <script>

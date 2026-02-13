@@ -8,59 +8,141 @@ use App\Models\VehicleInsurance;
 use App\Http\Requests\Backoffice\VehicleInsurance\VehicleInsuranceStoreRequest;
 use App\Http\Requests\Backoffice\VehicleInsurance\VehicleInsuranceUpdateRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class InsuranceController extends Controller
 {
     use AuthorizesRequests;
-    public function index(Vehicle $vehicle)
+
+    public function index(Request $request, $vehicleId)
     {
+        $vehicle = Vehicle::find($vehicleId);
+        
+        if (!$vehicle) {
+            return view('Backoffice.insurances.index', [
+                'vehicle' => null,
+                'insurances' => new LengthAwarePaginator([], 0, 15),
+                'availableCompanies' => collect([])
+            ]);
+        }
+        
         $this->authorize('view', $vehicle);
 
-        $insurances = $vehicle->insurances()
-            ->latest()
-            ->paginate(15);
+        $query = $vehicle->insurances();
 
-        return view('Backoffice.vehicles.insurances.index', compact('vehicle', 'insurances'));
-    }
-
-    public function create(Vehicle $vehicle)
-    {
-        $this->authorize('update', $vehicle);
-        return view('Backoffice.vehicles.insurances.create', compact('vehicle'));
-    }
-
-    public function store(VehicleInsuranceStoreRequest $request, Vehicle $vehicle)
-    {
-        $this->authorize('update', $vehicle);
-
-        $data = $request->validated();
-        $data['vehicle_id'] = $vehicle->id;
-
-        // Remove documents from main data
-        $documents = $data['documents'] ?? null;
-        unset($data['documents']);
-
-        $insurance = VehicleInsurance::create($data);
-
-        // Handle document uploads via Media Library
-        if ($documents) {
-            foreach ($documents as $document) {
-                $insurance->addMediaFromRequest('documents')
-                    ->toMediaCollection('insurance_documents');
-            }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('policy_number', 'like', "%{$search}%")
+                  ->orWhere('amount', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%");
+            });
         }
 
-        return redirect()
-            ->route('Backoffice.vehicles.insurances.index', $vehicle)
-            ->with('success', 'Assurance créée avec succès.');
+        if ($request->filled('company')) {
+            $query->where('company_name', 'like', "%{$request->company}%");
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        if ($request->filled('next_date_from')) {
+            $query->whereDate('next_insurance_date', '>=', $request->next_date_from);
+        }
+        if ($request->filled('next_date_to')) {
+            $query->whereDate('next_insurance_date', '<=', $request->next_date_to);
+        }
+
+        if ($request->filled('amount_min')) {
+            $query->where('amount', '>=', $request->amount_min);
+        }
+        if ($request->filled('amount_max')) {
+            $query->where('amount', '<=', $request->amount_max);
+        }
+
+        $sort = $request->get('sort', 'latest');
+        
+        if ($sort === 'oldest') {
+            $query->orderBy('date', 'asc');
+        } elseif ($sort === 'amount_asc') {
+            $query->orderBy('amount', 'asc');
+        } elseif ($sort === 'amount_desc') {
+            $query->orderBy('amount', 'desc');
+        } elseif ($sort === 'next_date_asc') {
+            $query->orderBy('next_insurance_date', 'asc');
+        } elseif ($sort === 'next_date_desc') {
+            $query->orderBy('next_insurance_date', 'desc');
+        } else {
+            $query->orderBy('date', 'desc');
+        }
+
+        $insurances = $query->paginate(15)->withQueryString();
+
+        $availableCompanies = $vehicle ? VehicleInsurance::where('vehicle_id', $vehicle->id)
+            ->whereNotNull('company_name')
+            ->select('company_name')
+            ->distinct()
+            ->orderBy('company_name')
+            ->pluck('company_name') : collect([]);
+
+        return view('Backoffice.insurances.index', compact('vehicle', 'insurances', 'availableCompanies'));
+    }
+
+    public function create(Vehicle $vehicle = null)
+    {
+        $vehicles = Vehicle::orderBy('registration_number')->get();
+        return view('Backoffice.insurances.create', compact('vehicle', 'vehicles'));
+    }
+
+    public function store(VehicleInsuranceStoreRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $data = $request->validated();
+            $vehicle = Vehicle::findOrFail($data['vehicle_id']);
+            
+            VehicleInsurance::create([
+                'vehicle_id' => $vehicle->id,
+                'company_name' => $data['company_name'] ?? null,
+                'policy_number' => $data['policy_number'] ?? null,
+                'date' => $data['date'],
+                'amount' => $data['amount'],
+                'next_insurance_date' => $data['next_insurance_date'],
+                'notes' => $data['notes'] ?? null,
+            ]);
+
+            DB::commit();
+            return redirect()->route('backoffice.vehicles.insurances.index', $vehicle->id)
+                ->with('toast', ['title' => 'Créé', 'message' => 'Assurance créée avec succès.', 'dot' => '#198754', 'delay' => 3500, 'time' => 'now']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->with('toast', [
+                'title' => 'Erreur', 'message' => 'Erreur lors de la création: ' . $e->getMessage(),
+                'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now'
+            ]);
+        }
+    }
+
+    public function show(Vehicle $vehicle, VehicleInsurance $insurance)
+    {
+        $this->authorize('view', $vehicle);
+        $this->verifyResource($vehicle, $insurance);
+        return view('Backoffice.insurances.show', compact('vehicle', 'insurance'));
     }
 
     public function edit(Vehicle $vehicle, VehicleInsurance $insurance)
     {
         $this->authorize('update', $vehicle);
         $this->verifyResource($vehicle, $insurance);
-
-        return view('Backoffice.vehicles.insurances.edit', compact('vehicle', 'insurance'));
+        $vehicles = Vehicle::orderBy('registration_number')->get();
+        return view('Backoffice.insurances.edit', compact('vehicle', 'insurance', 'vehicles'));
     }
 
     public function update(VehicleInsuranceUpdateRequest $request, Vehicle $vehicle, VehicleInsurance $insurance)
@@ -68,25 +150,30 @@ class InsuranceController extends Controller
         $this->authorize('update', $vehicle);
         $this->verifyResource($vehicle, $insurance);
 
-        $data = $request->validated();
+        try {
+            DB::beginTransaction();
+            $data = $request->validated();
+            
+            $insurance->update([
+                'vehicle_id' => $data['vehicle_id'],
+                'company_name' => $data['company_name'] ?? null,
+                'policy_number' => $data['policy_number'] ?? null,
+                'date' => $data['date'],
+                'amount' => $data['amount'],
+                'next_insurance_date' => $data['next_insurance_date'],
+                'notes' => $data['notes'] ?? null,
+            ]);
 
-        // Remove documents from main data
-        $documents = $data['documents'] ?? null;
-        unset($data['documents']);
-
-        $insurance->update($data);
-
-        // Handle document uploads via Media Library
-        if ($documents) {
-            foreach ($documents as $document) {
-                $insurance->addMediaFromRequest('documents')
-                    ->toMediaCollection('insurance_documents');
-            }
+            DB::commit();
+            return redirect()->route('backoffice.vehicles.insurances.index', $insurance->vehicle_id)
+                ->with('toast', ['title' => 'Mis à jour', 'message' => 'Assurance mise à jour avec succès.', 'dot' => '#0d6efd', 'delay' => 3500, 'time' => 'now']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->with('toast', [
+                'title' => 'Erreur', 'message' => 'Erreur lors de la mise à jour: ' . $e->getMessage(),
+                'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now'
+            ]);
         }
-
-        return redirect()
-            ->route('Backoffice.vehicles.insurances.index', $vehicle)
-            ->with('success', 'Assurance mise à jour avec succès.');
     }
 
     public function destroy(Vehicle $vehicle, VehicleInsurance $insurance)
@@ -94,17 +181,23 @@ class InsuranceController extends Controller
         $this->authorize('delete', $vehicle);
         $this->verifyResource($vehicle, $insurance);
 
-        $insurance->delete();
-
-        return redirect()
-            ->route('Backoffice.vehicles.insurances.index', $vehicle)
-            ->with('success', 'Assurance supprimée.');
+        try {
+            DB::beginTransaction();
+            $insurance->delete();
+            DB::commit();
+            return redirect()->route('backoffice.vehicles.insurances.index', $vehicle->id)
+                ->with('toast', ['title' => 'Supprimé', 'message' => 'Assurance supprimée avec succès.', 'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('toast', [
+                'title' => 'Erreur', 'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
+                'dot' => '#dc3545', 'delay' => 3500, 'time' => 'now'
+            ]);
+        }
     }
 
-    private function verifyResource(Vehicle $vehicle, VehicleInsurance $insurance)
+    private function verifyResource(Vehicle $vehicle, VehicleInsurance $insurance): void
     {
-        if ($insurance->vehicle_id !== $vehicle->id) {
-            abort(404);
-        }
+        if ($insurance->vehicle_id !== $vehicle->id) abort(404);
     }
 }

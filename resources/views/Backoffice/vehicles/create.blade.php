@@ -11,11 +11,34 @@
             </a>
         </div>
 
+        {{-- DISPLAY SESSION ERRORS --}}
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="ti ti-alert-circle me-2"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- DISPLAY VALIDATION ERRORS --}}
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="ti ti-alert-circle me-2"></i>
+                <strong>Erreur de validation:</strong>
+                <ul class="mb-0 mt-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="card mb-0">
             <div class="card-body">
                 <div class="add-wizard car-steps">
 
-                    {{-- WIZARD NAV (garde ton theme) --}}
+                    {{-- WIZARD NAV --}}
                     <ul class="nav d-flex align-items-center flex-wrap gap-3">
                         <li class="nav-item active">
                             <a href="javascript:void(0);" class="nav-link d-flex align-items-center">
@@ -32,11 +55,6 @@
                                 <i class="ti ti-files me-1"></i>Tarifs
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <!-- <a href="javascript:void(0);" class="nav-link d-flex align-items-center">
-                                <i class="ti ti-file-invoice me-1"></i>Photos
-                            </a> -->
-                        </li>
                     </ul>
 
                     {{-- =========================
@@ -44,9 +62,7 @@
                     ========================= --}}
                     <fieldset id="first-field">
                         <form class="needs-validation" novalidate>
-
-                            <div
-                                class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                                 <h4 class="d-flex align-items-center">
                                     <i class="ti ti-info-circle text-secondary me-2"></i>Informations de base
                                 </h4>
@@ -59,39 +75,26 @@
                                         <h6 class="mb-1">Photos</h6>
                                         <p>Ajouter des photos du véhicule</p>
                                     </div>
-
                                     <div class="col-xl-9">
                                         <div class="d-flex align-items-center flex-wrap row-gap-3 upload-pic">
-                                            <div
-                                                class="d-flex align-items-center justify-content-center avatar avatar-xxl me-3 flex-shrink-0 border rounded-circle frames">
-                                                <img id="previewVehiclePhoto"
-                                                    src="{{ asset('images/placeholder.jpg') }}"
-                                                    class="img-fluid rounded-circle" alt="photo">
-                                                <a href="javascript:void(0);"
-                                                    class="upload-img-trash trash-end btn btn-sm rounded-circle"
-                                                    id="clearVehiclePhoto">
+                                            <div class="d-flex align-items-center justify-content-center avatar avatar-xxl me-3 flex-shrink-0 border rounded-circle frames">
+                                                <img id="previewVehiclePhoto" src="{{ asset('images/placeholder.jpg') }}" class="img-fluid rounded-circle" alt="photo">
+                                                <a href="javascript:void(0);" class="upload-img-trash trash-end btn btn-sm rounded-circle" id="clearVehiclePhoto">
                                                     <i class="ti ti-trash fs-12"></i>
                                                 </a>
                                             </div>
-
                                             <div>
-                                                <div
-                                                    class="drag-upload-btn btn btn-md btn-dark d-inline-flex align-items-center mb-2">
+                                                <div class="drag-upload-btn btn btn-md btn-dark d-inline-flex align-items-center mb-2">
                                                     <i class="ti ti-photo me-1"></i>Choisir
-                                                    <input type="file" class="form-control image-sign" name="photos[]"
-                                                        id="vehiclePhotosInput" accept="image/*" multiple
-                                                        form="vehicleMainForm">
-
+                                                    <input type="file" class="form-control image-sign" name="photos[]" id="vehiclePhotosInput" accept="image/*" multiple form="vehicleMainForm">
                                                 </div>
                                                 <p class="mb-0">Taille recommandée : 500px x 500px</p>
-                                                <div class="invalid-feedback d-block">
-                                                    @error('photos')
-                                                    {{ $message }}
-                                                    @enderror
-                                                    @error('photos.*')
-                                                    {{ $message }}
-                                                    @enderror
-                                                </div>
+                                                @error('photos')
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                                @error('photos.*')
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
@@ -108,59 +111,55 @@
 
                                     <div class="col-xl-9">
                                         <div class="row">
-                                            {{-- MODELE (vehicle_model_id) --}}
+                                            {{-- MODELE --}}
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Modèle <span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="select" name="vehicle_model_id" required
-                                                        form="vehicleMainForm">
+                                                    <label class="form-label">Modèle <span class="text-danger">*</span></label>
+                                                    <select class="select" name="vehicle_model_id" required form="vehicleMainForm">
                                                         <option value="">Sélectionner</option>
                                                         @foreach ($models as $model)
-                                                        <option value="{{ $model->id }}"
-                                                            @selected(old('vehicle_model_id')==$model->id)>
-                                                            {{ $model->name }} @if ($model->brand)
-                                                            - {{ $model->brand->name }}
-                                                            @endif
-                                                        </option>
+                                                            <option value="{{ $model->id }}" @selected(old('vehicle_model_id') == $model->id)>
+                                                                {{ $model->name }} @if ($model->brand) - {{ $model->brand->name }} @endif
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                     <div class="invalid-feedback">Veuillez choisir un modèle.</div>
                                                     @error('vehicle_model_id')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
 
-                                            {{-- PLATE (registration_number) --}}
+                                            {{-- PLATE WITH DUPLICATE CHECK --}}
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Immatriculation <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="registration_number"
-                                                        value="{{ old('registration_number') }}" required
-                                                        form="vehicleMainForm">
-                                                    <div class="invalid-feedback">Veuillez saisir l’immatriculation.
+                                                    <label class="form-label">Immatriculation <span class="text-danger">*</span></label>
+                                                    <div class="position-relative">
+                                                        <input type="text" 
+                                                               class="form-control @error('registration_number') is-invalid @enderror" 
+                                                               name="registration_number" 
+                                                               id="registration_number"
+                                                               value="{{ old('registration_number') }}" 
+                                                               required 
+                                                               form="vehicleMainForm"
+                                                               autocomplete="off"
+                                                               placeholder="Ex: 1234 A 123">
+                                                        <div id="plate-status" class="mt-1 small"></div>
                                                     </div>
+                                                    <div class="invalid-feedback">Veuillez saisir l’immatriculation.</div>
                                                     @error('registration_number')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
 
-                                            {{-- CITY (registration_city) --}}
+                                            {{-- CITY --}}
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Ville d’immatriculation</label>
-<input type="text"
-       class="form-control"
-       name="registration_city"
-       form="vehicleMainForm"
-       value="{{ old('registration_city') }}"
-       placeholder="Ex: Casablanca">
-
+                                                    <input type="text" class="form-control" name="registration_city" form="vehicleMainForm" value="{{ old('registration_city') }}" placeholder="Ex: Casablanca">
                                                     @error('registration_city')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -169,10 +168,9 @@
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">VIN</label>
-                                                    <input type="text" class="form-control" name="vin"
-                                                        value="{{ old('vin') }}" form="vehicleMainForm">
+                                                    <input type="text" class="form-control" name="vin" value="{{ old('vin') }}" form="vehicleMainForm" placeholder="Numéro de série">
                                                     @error('vin')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -180,28 +178,21 @@
                                             {{-- COLOR --}}
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Couleur <span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="select2-color" name="color" required
-                                                        form="vehicleMainForm">
-
+                                                    <label class="form-label">Couleur <span class="text-danger">*</span></label>
+                                                    <select class="select2-color" name="color" required form="vehicleMainForm">
                                                         <option value="">Sélectionner</option>
-                                                        <option value="red" @selected(old('color')==='red' )
-                                                            class="bg-danger">Rouge</option>
-                                                        <option value="green" @selected(old('color')==='green' )
-                                                            class="bg-success">Vert</option>
-                                                        <option value="blue" @selected(old('color')==='blue' )
-                                                            class="bg-info">Bleu</option>
-                                                        <option value="black" @selected(old('color')==='black' )>Noir
-                                                        </option>
-                                                        <option value="white" @selected(old('color')==='white' )>Blanc
-                                                        </option>
-                                                        <option value="gray" @selected(old('color')==='gray' )>Gris
-                                                        </option>
+                                                        <option value="red" @selected(old('color') === 'red')>Rouge</option>
+                                                        <option value="green" @selected(old('color') === 'green')>Vert</option>
+                                                        <option value="blue" @selected(old('color') === 'blue')>Bleu</option>
+                                                        <option value="black" @selected(old('color') === 'black')>Noir</option>
+                                                        <option value="white" @selected(old('color') === 'white')>Blanc</option>
+                                                        <option value="gray" @selected(old('color') === 'gray')>Gris</option>
+                                                        <option value="silver" @selected(old('color') === 'silver')>Argent</option>
+                                                        <option value="yellow" @selected(old('color') === 'yellow')>Jaune</option>
                                                     </select>
                                                     <div class="invalid-feedback">Veuillez choisir une couleur.</div>
                                                     @error('color')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -209,19 +200,14 @@
                                             {{-- YEAR --}}
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Année <span
-                                                            class="text-danger">*</span></label>
+                                                    <label class="form-label">Année <span class="text-danger">*</span></label>
                                                     <div class="input-icon-end position-relative">
-                                                        <input type="text" class="form-control yearpicker" name="year"
-                                                            value="{{ old('year') }}" required form="vehicleMainForm">
-
-                                                        <span class="input-icon-addon">
-                                                            <i class="ti ti-calendar"></i>
-                                                        </span>
+                                                        <input type="text" class="form-control yearpicker" name="year" value="{{ old('year') }}" required form="vehicleMainForm" placeholder="2024">
+                                                        <span class="input-icon-addon"><i class="ti ti-calendar"></i></span>
                                                     </div>
                                                     <div class="invalid-feedback">Veuillez saisir l’année.</div>
                                                     @error('year')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -230,12 +216,9 @@
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Kilométrage actuel</label>
-                                                    <input type="number" class="form-control" name="current_mileage"
-                                                        value="{{ old('current_mileage') }}" min="0"
-                                                        form="vehicleMainForm">
-
+                                                    <input type="number" class="form-control" name="current_mileage" value="{{ old('current_mileage') }}" min="0" form="vehicleMainForm" placeholder="0">
                                                     @error('current_mileage')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -243,26 +226,17 @@
                                             {{-- STATUS --}}
                                             <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Statut <span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="select" name="status" required
-                                                        form="vehicleMainForm">
+                                                    <label class="form-label">Statut <span class="text-danger">*</span></label>
+                                                    <select class="select" name="status" required form="vehicleMainForm">
                                                         <option value="">Sélectionner</option>
-                                                        <option value="available" @selected(old('status')==='available'
-                                                            )>
-                                                            Disponible</option>
-                                                        <option value="unavailable"
-                                                            @selected(old('status')==='unavailable' )>
-                                                            Indisponible</option>
-                                                        <option value="maintenance"
-                                                            @selected(old('status')==='maintenance' )>
-                                                            Maintenance</option>
-                                                        <option value="sold" @selected(old('status')==='sold' )>Vendu
-                                                        </option>
+                                                        <option value="available" @selected(old('status') === 'available')>Disponible</option>
+                                                        <option value="unavailable" @selected(old('status') === 'unavailable')>Indisponible</option>
+                                                        <option value="maintenance" @selected(old('status') === 'maintenance')>Maintenance</option>
+                                                        <option value="sold" @selected(old('status') === 'sold')>Vendu</option>
                                                     </select>
                                                     <div class="invalid-feedback">Veuillez choisir un statut.</div>
                                                     @error('status')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -271,27 +245,22 @@
                                             <div class="col-lg-8 col-md-12">
                                                 <div class="mb-3">
                                                     <label class="form-label">Notes</label>
-                                                    <textarea class="form-control" name="notes" rows="3"
-                                                        form="vehicleMainForm">{{ old('notes') }}</textarea>
-
+                                                    <textarea class="form-control" name="notes" rows="3" form="vehicleMainForm" placeholder="Informations complémentaires...">{{ old('notes') }}</textarea>
                                                     @error('notes')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="d-flex align-items-center justify-content-end pt-3">
-                                <a href="{{ route('backoffice.vehicles.index') }}"
-                                    class="btn btn-light d-flex align-items-center me-2">
+                                <a href="{{ route('backoffice.vehicles.index') }}" class="btn btn-light d-flex align-items-center me-2">
                                     <i class="ti ti-chevron-left me-1"></i>Annuler
                                 </a>
-
-                                <button class="btn btn-primary wizard-next d-flex align-items-center" type="button">
+                                <button class="btn btn-primary wizard-next d-flex align-items-center" type="button" id="next-to-options">
                                     Options <i class="ti ti-chevron-right ms-1"></i>
                                 </button>
                             </div>
@@ -299,12 +268,11 @@
                     </fieldset>
 
                     {{-- =========================
-                    STEP 2 : FEATURES (has_gps, has_air_conditioning, fuel_policy, fuel levels)
+                    STEP 2 : FEATURES
                     ========================= --}}
                     <fieldset>
                         <form class="needs-validation" novalidate>
-                            <div
-                                class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                                 <h4 class="d-flex align-items-center">
                                     <i class="ti ti-flame text-secondary me-2"></i>Options
                                 </h4>
@@ -322,26 +290,20 @@
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <div class="form-check form-checkbox mb-0">
-                                                        <input class="form-check-input" type="checkbox" id="has_gps"
-                                                            form="vehicleMainForm">
+                                                        <input class="form-check-input" type="checkbox" id="has_gps" form="vehicleMainForm">
                                                         <label class="form-check-label" for="has_gps">GPS</label>
                                                     </div>
-                                                    <input type="hidden" name="has_gps" value="{{ old('has_gps', 0) }}"
-                                                        form="vehicleMainForm">
+                                                    <input type="hidden" name="has_gps" value="{{ old('has_gps', 0) }}" form="vehicleMainForm">
                                                 </div>
                                             </div>
 
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <div class="form-check form-checkbox mb-0">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="has_air_conditioning" form="vehicleMainForm">
-                                                        <label class="form-check-label"
-                                                            for="has_air_conditioning">Climatisation</label>
+                                                        <input class="form-check-input" type="checkbox" id="has_air_conditioning" form="vehicleMainForm">
+                                                        <label class="form-check-label" for="has_air_conditioning">Climatisation</label>
                                                     </div>
-                                                    <input type="hidden" name="has_air_conditioning"
-                                                        value="{{ old('has_air_conditioning', 0) }}"
-                                                        form="vehicleMainForm">
+                                                    <input type="hidden" name="has_air_conditioning" value="{{ old('has_air_conditioning', 0) }}" form="vehicleMainForm">
                                                 </div>
                                             </div>
 
@@ -350,15 +312,11 @@
                                                     <label class="form-label">Politique carburant</label>
                                                     <select class="select" name="fuel_policy" form="vehicleMainForm">
                                                         <option value="">Sélectionner</option>
-                                                        <option value="full_to_full"
-                                                            @selected(old('fuel_policy')==='full_to_full' )>
-                                                            Plein à plein</option>
-                                                        <option value="same_to_same"
-                                                            @selected(old('fuel_policy')==='same_to_same' )>Même
-                                                            niveau</option>
+                                                        <option value="full_to_full" @selected(old('fuel_policy') === 'full_to_full')>Plein à plein</option>
+                                                        <option value="same_to_same" @selected(old('fuel_policy') === 'same_to_same')>Même niveau</option>
                                                     </select>
                                                     @error('fuel_policy')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -366,12 +324,9 @@
                                             <div class="col-lg-3 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Carburant (sortie)</label>
-                                                    <input type="number" step="0.01" min="0" max="1"
-                                                        class="form-control" name="fuel_level_out"
-                                                        value="{{ old('fuel_level_out') }}" placeholder="0.00 - 1.00"
-                                                        form="vehicleMainForm">
+                                                    <input type="number" step="0.01" min="0" max="1" class="form-control" name="fuel_level_out" value="{{ old('fuel_level_out') }}" placeholder="0.00 - 1.00" form="vehicleMainForm">
                                                     @error('fuel_level_out')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -379,16 +334,12 @@
                                             <div class="col-lg-3 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Carburant (retour)</label>
-                                                    <input type="number" step="0.01" min="0" max="1"
-                                                        class="form-control" name="fuel_level_in"
-                                                        value="{{ old('fuel_level_in') }}" placeholder="0.00 - 1.00"
-                                                        form="vehicleMainForm">
+                                                    <input type="number" step="0.01" min="0" max="1" class="form-control" name="fuel_level_in" value="{{ old('fuel_level_in') }}" placeholder="0.00 - 1.00" form="vehicleMainForm">
                                                     @error('fuel_level_in')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -406,12 +357,11 @@
                     </fieldset>
 
                     {{-- =========================
-                    STEP 3 : PRICING (daily_rate, deposit_amount)
+                    STEP 3 : PRICING
                     ========================= --}}
                     <fieldset>
                         <form class="needs-validation" novalidate>
-                            <div
-                                class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                                 <h4 class="d-flex align-items-center">
                                     <i class="ti ti-files text-secondary me-2"></i>Tarifs
                                 </h4>
@@ -428,14 +378,11 @@
                                         <div class="row">
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Prix / jour (MAD) <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="number" step="0.01" min="0" class="form-control"
-                                                        name="daily_rate" value="{{ old('daily_rate') }}" required
-                                                        form="vehicleMainForm">
+                                                    <label class="form-label">Prix / jour (MAD) <span class="text-danger">*</span></label>
+                                                    <input type="number" step="0.01" min="0" class="form-control @error('daily_rate') is-invalid @enderror" name="daily_rate" value="{{ old('daily_rate') }}" required form="vehicleMainForm" placeholder="0.00">
                                                     <div class="invalid-feedback">Veuillez saisir le prix/jour.</div>
                                                     @error('daily_rate')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -443,11 +390,9 @@
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Caution (MAD)</label>
-                                                    <input type="number" step="0.01" min="0" class="form-control"
-                                                        name="deposit_amount" value="{{ old('deposit_amount') }}"
-                                                        form="vehicleMainForm">
+                                                    <input type="number" step="0.01" min="0" class="form-control" name="deposit_amount" value="{{ old('deposit_amount') }}" form="vehicleMainForm" placeholder="0.00">
                                                     @error('deposit_amount')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -460,21 +405,16 @@
                                 <button type="button" class="btn btn-outline-light border wizard-prev me-2">
                                     <i class="ti ti-chevron-left me-1"></i>Retour
                                 </button>
-
-                                {{-- SUBMIT FINAL --}}
-                                <button class="btn btn-primary d-flex align-items-center" type="submit"
-                                    form="vehicleMainForm">
+                                <button class="btn btn-primary d-flex align-items-center" type="submit" form="vehicleMainForm" id="submitBtn">
                                     Enregistrer <i class="ti ti-chevron-right ms-1"></i>
                                 </button>
                             </div>
                         </form>
                     </fieldset>
 
-                    {{-- HIDDEN MAIN FORM (pour centraliser la soumission) --}}
-                    <form id="vehicleMainForm" method="POST" action="{{ route('backoffice.vehicles.store') }}"
-                        enctype="multipart/form-data" class="d-none">
+                    {{-- HIDDEN MAIN FORM --}}
+                    <form id="vehicleMainForm" method="POST" action="{{ route('backoffice.vehicles.store') }}" enctype="multipart/form-data" class="d-none">
                         @csrf
-                        {{-- Ici on submit tout depuis les steps via form="" --}}
                     </form>
 
                 </div>
@@ -488,15 +428,55 @@
             <a href="javascript:void(0);">Politique de confidentialité</a>
             <a href="javascript:void(0);" class="ms-4">Conditions d’utilisation</a>
         </p>
-        <p>&copy; 2025 Dreamsrent, Made with <span class="text-danger">❤</span> by <a href="javascript:void(0);"
-                class="text-secondary">Dreams</a></p>
+        <p>&copy; 2025 Dreamsrent, Made with <span class="text-danger">❤</span> by <a href="javascript:void(0);" class="text-secondary">Dreams</a></p>
     </div>
-    <!-- /Footer-->
 </div>
-<!-- /Page Wrapper -->
 
-{{-- JS: preview + bootstrap validation + checkbox hidden sync --}}
+{{-- TOAST CONTAINER --}}
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+{{-- JS: preview + bootstrap validation + checkbox hidden sync + duplicate check + toast --}}
 <script>
+// Toast notification function
+function showToast(title, message, type = 'info') {
+    const toastColors = {
+        success: '#198754',
+        danger: '#dc3545',
+        warning: '#ffc107',
+        info: '#0dcaf0'
+    };
+    
+    const toastContainer = document.getElementById('toast-container');
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast show';
+    toast.style.cssText = 'min-width: 350px; margin-bottom: 10px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    toast.innerHTML = `
+        <div class="toast-header" style="border-bottom: 1px solid #dee2e6; padding: 12px 16px; border-radius: 8px 8px 0 0;">
+            <strong class="me-auto" style="color: ${toastColors[type] || toastColors.info};">${title}</strong>
+            <button type="button" class="btn-close" onclick="this.closest('.toast').remove()"></button>
+        </div>
+        <div class="toast-body" style="padding: 12px 16px; color: #212529;">
+            ${message}
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => toast.remove(), 5000);
+}
+
+// Global AJAX error handler
+window.addEventListener('unhandledrejection', function(event) {
+    if (event.reason && event.reason.status === 422) {
+        showToast('Erreur de validation', 'Veuillez vérifier les informations saisies.', 'warning');
+    } else if (event.reason && event.reason.status === 500) {
+        showToast('Erreur serveur', 'Une erreur est survenue. Veuillez réessayer.', 'danger');
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // ===== Bootstrap validation
     document.querySelectorAll('.needs-validation').forEach(function(form) {
@@ -509,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, false);
     });
 
-    // ===== Photos preview (preview 1st image)
+    // ===== Photos preview
     const input = document.getElementById('vehiclePhotosInput');
     const preview = document.getElementById('previewVehiclePhoto');
     const clearBtn = document.getElementById('clearVehiclePhoto');
@@ -530,14 +510,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== Checkbox -> hidden fields (has_gps / has_air_conditioning)
+    // ===== Checkbox -> hidden fields
     function syncCheckboxToHidden(checkboxId, hiddenName) {
         const cb = document.getElementById(checkboxId);
-        const hidden = document.querySelector('input[type="hidden"][name="' + hiddenName +
-            '"][form="vehicleMainForm"]');
+        const hidden = document.querySelector('input[type="hidden"][name="' + hiddenName + '"][form="vehicleMainForm"]');
         if (!cb || !hidden) return;
 
-        // init from old()
         const oldVal = hidden.value === '1';
         cb.checked = oldVal;
 
@@ -548,6 +526,102 @@ document.addEventListener('DOMContentLoaded', function() {
 
     syncCheckboxToHidden('has_gps', 'has_gps');
     syncCheckboxToHidden('has_air_conditioning', 'has_air_conditioning');
+
+    // ===== DUPLICATE PLATE CHECK - AJAX
+    const plateInput = document.getElementById('registration_number');
+    const plateStatus = document.getElementById('plate-status');
+    const submitBtn = document.getElementById('submitBtn');
+    const nextBtn = document.getElementById('next-to-options');
+    let checkTimeout;
+
+    if (plateInput) {
+        plateInput.addEventListener('input', function() {
+            clearTimeout(checkTimeout);
+            const plate = this.value.trim();
+            
+            if (plate.length < 3) {
+                if (plateStatus) plateStatus.innerHTML = '';
+                plateInput.classList.remove('is-invalid', 'is-valid');
+                if (submitBtn) submitBtn.disabled = false;
+                if (nextBtn) nextBtn.disabled = false;
+                return;
+            }
+
+            // Show loading state
+            if (plateStatus) {
+                plateStatus.innerHTML = '<span class="text-muted"><i class="ti ti-loader me-1"></i>Vérification...</span>';
+            }
+
+            checkTimeout = setTimeout(() => {
+                fetch('{{ route("backoffice.vehicles.check-duplicate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ registration_number: plate })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        plateInput.classList.add('is-invalid');
+                        plateInput.classList.remove('is-valid');
+                        if (plateStatus) {
+                            plateStatus.innerHTML = '<span class="text-danger"><i class="ti ti-alert-circle me-1"></i>' + data.message + '</span>';
+                        }
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.title = 'Veuillez changer le numéro d\'immatriculation';
+                        }
+                        if (nextBtn) {
+                            nextBtn.disabled = true;
+                            nextBtn.title = 'Veuillez changer le numéro d\'immatriculation';
+                        }
+                    } else {
+                        plateInput.classList.remove('is-invalid');
+                        plateInput.classList.add('is-valid');
+                        if (plateStatus) {
+                            plateStatus.innerHTML = '<span class="text-success"><i class="ti ti-check me-1"></i>' + data.message + '</span>';
+                        }
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.title = '';
+                        }
+                        if (nextBtn) {
+                            nextBtn.disabled = false;
+                            nextBtn.title = '';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (plateStatus) {
+                        plateStatus.innerHTML = '<span class="text-warning"><i class="ti ti-alert-triangle me-1"></i>Erreur de vérification</span>';
+                    }
+                });
+            }, 500);
+        });
+    }
+
+    // Initial check if old value exists
+    if (plateInput && plateInput.value.trim() !== '') {
+        plateInput.dispatchEvent(new Event('input'));
+    }
+
+    // ===== Prevent form submit if duplicate exists
+    const mainForm = document.getElementById('vehicleMainForm');
+    if (mainForm) {
+        mainForm.addEventListener('submit', function(e) {
+            const plateInput = document.getElementById('registration_number');
+            const isInvalid = plateInput?.classList.contains('is-invalid');
+            
+            if (isInvalid) {
+                e.preventDefault();
+                showToast('Erreur de validation', 'Veuillez corriger les erreurs avant de soumettre.', 'danger');
+                return false;
+            }
+        });
+    }
 });
 </script>
 @endsection

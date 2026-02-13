@@ -8,100 +8,277 @@ use App\Models\VehicleTechnicalCheck;
 use App\Http\Requests\Backoffice\VehicleTechnicalCheck\VehicleTechnicalCheckStoreRequest;
 use App\Http\Requests\Backoffice\VehicleTechnicalCheck\VehicleTechnicalCheckUpdateRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TechnicalCheckController extends Controller
 {
     use AuthorizesRequests;
-    public function index(Vehicle $vehicle)
+
+    /**
+     * Display a listing of the technical checks for a vehicle.
+     * Route: /backoffice/vehicles/{vehicle}/technical-checks
+     */
+    public function index(Request $request, $vehicleId)
     {
+        $vehicle = Vehicle::find($vehicleId);
+        
+        // If no vehicle, show empty state
+        if (!$vehicle) {
+            return view('Backoffice.technical-checks.index', [
+                'vehicle' => null,
+                'technicalChecks' => new LengthAwarePaginator([], 0, 15),
+                'availableYears' => collect([])
+            ]);
+        }
+        
         $this->authorize('view', $vehicle);
 
-        $technicalChecks = $vehicle->technicalChecks()
-            ->latest()
-            ->paginate(15);
+        $query = $vehicle->technicalChecks();
 
-        return view('Backoffice.vehicles.technical-checks.index', compact('vehicle', 'technicalChecks'));
-    }
-
-    public function create(Vehicle $vehicle)
-    {
-        $this->authorize('update', $vehicle);
-        return view('Backoffice.vehicles.technical-checks.create', compact('vehicle'));
-    }
-
-    public function store(VehicleTechnicalCheckStoreRequest $request, Vehicle $vehicle)
-    {
-        $this->authorize('update', $vehicle);
-
-        $data = $request->validated();
-        $data['vehicle_id'] = $vehicle->id;
-
-        // Remove documents from main data
-        $documents = $data['documents'] ?? null;
-        unset($data['documents']);
-
-        $technicalCheck = VehicleTechnicalCheck::create($data);
-
-        // Handle document uploads via Media Library
-        if ($documents) {
-            foreach ($documents as $document) {
-                $technicalCheck->addMediaFromRequest('documents')
-                    ->toMediaCollection('technical_check_documents');
-            }
+        // 🔎 SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('date', 'like', "%{$search}%")
+                  ->orWhere('amount', 'like', "%{$search}%")
+                  ->orWhere('next_check_date', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%");
+            });
         }
 
-        return redirect()
-            ->route('Backoffice.vehicles.technical-checks.index', $vehicle)
-            ->with('success', 'Visite technique créée avec succès.');
+        // 📅 FILTER BY DATE RANGE
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        // 📅 FILTER BY NEXT CHECK DATE RANGE
+        if ($request->filled('next_date_from')) {
+            $query->whereDate('next_check_date', '>=', $request->next_date_from);
+        }
+        if ($request->filled('next_date_to')) {
+            $query->whereDate('next_check_date', '<=', $request->next_date_to);
+        }
+
+        // 💰 FILTER BY AMOUNT RANGE
+        if ($request->filled('amount_min')) {
+            $query->where('amount', '>=', $request->amount_min);
+        }
+        if ($request->filled('amount_max')) {
+            $query->where('amount', '<=', $request->amount_max);
+        }
+
+        // 🔤 SORT
+        $sort = $request->get('sort', 'latest');
+        
+        if ($sort === 'oldest') {
+            $query->orderBy('date', 'asc');
+        } elseif ($sort === 'amount_asc') {
+            $query->orderBy('amount', 'asc');
+        } elseif ($sort === 'amount_desc') {
+            $query->orderBy('amount', 'desc');
+        } elseif ($sort === 'next_date_asc') {
+            $query->orderBy('next_check_date', 'asc');
+        } elseif ($sort === 'next_date_desc') {
+            $query->orderBy('next_check_date', 'desc');
+        } else {
+            $query->orderBy('date', 'desc');
+        }
+
+        $technicalChecks = $query->paginate(15)->withQueryString();
+
+        // Get available years for filter
+        $availableYears = $vehicle ? VehicleTechnicalCheck::where('vehicle_id', $vehicle->id)
+            ->selectRaw('YEAR(date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year') : collect([]);
+
+        return view('Backoffice.technical-checks.index', compact('vehicle', 'technicalChecks', 'availableYears'));
     }
 
+    /**
+     * Show the form for creating a new technical check.
+     * Route: /backoffice/vehicles/technical-checks/create
+     */
+    public function create(Vehicle $vehicle = null)
+    {
+        $vehicles = Vehicle::orderBy('registration_number')->get();
+        
+        return view('Backoffice.technical-checks.create', compact('vehicle', 'vehicles'));
+    }
+
+    /**
+     * Store a newly created technical check in storage.
+     * Route: /backoffice/vehicles/technical-checks (POST)
+     */
+    public function store(VehicleTechnicalCheckStoreRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $data = $request->validated();
+            
+            $vehicle = Vehicle::findOrFail($data['vehicle_id']);
+            
+            VehicleTechnicalCheck::create([
+                'vehicle_id' => $vehicle->id,
+                'date' => $data['date'],
+                'amount' => $data['amount'],
+                'next_check_date' => $data['next_check_date'],
+                'notes' => $data['notes'] ?? null,
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('backoffice.vehicles.technical-checks.index', $vehicle->id)
+                ->with('toast', [
+                    'title' => 'Créé',
+                    'message' => 'Contrôle technique créé avec succès.',
+                    'dot' => '#198754',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('toast', [
+                    'title' => 'Erreur',
+                    'message' => 'Erreur lors de la création: ' . $e->getMessage(),
+                    'dot' => '#dc3545',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        }
+    }
+
+    /**
+     * Display the specified technical check.
+     * Route: /backoffice/vehicles/{vehicle}/technical-checks/{technicalCheck}
+     */
+    public function show(Vehicle $vehicle, VehicleTechnicalCheck $technicalCheck)
+    {
+        $this->authorize('view', $vehicle);
+        $this->verifyResource($vehicle, $technicalCheck);
+        
+        return view('Backoffice.technical-checks.show', compact('vehicle', 'technicalCheck'));
+    }
+
+    /**
+     * Show the form for editing the specified technical check.
+     * Route: /backoffice/vehicles/{vehicle}/technical-checks/{technicalCheck}/edit
+     */
     public function edit(Vehicle $vehicle, VehicleTechnicalCheck $technicalCheck)
     {
         $this->authorize('update', $vehicle);
         $this->verifyResource($vehicle, $technicalCheck);
 
-        return view('Backoffice.vehicles.technical-checks.edit', compact('vehicle', 'technicalCheck'));
+        $vehicles = Vehicle::orderBy('registration_number')->get();
+
+        return view('Backoffice.technical-checks.edit', compact('vehicle', 'technicalCheck', 'vehicles'));
     }
 
+    /**
+     * Update the specified technical check in storage.
+     * Route: /backoffice/vehicles/{vehicle}/technical-checks/{technicalCheck} (PUT)
+     */
     public function update(VehicleTechnicalCheckUpdateRequest $request, Vehicle $vehicle, VehicleTechnicalCheck $technicalCheck)
     {
         $this->authorize('update', $vehicle);
         $this->verifyResource($vehicle, $technicalCheck);
 
-        $data = $request->validated();
+        try {
+            DB::beginTransaction();
 
-        // Remove documents from main data
-        $documents = $data['documents'] ?? null;
-        unset($data['documents']);
+            $data = $request->validated();
+            
+            $technicalCheck->update([
+                'vehicle_id' => $data['vehicle_id'],
+                'date' => $data['date'],
+                'amount' => $data['amount'],
+                'next_check_date' => $data['next_check_date'],
+                'notes' => $data['notes'] ?? null,
+            ]);
 
-        $technicalCheck->update($data);
+            DB::commit();
 
-        // Handle document uploads via Media Library
-        if ($documents) {
-            foreach ($documents as $document) {
-                $technicalCheck->addMediaFromRequest('documents')
-                    ->toMediaCollection('technical_check_documents');
-            }
+            return redirect()
+                ->route('backoffice.vehicles.technical-checks.index', $technicalCheck->vehicle_id)
+                ->with('toast', [
+                    'title' => 'Mis à jour',
+                    'message' => 'Contrôle technique mis à jour avec succès.',
+                    'dot' => '#0d6efd',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('toast', [
+                    'title' => 'Erreur',
+                    'message' => 'Erreur lors de la mise à jour: ' . $e->getMessage(),
+                    'dot' => '#dc3545',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
         }
-
-        return redirect()
-            ->route('Backoffice.vehicles.technical-checks.index', $vehicle)
-            ->with('success', 'Visite technique mise à jour avec succès.');
     }
 
+    /**
+     * Remove the specified technical check from storage.
+     * Route: /backoffice/vehicles/{vehicle}/technical-checks/{technicalCheck} (DELETE)
+     */
     public function destroy(Vehicle $vehicle, VehicleTechnicalCheck $technicalCheck)
     {
         $this->authorize('delete', $vehicle);
         $this->verifyResource($vehicle, $technicalCheck);
 
-        $technicalCheck->delete();
+        try {
+            DB::beginTransaction();
 
-        return redirect()
-            ->route('Backoffice.vehicles.technical-checks.index', $vehicle)
-            ->with('success', 'Visite technique supprimée.');
+            $technicalCheck->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->route('backoffice.vehicles.technical-checks.index', $vehicle->id)
+                ->with('toast', [
+                    'title' => 'Supprimé',
+                    'message' => 'Contrôle technique supprimé avec succès.',
+                    'dot' => '#dc3545',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->with('toast', [
+                    'title' => 'Erreur',
+                    'message' => 'Erreur lors de la suppression: ' . $e->getMessage(),
+                    'dot' => '#dc3545',
+                    'delay' => 3500,
+                    'time' => 'now',
+                ]);
+        }
     }
 
-    private function verifyResource(Vehicle $vehicle, VehicleTechnicalCheck $technicalCheck)
+    /**
+     * Verify that the technical check belongs to the vehicle.
+     */
+    private function verifyResource(Vehicle $vehicle, VehicleTechnicalCheck $technicalCheck): void
     {
         if ($technicalCheck->vehicle_id !== $vehicle->id) {
             abort(404);
