@@ -26,6 +26,7 @@ class User extends Authenticatable implements HasMedia
         'phone',
         'status',
         'last_login_at',
+        'password_changed_at',
     ];
     protected $guard_name = 'backoffice';
 
@@ -42,6 +43,7 @@ class User extends Authenticatable implements HasMedia
      */
     protected $casts = [
         'last_login_at' => 'datetime',
+        'password_changed_at' => 'datetime',
         'password' => 'hashed',
     ];
 
@@ -71,7 +73,4 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasMany(Agent::class);
     }
-
-    
-
 }

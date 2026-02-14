@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Backoffice;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Backoffice\UpdateProfileRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
-        return view('Backoffice.profile.profile-setting');
+        $user = auth('backoffice')->user();
+        $agency = $user->agency;
+
+        return view('Backoffice.profile.profile-setting', [
+            'agency' => $agency,
+        ]);
     }
 
     public function update(UpdateProfileRequest $request)
@@ -36,5 +44,45 @@ class ProfileController extends Controller
         }
 
         return back()->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Show the change password form
+     */
+    public function showChangePassword()
+    {
+        $user = auth('backoffice')->user();
+        $agency = $user->agency;
+
+        return view('Backoffice.profile.change-password', [
+            'agency' => $agency,
+        ]);
+    }
+
+    /**
+     * Update the user's password with timestamp tracking
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password:backoffice'],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
+        ]);
+
+        $user = auth('backoffice')->user();
+
+        $user->update([
+            'password' => Hash::make($request->password),
+            'password_changed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Password updated successfully.');
     }
 }
