@@ -1,4 +1,27 @@
-
+@section('content')
+<script>
+// Override the native alert function to block DataTables warnings
+(function() {
+    // Store the original alert
+    var originalAlert = window.alert;
+    
+    // Replace with filtered version
+    window.alert = function(message) {
+        // Check if this is a DataTables warning
+        if (message && (message.includes('DataTables') || message.includes('datatables'))) {
+            console.log('DataTables warning blocked:', message);
+            return; // Block the alert
+        }
+        // Allow other alerts through
+        originalAlert(message);
+    };
+    
+    // Also set DataTables error mode if available
+    if (window.$ && $.fn && $.fn.dataTable) {
+        $.fn.dataTable.ext.errMode = 'none';
+    }
+})();
+</script>
 <?php $page = 'clients'; ?>
 @extends('layout.mainlayout_admin')
 

@@ -15,6 +15,7 @@
     <div class="sidebar-inner slimscroll">
         <div id="sidebar-menu" class="sidebar-menu">
             <ul>
+                <!-- MAIN SECTION -->
                 <li class="menu-title"><span>Main</span></li>
                 <li>
                     <ul>
@@ -29,6 +30,7 @@
                     </ul>
                 </li>
 
+                <!-- AGENCIES SECTION -->
                 @role('super-admin|admin')
                 <li class="menu-title"><span>AGENCIES</span></li>
                 <li>
@@ -49,6 +51,7 @@
                 </li>
                 @endrole
 
+                <!-- ACCÈS SECTION -->
                 @role('super-admin|admin')
                 <li class="menu-title"><span>ACCÈS</span></li>
                 <li>
@@ -63,6 +66,7 @@
                 </li>
                 @endrole
 
+                <!-- EMPLOYEE SECTION -->
                 @role('super-admin|admin|manager')
                 <li class="menu-title"><span>EMPLOYEE</span></li>
                 <li>
@@ -77,6 +81,7 @@
                 </li>
                 @endrole
 
+                <!-- CLIENTS SECTION -->
                 @role('super-admin|admin|manager')
                 <li class="menu-title"><span>CLIENTS</span></li>
                 <li>
@@ -91,6 +96,7 @@
                 </li>
                 @endrole
 
+                <!-- MANAGEMENT SECTION -->
                 @role('super-admin|admin|manager')
                 <li class="menu-title"><span>MANAGEMENT</span></li>
                 <li>
@@ -104,19 +110,99 @@
                     </ul>
                 </li>
                 @endrole
-                {{-- ==================== RENTALS ==================== --}}
+
+                <!-- ==================== VÉHICULE SUIVI SECTION ==================== -->
                 @role('super-admin|admin|manager')
-                <li class="menu-title"><span>RENTALS</span></li>
+                <li class="menu-title"><span>VÉHICULE SUIVI</span></li>
                 <li>
                     <ul>
-                        <li
-                            class="{{ request()->routeIs('backoffice.vehicles.index') && !request()->routeIs('backoffice.vehicles.vignettes.*', 'backoffice.vehicles.insurances.*', 'backoffice.vehicles.oil-changes.*') ? 'active' : '' }}">
+                        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => 'all']) }}">
+                                <i class="ti ti-ticket"></i>
+                                <span>Vignettes</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('backoffice.vehicles.insurances.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.insurances.index', ['vehicle' => 'all']) }}">
+                                <i class="ti ti-shield"></i>
+                                <span>Assurances</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.oil-changes.index', ['vehicle' => 'all']) }}">
+                                <i class="ti ti-droplet"></i>
+                                <span>Vidanges</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.vehicles.technical-checks.index', ['vehicle' => 'all']) }}">
+                                <i class="ti ti-clipboard-check"></i>
+                                <span>Contrôle technique</span>
+                            </a>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"
+                               class="{{ request()->routeIs('backoffice.vehicles.controls.*') ? 'active subdrop' : '' }}">
+                                <i class="ti ti-clipboard-list"></i>
+                                <span>Contrôles</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <ul>
+                                <li>
+                                    <a href="{{ route('backoffice.vehicle-documents.controls.index') }}"
+                                       class="{{ request()->routeIs('backoffice.vehicle-documents.controls.index') ? 'active' : '' }}">
+                                        <i class="ti ti-list me-1"></i>
+                                        Tous les contrôles
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('backoffice.vehicle-documents.control-items.index') }}"
+                                       class="{{ request()->routeIs('backoffice.vehicle-documents.control-items.index') ? 'active' : '' }}">
+                                        <i class="ti ti-checklist me-1"></i>
+                                        Tous les éléments
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
+
+                <!-- ==================== CONTRATS SECTION ==================== -->
+                @role('super-admin|admin|manager')
+                <li class="menu-title"><span>CONTRATS</span></li>
+                <li>
+                    <ul>
+                        <!-- Contrats - List all contracts -->
+                        <li class="{{ request()->routeIs('backoffice.rental-contracts.index') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.rental-contracts.index') }}">
+                                <i class="ti ti-file-text"></i>
+                                <span>Contrats</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Clients du contrat - Manage relationships -->
+                        <li class="{{ request()->routeIs('backoffice.contract-clients.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.contract-clients.index') }}">
+                                <i class="ti ti-users"></i>
+                                <span>Clients du contrat</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
+
+                <!-- ==================== VÉHICULES SECTION ==================== -->
+                @role('super-admin|admin|manager')
+                <li class="menu-title"><span>VÉHICULES</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.vehicles.index') && !request()->routeIs('backoffice.vehicles.vignettes.*', 'backoffice.vehicles.insurances.*', 'backoffice.vehicles.oil-changes.*') ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.index') }}">
                                 <i class="ti ti-car"></i>
                                 <span>Cars</span>
                             </a>
                         </li>
-
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ request()->routeIs('backoffice.vehicle-brands.*', 'backoffice.vehicle-models.*') ? 'active subdrop' : '' }}">
@@ -142,45 +228,6 @@
                     </ul>
                 </li>
                 @endrole
-{{-- ==================== VÉHICULE SUIVI ==================== --}}
-@role('super-admin|admin|manager')
-<li class="menu-title"><span>VÉHICULE SUIVI</span></li>
-<li>
-    <ul>
-        {{-- Vignettes - GLOBAL VIEW (ALL VEHICLES) --}}
-        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
-            <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => 'all']) }}">
-                <i class="ti ti-ticket"></i>
-                <span>Vignettes</span>
-            </a>
-        </li>
-
-        {{-- Assurances - GLOBAL VIEW (ALL VEHICLES) --}}
-        <li class="{{ request()->routeIs('backoffice.vehicles.insurances.index') && request('vehicle') == 'all' ? 'active' : '' }}">
-            <a href="{{ route('backoffice.vehicles.insurances.index', ['vehicle' => 'all']) }}">
-                <i class="ti ti-shield"></i>
-                <span>Assurances</span>
-            </a>
-        </li>
-
-        {{-- Vidanges - GLOBAL VIEW (ALL VEHICLES) --}}
-        <li class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
-            <a href="{{ route('backoffice.vehicles.oil-changes.index', ['vehicle' => 'all']) }}">
-                <i class="ti ti-droplet"></i>
-                <span>Vidanges</span>
-            </a>
-        </li>
-
-        {{-- Contrôles techniques - GLOBAL VIEW (ALL VEHICLES) --}}
-        <li class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index') && request('vehicle') == 'all' ? 'active' : '' }}">
-            <a href="{{ route('backoffice.vehicles.technical-checks.index', ['vehicle' => 'all']) }}">
-                <i class="ti ti-clipboard-check"></i>
-                <span>Contrôle technique</span>
-            </a>
-        </li>
-    </ul>
-</li>
-@endrole
             </ul>
         </div>
     </div>

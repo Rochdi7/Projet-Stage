@@ -2,321 +2,341 @@
 @extends('layout.mainlayout_admin')
 
 @section('content')
+<style>
+    .document-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #0d6efd;
+    }
+    .document-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+    .document-image:hover {
+        transform: scale(1.05);
+    }
+    .document-icon {
+        font-size: 3rem;
+        color: #6c757d;
+    }
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+    .info-value {
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    .avatar-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .document-thumbnail {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid #dee2e6;
+        transition: transform 0.3s;
+    }
+    .document-thumbnail:hover {
+        transform: scale(1.1);
+    }
+</style>
+
 <div class="page-wrapper">
     <div class="content me-0">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+        <div class="row">
+            <div class="col-lg-12">
 
-                <div class="mb-3">
+                <div class="mb-3 d-flex justify-content-between align-items-center">
                     <a href="{{ route('backoffice.clients.index') }}" class="d-inline-flex align-items-center fw-medium">
-                        <i class="ti ti-arrow-left me-1"></i>Clients
+                        <i class="ti ti-arrow-left me-1"></i> Retour à la liste
                     </a>
+                    <div>
+                        <a href="{{ route('backoffice.clients.edit', $client) }}" class="btn btn-primary">
+                            <i class="ti ti-edit me-1"></i>Modifier
+                        </a>
+                    </div>
                 </div>
 
-                {{-- BASIC CARD --}}
-                <div class="card">
+                <!-- Header Card -->
+                <div class="card mb-4">
                     <div class="card-body">
-                        <div class="border-bottom mb-3 pb-3">
-                            <h5>Détails de base</h5>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                            <div class="d-flex align-items-center">
-                                <span class="avatar avatar-lg me-3" style="border-radius: 10px; overflow:hidden; background-color: #f0f3f8;">
-                                    @if($client->avatar_url)
-                                        <img src="{{ $client->avatar_url }}" 
-                                             alt="{{ $client->full_name }}"
-                                             style="width:100%; height:100%; object-fit:cover;">
-                                    @else
-                                        <span class="avatar-title fw-bold fs-24 text-primary">
-                                            {{ $client->avatar_initials }}
-                                        </span>
-                                    @endif
-                                </span>
-
-                                <div>
-                                    <h6 class="mb-1">{{ $client->full_name }}</h6>
-                                    <div class="d-flex align-items-center">
-                                        <p class="mb-0 me-2">
-                                            <i class="ti ti-building me-1"></i>
-                                            {{ $client->agency->name ?? '—' }}
-                                        </p>
-                                        <p class="mb-0">
-                                            Client depuis :
-                                            {{ optional($client->created_at)->format('d M Y') ?: '—' }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center flex-wrap gap-3">
-                                @if($client->status == 'active')
-                                    <span class="badge badge-md bg-success-transparent">
-                                        <i class="ti ti-point-filled text-success me-1"></i>Actif
-                                    </span>
-                                @elseif($client->status == 'inactive')
-                                    <span class="badge badge-md bg-danger-transparent">
-                                        <i class="ti ti-point-filled text-danger me-1"></i>Inactif
-                                    </span>
+                        <div class="row">
+                            <div class="col-md-2 text-center">
+                                @if($client->getFirstMediaUrl('avatar'))
+                                    <img src="{{ $client->getFirstMediaUrl('avatar') }}" 
+                                         alt="{{ $client->first_name }} {{ $client->last_name }}" 
+                                         class="avatar-large">
                                 @else
-                                    <span class="badge badge-md bg-dark-transparent">
-                                        <i class="ti ti-point-filled text-dark me-1"></i>Blacklisté
-                                    </span>
+                                    <div class="avatar-large bg-primary text-white d-flex align-items-center justify-content-center" 
+                                         style="font-size: 3rem; border-radius: 50%; margin: 0 auto;">
+                                        {{ strtoupper(substr($client->first_name, 0, 1) . substr($client->last_name, 0, 1)) }}
+                                    </div>
                                 @endif
                             </div>
+                            <div class="col-md-6">
+                                <h3 class="mb-2">{{ $client->first_name }} {{ $client->last_name }}</h3>
+                                <p class="text-muted mb-1">
+                                    <i class="ti ti-mail me-2"></i>{{ $client->email ?? 'Non renseigné' }}
+                                </p>
+                                <p class="text-muted mb-1">
+                                    <i class="ti ti-phone me-2"></i>{{ $client->phone }}
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <i class="ti ti-map-pin me-2"></i>{{ $client->address ?? 'Adresse non renseignée' }}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                @php
+                                    $statusColors = [
+                                        'active' => 'success',
+                                        'inactive' => 'secondary',
+                                        'blacklisted' => 'danger'
+                                    ];
+                                    $statusTexts = [
+                                        'active' => 'Actif',
+                                        'inactive' => 'Inactif',
+                                        'blacklisted' => 'Blacklisté'
+                                    ];
+                                @endphp
+                                <span class="badge bg-{{ $statusColors[$client->status] ?? 'secondary' }} fs-6 p-2">
+                                    {{ $statusTexts[$client->status] ?? $client->status }}
+                                </span>
+                                <p class="mt-2 text-muted">
+                                    <i class="ti ti-calendar me-1"></i>
+                                    Membre depuis {{ $client->created_at->format('d/m/Y') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- TABS CARD --}}
-                <div class="card mb-4 mb-xl-0">
-                    <div class="card-header py-0">
-                        <ul class="nav nav-tabs nav-tabs-bottom tab-dark">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#client-overview" data-bs-toggle="tab">Overview</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#client-documents" data-bs-toggle="tab">Documents</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#client-notes" data-bs-toggle="tab">Notes</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#client-history" data-bs-toggle="tab">History</a>
-                            </li>
-                        </ul>
+                <!-- Informations Personnelles -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-user me-2"></i>
+                            Informations personnelles
+                        </h5>
                     </div>
-
                     <div class="card-body">
-                        <div class="tab-content">
-
-                            {{-- OVERVIEW --}}
-                            <div class="tab-pane fade active show" id="client-overview">
-                                <div class="border-bottom mb-3 pb-3">
-                                    <div class="row">
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Prénom</h6>
-                                                <p class="fs-13">{{ $client->first_name }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Nom</h6>
-                                                <p class="fs-13">{{ $client->last_name }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Email</h6>
-                                                <p class="fs-13">{{ $client->email ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Téléphone</h6>
-                                                <p class="fs-13">{{ $client->phone ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Date de naissance</h6>
-                                                <p class="fs-13">{{ $client->birth_date ? $client->birth_date->format('d/m/Y') : '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Nationalité</h6>
-                                                <p class="fs-13">{{ $client->nationality ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Agence</h6>
-                                                <p class="fs-13">{{ $client->agency->name ?? '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Adresse</h6>
-                                                <p class="fs-13">{{ $client->address ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Ville</h6>
-                                                <p class="fs-13">{{ $client->city ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Pays</h6>
-                                                <p class="fs-13">{{ $client->country ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-sm-6">
-                                            <div class="mb-3">
-                                                <h6 class="fs-14 fw-semibold mb-1">Statut</h6>
-                                                <p class="fs-13">
-                                                    @if($client->status == 'active')
-                                                        <span class="badge bg-success">Actif</span>
-                                                    @elseif($client->status == 'inactive')
-                                                        <span class="badge bg-danger">Inactif</span>
-                                                    @else
-                                                        <span class="badge bg-dark">Blacklisté</span>
-                                                    @endif
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-3">
-                                    <div class="col-md-12">
-                                        <h6 class="fw-semibold mb-2">Pièces d'identité</h6>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <span class="text-muted fs-12">CIN :</span>
-                                            <p class="fs-13 fw-medium">{{ $client->cin_number ?: '—' }}</p>
-                                            @if($client->cin_valid_until)
-                                                <small class="text-muted">Valide jusqu'au {{ $client->cin_valid_until->format('d/m/Y') }}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <span class="text-muted fs-12">Passeport :</span>
-                                            <p class="fs-13 fw-medium">{{ $client->passport_number ?: '—' }}</p>
-                                            @if($client->passport_issue_date)
-                                                <small class="text-muted">Délivré le {{ $client->passport_issue_date->format('d/m/Y') }}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <span class="text-muted fs-12">Permis de conduire :</span>
-                                            <p class="fs-13 fw-medium">{{ $client->driving_license_number ?: '—' }}</p>
-                                            @if($client->driving_license_issue_date)
-                                                <small class="text-muted">Délivré le {{ $client->driving_license_issue_date->format('d/m/Y') }}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <span class="text-muted fs-12">Évaluation :</span>
-                                            <p class="fs-13 fw-medium">
-                                                @if($client->rating_average)
-                                                    {{ number_format($client->rating_average, 1) }} / 5 ({{ $client->rating_count }} avis)
-                                                @else
-                                                    Pas encore évalué
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-3">
-                                    <div class="col-lg-12">
-<a href="{{ route('backoffice.clients.edit', $client) }}"
-   class="btn btn-primary btn-sm d-inline-flex align-items-center">
-    <i class="ti ti-edit me-1"></i>
-    Modifier
-</a>
-
-                                    </div>
-                                </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="info-label">Agence</div>
+                                <div class="info-value">{{ $client->agency->name ?? 'N/A' }}</div>
                             </div>
-                            {{-- /OVERVIEW --}}
-
-                            {{-- DOCUMENTS --}}
-                            <div class="tab-pane fade" id="client-documents">
-                                <div class="text-center py-4">
-                                    <i class="ti ti-file-text fs-40 text-gray-4 mb-2"></i>
-                                    <h6>Aucun document</h6>
-                                    <p class="text-muted">Les documents du client apparaîtront ici</p>
-                                </div>
+                            <div class="col-md-3">
+                                <div class="info-label">Date de naissance</div>
+                                <div class="info-value">{{ $client->birth_date ? $client->birth_date->format('d/m/Y') : 'Non renseignée' }}</div>
                             </div>
-                            {{-- /DOCUMENTS --}}
-
-                            {{-- NOTES --}}
-                            <div class="tab-pane fade" id="client-notes">
-                                <div class="text-muted">
-                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                        <h6>Notes internes</h6>
-                                        <a href="javascript:void(0);" 
-                                           class="btn btn-sm btn-primary"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#edit_client"
-                                           data-edit-action="{{ route('backoffice.clients.update', $client) }}"
-                                           data-client-notes="{{ $client->notes }}">
-                                            <i class="ti ti-edit me-1"></i>Éditer
-                                        </a>
-                                    </div>
-                                    @if($client->notes)
-                                        <div class="p-3 bg-light-100 rounded">
-                                            {{ $client->notes }}
-                                        </div>
-                                    @else
-                                        <div class="text-center py-5">
-                                            <i class="ti ti-notes fs-40 text-gray-3 mb-2"></i>
-                                            <p class="mb-0">Aucune note disponible</p>
-                                        </div>
-                                    @endif
-                                </div>
+                            <div class="col-md-3">
+                                <div class="info-label">Nationalité</div>
+                                <div class="info-value">{{ $client->nationality ?? 'Non renseignée' }}</div>
                             </div>
-                            {{-- /NOTES --}}
-
-                            {{-- HISTORY --}}
-                            <div class="tab-pane fade" id="client-history">
-                                <div class="activity-timeline">
-                                    <div class="d-flex align-items-start mb-3">
-                                        <span class="badge bg-success rounded-circle p-2 me-3 mt-1">
-                                            <i class="ti ti-plus fs-12"></i>
-                                        </span>
-                                        <div>
-                                            <p class="mb-1 fw-medium">Client créé</p>
-                                            <small class="text-muted">{{ optional($client->created_at)->format('d M Y, H:i') }}</small>
-                                        </div>
-                                    </div>
-                                    @if($client->updated_at && $client->updated_at != $client->created_at)
-                                        <div class="d-flex align-items-start mb-3">
-                                            <span class="badge bg-info rounded-circle p-2 me-3 mt-1">
-                                                <i class="ti ti-edit fs-12"></i>
-                                            </span>
-                                            <div>
-                                                <p class="mb-1 fw-medium">Dernière modification</p>
-                                                <small class="text-muted">{{ $client->updated_at->format('d M Y, H:i') }}</small>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
+                            <div class="col-md-3">
+                                <div class="info-label">Téléphone</div>
+                                <div class="info-value">{{ $client->phone }}</div>
                             </div>
-                            {{-- /HISTORY --}}
-
                         </div>
                     </div>
                 </div>
+
+                <!-- Adresse -->
+                @if($client->address || $client->city || $client->country)
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-map-pin me-2"></i>
+                            Adresse
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @if($client->address)
+                            <div class="col-md-4">
+                                <div class="info-label">Adresse</div>
+                                <div class="info-value">{{ $client->address }}</div>
+                            </div>
+                            @endif
+                            @if($client->city)
+                            <div class="col-md-3">
+                                <div class="info-label">Ville</div>
+                                <div class="info-value">{{ $client->city }}</div>
+                            </div>
+                            @endif
+                            @if($client->country)
+                            <div class="col-md-3">
+                                <div class="info-label">Pays</div>
+                                <div class="info-value">{{ $client->country }}</div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Documents d'identité -->
+                @if($client->cin_number || $client->getFirstMedia('cin_front') || $client->getFirstMedia('cin_back') ||
+                    $client->passport_number || $client->getFirstMedia('passport') ||
+                    $client->driving_license_number || $client->getFirstMedia('license'))
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-id me-2"></i>
+                            Documents d'identité
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- CIN -->
+                            @if($client->cin_number || $client->getFirstMedia('cin_front') || $client->getFirstMedia('cin_back'))
+                            <div class="col-md-6">
+                                <div class="document-card">
+                                    <h6 class="mb-3">
+                                        <i class="ti ti-card me-2"></i>
+                                        Carte d'Identité Nationale (CIN)
+                                    </h6>
+                                    @if($client->cin_number)
+                                    <p><strong>Numéro:</strong> {{ $client->cin_number }}</p>
+                                    @endif
+                                    @if($client->cin_valid_until)
+                                    <p><strong>Valide jusqu'au:</strong> {{ $client->cin_valid_until->format('d/m/Y') }}</p>
+                                    @endif
+                                    <div class="row mt-3">
+                                        @if($client->getFirstMedia('cin_front'))
+                                        <div class="col-6 text-center">
+                                            <img src="{{ $client->getFirstMediaUrl('cin_front') }}" 
+                                                 class="document-thumbnail" 
+                                                 alt="Recto CIN"
+                                                 onclick="openImageModal('{{ $client->getFirstMediaUrl('cin_front') }}', 'Recto CIN')">
+                                            <p class="mt-1"><small>Recto</small></p>
+                                        </div>
+                                        @endif
+                                        @if($client->getFirstMedia('cin_back'))
+                                        <div class="col-6 text-center">
+                                            <img src="{{ $client->getFirstMediaUrl('cin_back') }}" 
+                                                 class="document-thumbnail" 
+                                                 alt="Verso CIN"
+                                                 onclick="openImageModal('{{ $client->getFirstMediaUrl('cin_back') }}', 'Verso CIN')">
+                                            <p class="mt-1"><small>Verso</small></p>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- Passeport -->
+                            @if($client->passport_number || $client->getFirstMedia('passport'))
+                            <div class="col-md-6">
+                                <div class="document-card">
+                                    <h6 class="mb-3">
+                                        <i class="ti ti-book me-2"></i>
+                                        Passeport
+                                    </h6>
+                                    @if($client->passport_number)
+                                    <p><strong>Numéro:</strong> {{ $client->passport_number }}</p>
+                                    @endif
+                                    @if($client->passport_issue_date)
+                                    <p><strong>Délivré le:</strong> {{ $client->passport_issue_date->format('d/m/Y') }}</p>
+                                    @endif
+                                    @if($client->getFirstMedia('passport'))
+                                    <div class="mt-3 text-center">
+                                        <img src="{{ $client->getFirstMediaUrl('passport') }}" 
+                                             class="document-thumbnail" 
+                                             alt="Passeport"
+                                             onclick="openImageModal('{{ $client->getFirstMediaUrl('passport') }}', 'Passeport')">
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- Permis de Conduire -->
+                            @if($client->driving_license_number || $client->getFirstMedia('license'))
+                            <div class="col-md-6">
+                                <div class="document-card">
+                                    <h6 class="mb-3">
+                                        <i class="ti ti-car me-2"></i>
+                                        Permis de Conduire
+                                    </h6>
+                                    @if($client->driving_license_number)
+                                    <p><strong>Numéro:</strong> {{ $client->driving_license_number }}</p>
+                                    @endif
+                                    @if($client->driving_license_issue_date)
+                                    <p><strong>Délivré le:</strong> {{ $client->driving_license_issue_date->format('d/m/Y') }}</p>
+                                    @endif
+                                    @if($client->getFirstMedia('license'))
+                                    <div class="mt-3 text-center">
+                                        <img src="{{ $client->getFirstMediaUrl('license') }}" 
+                                             class="document-thumbnail" 
+                                             alt="Permis de Conduire"
+                                             onclick="openImageModal('{{ $client->getFirstMediaUrl('license') }}', 'Permis de Conduire')">
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Notes -->
+                @if($client->notes)
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-notes me-2"></i>
+                            Notes
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ $client->notes }}</p>
+                    </div>
+                </div>
+                @endif
 
             </div>
         </div>
     </div>
-
-    <!-- Footer-->
-    <div class="footer d-sm-flex align-items-center justify-content-between bg-white p-3">
-        <p class="mb-0">
-            <a href="javascript:void(0);">Privacy Policy</a>
-            <a href="javascript:void(0);" class="ms-4">Terms of Use</a>
-        </p>
-        <p>&copy; 2025 Dreamsrent, Made with <span class="text-danger">❤</span> by
-            <a href="javascript:void(0);" class="text-secondary">Dreams</a>
-        </p>
-    </div>
-    <!-- /Footer-->
 </div>
-<!-- /Page Wrapper -->
 
-{{-- Include Modals --}}
-@include('backoffice.clients.partials._modal_edit')
-@include('backoffice.clients.partials._modal_delete')
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="" id="modalImage" class="img-fluid" style="max-height: 70vh;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openImageModal(imageUrl, title) {
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('imageModalTitle').textContent = title;
+        new bootstrap.Modal(document.getElementById('imageModal')).show();
+    }
+</script>
 @endsection

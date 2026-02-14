@@ -11,6 +11,7 @@ class AuthServiceProvider extends ServiceProvider
          Vehicle::class => VehiclePolicy::class,
         VehicleModel::class => VehicleModelPolicy::class,
          VehicleVignette::class => VehicleVignettePolicy::class,
+          RentalContract::class => RentalContractPolicy::class,
     ];
 
     public function boot(): void

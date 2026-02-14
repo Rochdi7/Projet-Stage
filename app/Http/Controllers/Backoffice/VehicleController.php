@@ -128,8 +128,16 @@ class VehicleController extends Controller
     {
         $data = $request->validated();
         $data['agency_id'] = Auth::guard('backoffice')->user()->agency_id;
+        
+        // Set boolean values for all 7 equipment options
         $data['has_gps'] = (bool) ($data['has_gps'] ?? false);
-        $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? false);
+        $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? true);
+        $data['has_bluetooth'] = (bool) ($data['has_bluetooth'] ?? false);
+        $data['has_baby_seat'] = (bool) ($data['has_baby_seat'] ?? false); // Changed from has_usb
+        $data['has_camera_recul'] = (bool) ($data['has_camera_recul'] ?? false);
+        $data['has_regulateur_vitesse'] = (bool) ($data['has_regulateur_vitesse'] ?? false);
+        $data['has_siege_chauffant'] = (bool) ($data['has_siege_chauffant'] ?? false);
+        
         unset($data['photos'], $data['documents']);
 
         $vehicle = Vehicle::create($data);
@@ -147,7 +155,7 @@ class VehicleController extends Controller
         }
 
         return redirect()
-            ->route('backoffice.vehicles.show', $vehicle)
+            ->route('backoffice.vehicles.index')
             ->with('toast', [
                 'title'   => 'Créé',
                 'message' => 'Véhicule créé avec succès.',
@@ -179,8 +187,16 @@ class VehicleController extends Controller
     {
         $this->authorize('update', $vehicle);
         $data = $request->validated();
+        
+        // Set boolean values for all 7 equipment options
         $data['has_gps'] = (bool) ($data['has_gps'] ?? false);
-        $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? false);
+        $data['has_air_conditioning'] = (bool) ($data['has_air_conditioning'] ?? true);
+        $data['has_bluetooth'] = (bool) ($data['has_bluetooth'] ?? false);
+        $data['has_baby_seat'] = (bool) ($data['has_baby_seat'] ?? false); // Changed from has_usb
+        $data['has_camera_recul'] = (bool) ($data['has_camera_recul'] ?? false);
+        $data['has_regulateur_vitesse'] = (bool) ($data['has_regulateur_vitesse'] ?? false);
+        $data['has_siege_chauffant'] = (bool) ($data['has_siege_chauffant'] ?? false);
+        
         unset($data['photos'], $data['documents']);
 
         $vehicle->update($data);

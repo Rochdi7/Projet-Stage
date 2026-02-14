@@ -57,6 +57,26 @@
         .table td, .table th {
             vertical-align: middle;
         }
+        
+        /* Car image styling */
+        .car-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            background-color: #f8f9fa;
+        }
+        .car-image-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 24px;
+        }
     </style>
 </head>
 
@@ -70,12 +90,11 @@
                         <input class="form-check-input" type="checkbox" id="select-all">
                     </div>
                 </th>
-                <th>CAR</th>
-                <th>BASE LOCATION</th>
-                <th>PRICE (PER DAY)</th>
-                <th>MILEAGE</th>
-                <th>CREATED DATE</th>
-                <th>STATUS</th>
+                <th>VÉHICULE</th>
+                <th>IMMATRICULATION</th>
+                <th>PRIX/JOUR</th>
+                <th>KILOMÉTRAGE</th>
+                <th>STATUT</th>
                 <th width="80" style="text-align: center;">ACTIONS</th>
             </tr>
         </thead>
@@ -83,18 +102,8 @@
         <tbody>
             @forelse($vehicles as $vehicle)
                 @php
-                    // Get media URL
-                    $mediaUrl = $vehicle->getFirstMediaUrl('vehicle_photos');
-                    
-                    // Set photo URL - use media if exists, otherwise use placeholder
-                    if (!empty($mediaUrl)) {
-                        $photoUrl = $mediaUrl;
-                    } else {
-                        $photoUrl = asset('assets/place-holder.webp');
-                    }
-                    
-                    // Get car title
-                    $brandName = optional(optional($vehicle->model)->brand)->name;
+                    // Get car title using the correct relationship name
+                    $brandName = optional($vehicle->model?->brand)->name;
                     $modelName = optional($vehicle->model)->name;
 
                     $carTitle = trim(($brandName ? $brandName . ' ' : '') . ($modelName ?? ''));
@@ -102,19 +111,9 @@
                         $carTitle = $vehicle->registration_number;
                     }
 
-                    // Generate initials for ultra fallback (if image fails)
-                    $words = explode(' ', trim($carTitle));
-                    if (count($words) >= 2) {
-                        $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
-                    } else {
-                        $initials = strtoupper(substr($carTitle, 0, 2));
-                    }
+                    // Get photo URL from media library
+                    $photoUrl = $vehicle->getMainPhotoUrlAttribute();
                     
-                    // Generate consistent color for initials fallback
-                    $colors = ['#4361ee', '#3a0ca3', '#4cc9f0', '#f72585', '#b5179e', '#4895ef', '#560bad', '#06d6a0', '#ffbe0b', '#ef476f'];
-                    $colorIndex = abs(crc32($vehicle->id ?? $carTitle)) % count($colors);
-                    $bgColor = $colors[$colorIndex];
-
                     // Status
                     $status = $vehicle->status;
                     $statusLabel = match ($status) {
@@ -122,22 +121,25 @@
                         'unavailable' => 'Indisponible',
                         'maintenance' => 'Maintenance',
                         'sold' => 'Vendu',
+                        'booked' => 'Réservé',
                         default => '—',
                     };
                     $statusDot = match ($status) {
                         'available' => 'text-success',
-                        'unavailable' => 'text-danger',
+                        'unavailable', 'sold' => 'text-danger',
                         'maintenance' => 'text-warning',
-                        'sold' => 'text-secondary',
+                        'booked' => 'text-info',
                         default => 'text-muted',
                     };
+                    $statusBadgeClass = match ($status) {
+                        'available' => 'badge-success',
+                        'unavailable', 'sold' => 'badge-danger',
+                        'maintenance' => 'badge-warning',
+                        'booked' => 'badge-info',
+                        default => 'badge-secondary',
+                    };
 
-                    $createdDate = optional($vehicle->created_at)->format('d M Y');
-                    $createdTime = optional($vehicle->created_at)->format('h:i A');
-
-                    // Base location
-                    $baseLocation = $vehicle->registration_city ?: '—';
-
+                    // Price and mileage formatting
                     $daily = $vehicle->daily_rate !== null ? number_format((float) $vehicle->daily_rate, 2) : null;
                     $mileage = $vehicle->current_mileage !== null ? number_format((int) $vehicle->current_mileage) : null;
                 @endphp
@@ -151,27 +153,20 @@
 
                     <td style="vertical-align: middle;">
                         <div class="d-flex align-items-center">
-                            <a href="{{ route('backoffice.vehicles.show', $vehicle) }}" class="avatar me-2 flex-shrink-0">
-                                <img src="{{ $photoUrl }}" 
-                                     class="rounded-3" 
-                                     alt="{{ $carTitle }}" 
-                                     style="width: 50px; height: 50px; object-fit: cover;"
-                                     onerror="this.onerror=null; this.src='{{ asset('assets/place-holder.webp') }}'; 
-                                              this.onerror=function(){ 
-                                                  this.style.display='none'; 
-                                                  this.parentElement.innerHTML += '<div style=\'width:50px;height:50px;background-color:{{ $bgColor }};color:white;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:600;font-size:18px;\'>{{ $initials }}</div>';
-                                              };">
-                            </a>
+                            <img src="{{ $photoUrl }}" 
+                                 alt="{{ $carTitle }}" 
+                                 class="car-image me-2"
+                                 onerror="this.onerror=null; this.src='/assets/place-holder.webp';">
                             <div>
                                 <h6 class="mb-1">
                                     <a href="{{ route('backoffice.vehicles.show', $vehicle) }}" class="fs-14 fw-semibold">
                                         {{ $carTitle }}
                                     </a>
                                 </h6>
-                                <p class="mb-0">
-                                    {{ $vehicle->registration_number }}
+                                <p class="mb-0 text-muted small">
+                                    {{ $vehicle->color ?? 'Couleur N/C' }}
                                     @if ($vehicle->year)
-                                        <span class="ms-2">{{ $vehicle->year }}</span>
+                                        <span class="ms-2">• {{ $vehicle->year }}</span>
                                     @endif
                                 </p>
                             </div>
@@ -179,11 +174,14 @@
                     </td>
 
                     <td style="vertical-align: middle;">
-                        {{ $baseLocation }}
+                        <span class="fw-medium">{{ $vehicle->registration_number }}</span>
+                        @if($vehicle->registration_city)
+                            <br><small class="text-muted">{{ $vehicle->registration_city }}</small>
+                        @endif
                     </td>
 
                     <td style="vertical-align: middle;">
-                        <p class="fs-14 fw-semibold text-gray-9 mb-0">
+                        <p class="fs-14 fw-semibold text-success mb-0">
                             @if ($daily !== null)
                                 {{ $daily }} MAD
                             @else
@@ -203,12 +201,7 @@
                     </td>
 
                     <td style="vertical-align: middle;">
-                        <h6 class="fs-14 fw-normal mb-0">{{ $createdDate ?: '—' }}</h6>
-                        <p class="fs-13 mb-0">{{ $createdTime ?: '' }}</p>
-                    </td>
-
-                    <td style="vertical-align: middle;">
-                        <span class="badge badge-dark-transparent">
+                        <span class="badge {{ $statusBadgeClass }}">
                             <i class="ti ti-point-filled {{ $statusDot }} me-1"></i>{{ $statusLabel }}
                         </span>
                     </td>
@@ -236,11 +229,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <button type="button" 
-                                            class="dropdown-item text-danger rounded-1"
-                                            onclick="showDeleteModal('{{ $vehicle->id }}', '{{ addslashes($carTitle) }}', '{{ route('backoffice.vehicles.destroy', $vehicle) }}')">
+                                    <a class="dropdown-item text-danger rounded-1" 
+                                       href="javascript:void(0);"
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#delete_vehicle"
+                                       data-delete-action="{{ route('backoffice.vehicles.destroy', $vehicle) }}"
+                                       data-delete-details="Véhicule <strong>{{ $carTitle }}</strong> ({{ $vehicle->registration_number }})">
                                         <i class="ti ti-trash me-1"></i> Supprimer
-                                    </button>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -248,15 +244,45 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center py-5">
+                    <td colspan="7" class="text-center py-5">
                         <div class="empty-state">
+                            <i class="ti ti-car"></i>
                             <h5 class="mb-2">Aucun véhicule trouvé</h5>
+                            <p class="text-muted mb-3">Commencez par ajouter un véhicule</p>
+                            <a href="{{ route('backoffice.vehicles.create') }}" class="btn btn-primary">
+                                <i class="ti ti-plus me-2"></i>Ajouter un véhicule
+                            </a>
                         </div>
                     </td>
                 </tr>
             @endforelse
         </tbody>
     </table>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="delete_vehicle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-lg bg-transparent-danger rounded-circle text-danger mb-3">
+                    <i class="ti ti-trash-x fs-26"></i>
+                </span>
+                <h4 class="mb-1">Supprimer le véhicule</h4>
+                <p class="mb-3" id="deleteVehicleText">Êtes-vous sûr de vouloir supprimer ce véhicule ?</p>
+                
+                <form method="POST" action="" id="deleteVehicleForm">
+                    @csrf
+                    @method('DELETE')
+                    
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -281,6 +307,30 @@
                     selectAll.checked = allChecked;
                     selectAll.indeterminate = !allChecked && anyChecked;
                 });
+            });
+        }
+        
+        // Delete modal handler
+        const deleteModal = document.getElementById('delete_vehicle');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                
+                if (button) {
+                    const action = button.getAttribute('data-delete-action');
+                    const details = button.getAttribute('data-delete-details') || 'ce véhicule';
+                    
+                    const form = document.getElementById('deleteVehicleForm');
+                    const text = document.getElementById('deleteVehicleText');
+                    
+                    if (action && form) {
+                        form.action = action;
+                    }
+                    
+                    if (text && details) {
+                        text.innerHTML = 'Êtes-vous sûr de vouloir supprimer ' + details + ' ?';
+                    }
+                }
             });
         }
     });

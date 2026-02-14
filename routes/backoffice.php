@@ -20,6 +20,8 @@ use App\Http\Controllers\Backoffice\Vehicles\TechnicalCheckController;
 use App\Http\Controllers\Backoffice\Vehicles\OilChangeController;
 use App\Http\Controllers\Backoffice\Vehicles\ControlController;
 use App\Http\Controllers\Backoffice\Vehicles\ControlItemController;
+use App\Http\Controllers\Backoffice\RentalContractController;
+use App\Http\Controllers\Backoffice\ContractClientController;
 
 Route::prefix('backoffice')->name('backoffice.')->group(function () {
 
@@ -189,7 +191,6 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::get('/{vignette}/edit', [VignetteController::class, 'edit'])->name('edit');
                     Route::put('/{vignette}', [VignetteController::class, 'update'])->name('update');
                     Route::delete('/{vignette}', [VignetteController::class, 'destroy'])->name('destroy');
-                    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
                 });
 
                 /**
@@ -212,7 +213,6 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::get('/{insurance}/edit', [InsuranceController::class, 'edit'])->name('edit');
                     Route::put('/{insurance}', [InsuranceController::class, 'update'])->name('update');
                     Route::delete('/{insurance}', [InsuranceController::class, 'destroy'])->name('destroy');
-                    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
                 });
 
                 /**
@@ -235,47 +235,46 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                     Route::get('/{oilChange}/edit', [OilChangeController::class, 'edit'])->name('edit');
                     Route::put('/{oilChange}', [OilChangeController::class, 'update'])->name('update');
                     Route::delete('/{oilChange}', [OilChangeController::class, 'destroy'])->name('destroy');
-                    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
                 });
 
-// ==================== VEHICLE TECHNICAL CHECKS ====================
-// ✅ GLOBAL CREATE ROUTES (NO VEHICLE PARAMETER) - MUST COME FIRST
-Route::prefix('technical-checks')->name('technical-checks.')->group(function () {
-    Route::get('/create', [TechnicalCheckController::class, 'create'])->name('create');
-    Route::post('/', [TechnicalCheckController::class, 'store'])->name('store');
-});
+                /**
+                 * ==================== VEHICLE TECHNICAL CHECKS ====================
+                 * ORDER IS CRITICAL:
+                 * 1. GLOBAL ROUTES (no {vehicle}) - MUST COME FIRST
+                 * 2. VEHICLE-SPECIFIC ROUTES (with {vehicle}) - MUST COME SECOND
+                 */
 
-// ✅ VEHICLE-SPECIFIC ROUTES (WITH VEHICLE PARAMETER) - MUST COME SECOND
-Route::prefix('{vehicle}/technical-checks')->name('technical-checks.')->group(function () {
-    Route::get('/', [TechnicalCheckController::class, 'index'])->name('index');
-    Route::get('/{technicalCheck}', [TechnicalCheckController::class, 'show'])->name('show');
-    Route::get('/{technicalCheck}/edit', [TechnicalCheckController::class, 'edit'])->name('edit');
-    Route::put('/{technicalCheck}', [TechnicalCheckController::class, 'update'])->name('update');
-    Route::delete('/{technicalCheck}', [TechnicalCheckController::class, 'destroy'])->name('destroy');
-    // NO '/create' ROUTE HERE - IT'S IN THE GLOBAL GROUP
-});
-// ==================== GLOBAL VEHICLE DOCUMENTS (NO VEHICLE ID) ====================
-Route::prefix('vehicle-documents')->name('vehicle-documents.')
-    ->middleware('role:super-admin|admin|manager,backoffice')
-    ->group(function () {
-        
-        // Global Vignettes - Show ALL vignettes for ALL vehicles
-        Route::get('/vignettes', [VignetteController::class, 'globalIndex'])->name('vignettes.index');
-        
-        // Global Insurance - Show ALL insurance for ALL vehicles
-        Route::get('/insurances', [InsuranceController::class, 'globalIndex'])->name('insurances.index');
-        
-        // Global Oil Changes - Show ALL oil changes for ALL vehicles
-        Route::get('/oil-changes', [OilChangeController::class, 'globalIndex'])->name('oil-changes.index');
-        
-        // Global Technical Checks - Show ALL technical checks for ALL vehicles
-        Route::get('/technical-checks', [TechnicalCheckController::class, 'globalIndex'])->name('technical-checks.index');
-    });
-                // ==================== VEHICLE CONTROLS ====================
-                Route::prefix('{vehicle}/controls')->name('controls.')->group(function () {
-                    Route::get('/', [ControlController::class, 'index'])->name('index');
+                // ✅ 1. GLOBAL TECHNICAL CHECKS ROUTES (NO VEHICLE PARAMETER)
+                Route::prefix('technical-checks')->name('technical-checks.')->group(function () {
+                    Route::get('/create', [TechnicalCheckController::class, 'create'])->name('create');
+                    Route::post('/', [TechnicalCheckController::class, 'store'])->name('store');
+                });
+
+                // ✅ 2. VEHICLE-SPECIFIC TECHNICAL CHECKS ROUTES (WITH VEHICLE PARAMETER)
+                Route::prefix('{vehicle}/technical-checks')->name('technical-checks.')->group(function () {
+                    Route::get('/', [TechnicalCheckController::class, 'index'])->name('index');
+                    Route::get('/{technicalCheck}', [TechnicalCheckController::class, 'show'])->name('show');
+                    Route::get('/{technicalCheck}/edit', [TechnicalCheckController::class, 'edit'])->name('edit');
+                    Route::put('/{technicalCheck}', [TechnicalCheckController::class, 'update'])->name('update');
+                    Route::delete('/{technicalCheck}', [TechnicalCheckController::class, 'destroy'])->name('destroy');
+                });
+
+                /**
+                 * ==================== VEHICLE CONTROLS ====================
+                 * ORDER IS CRITICAL:
+                 * 1. GLOBAL ROUTES (no {vehicle}) - MUST COME FIRST
+                 * 2. VEHICLE-SPECIFIC ROUTES (with {vehicle}) - MUST COME SECOND
+                 */
+
+                // ✅ 1. GLOBAL CONTROLS ROUTES (NO VEHICLE PARAMETER)
+                Route::prefix('controls')->name('controls.')->group(function () {
                     Route::get('/create', [ControlController::class, 'create'])->name('create');
                     Route::post('/', [ControlController::class, 'store'])->name('store');
+                });
+
+                // ✅ 2. VEHICLE-SPECIFIC CONTROLS ROUTES (WITH VEHICLE PARAMETER)
+                Route::prefix('{vehicle}/controls')->name('controls.')->group(function () {
+                    Route::get('/', [ControlController::class, 'index'])->name('index');
                     Route::get('/{control}', [ControlController::class, 'show'])->name('show');
                     Route::get('/{control}/edit', [ControlController::class, 'edit'])->name('edit');
                     Route::put('/{control}', [ControlController::class, 'update'])->name('update');
@@ -292,6 +291,69 @@ Route::prefix('vehicle-documents')->name('vehicle-documents.')
                         Route::delete('/{item}', [ControlItemController::class, 'destroy'])->name('destroy');
                     });
                 });
+
             }); // END VEHICLES GROUP
+
+        // ==================== RENTAL CONTRACTS ====================
+        Route::prefix('rental-contracts')->name('rental-contracts.')
+            ->middleware('role:super-admin|admin|manager,backoffice')
+            ->group(function () {
+                Route::get('/', [RentalContractController::class, 'index'])->name('index');
+                Route::get('/create', [RentalContractController::class, 'create'])->name('create');
+                Route::post('/', [RentalContractController::class, 'store'])->name('store');
+                Route::get('/{rentalContract}', [RentalContractController::class, 'show'])->name('show');
+                Route::get('/{rentalContract}/edit', [RentalContractController::class, 'edit'])->name('edit');
+                Route::put('/{rentalContract}', [RentalContractController::class, 'update'])->name('update');
+                Route::delete('/{rentalContract}', [RentalContractController::class, 'destroy'])->name('destroy');
+                Route::post('/{rentalContract}/status', [RentalContractController::class, 'updateStatus'])->name('status');
+                
+                // Contract Clients
+                Route::prefix('{rentalContract}/clients')->name('clients.')
+                    ->group(function () {
+                        Route::get('/', [ContractClientController::class, 'index'])->name('index');
+                        Route::get('/create', [ContractClientController::class, 'create'])->name('create');
+                        Route::post('/', [ContractClientController::class, 'store'])->name('store');
+                        Route::get('/{contractClient}/edit', [ContractClientController::class, 'edit'])->name('edit');
+                        Route::put('/{contractClient}', [ContractClientController::class, 'update'])->name('update');
+                        Route::delete('/{contractClient}', [ContractClientController::class, 'destroy'])->name('destroy');
+                    });
+            });
+
+        // ==================== GLOBAL VEHICLE DOCUMENTS (OUTSIDE VEHICLES GROUP) ====================
+        Route::prefix('vehicle-documents')->name('vehicle-documents.')
+            ->middleware('role:super-admin|admin|manager,backoffice')
+            ->group(function () {
+                
+                // Global Vignettes - Show ALL vignettes for ALL vehicles
+                Route::get('/vignettes', [VignetteController::class, 'globalIndex'])->name('vignettes.index');
+                
+                // Global Insurance - Show ALL insurance for ALL vehicles
+                Route::get('/insurances', [InsuranceController::class, 'globalIndex'])->name('insurances.index');
+                
+                // Global Oil Changes - Show ALL oil changes for ALL vehicles
+                Route::get('/oil-changes', [OilChangeController::class, 'globalIndex'])->name('oil-changes.index');
+                
+                // Global Technical Checks - Show ALL technical checks for ALL vehicles
+                Route::get('/technical-checks', [TechnicalCheckController::class, 'globalIndex'])->name('technical-checks.index');
+                
+                // Global Controls - Show ALL controls for ALL vehicles
+                Route::get('/controls', [ControlController::class, 'globalIndex'])->name('controls.index');
+                
+                // Global Control Items - Show ALL control items for ALL controls
+                Route::get('/control-items', [ControlItemController::class, 'globalIndex'])->name('control-items.index');
+            });
+            // ==================== CONTRACT CLIENTS (STANDALONE) ====================
+Route::prefix('contract-clients')->name('contract-clients.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [ContractClientController::class, 'index'])->name('index');
+        Route::get('/create', [ContractClientController::class, 'create'])->name('create');
+        Route::post('/', [ContractClientController::class, 'store'])->name('store');
+        Route::get('/{contractClient}', [ContractClientController::class, 'show'])->name('show');
+        Route::get('/{contractClient}/edit', [ContractClientController::class, 'edit'])->name('edit');
+        Route::put('/{contractClient}', [ContractClientController::class, 'update'])->name('update');
+        Route::delete('/{contractClient}', [ContractClientController::class, 'destroy'])->name('destroy');
+    });
+
     }); // END AUTH GROUP
 }); // END BACKOFFICE PREFIX

@@ -78,7 +78,7 @@
                                     <div class="col-xl-9">
                                         <div class="d-flex align-items-center flex-wrap row-gap-3 upload-pic">
                                             <div class="d-flex align-items-center justify-content-center avatar avatar-xxl me-3 flex-shrink-0 border rounded-circle frames">
-                                                <img id="previewVehiclePhoto" src="{{ asset('images/placeholder.jpg') }}" class="img-fluid rounded-circle" alt="photo">
+                                                <img id="previewVehiclePhoto" src="{{ asset('assets/place-holder.webp') }}" class="img-fluid rounded-circle" alt="photo">
                                                 <a href="javascript:void(0);" class="upload-img-trash trash-end btn btn-sm rounded-circle" id="clearVehiclePhoto">
                                                     <i class="ti ti-trash fs-12"></i>
                                                 </a>
@@ -268,13 +268,13 @@
                     </fieldset>
 
                     {{-- =========================
-                    STEP 2 : FEATURES
+                    STEP 2 : FEATURES (7 EQUIPMENTS)
                     ========================= --}}
                     <fieldset>
                         <form class="needs-validation" novalidate>
                             <div class="filterbox p-20 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                                 <h4 class="d-flex align-items-center">
-                                    <i class="ti ti-flame text-secondary me-2"></i>Options
+                                    <i class="ti ti-flame text-secondary me-2"></i>Options & Équipements
                                 </h4>
                             </div>
 
@@ -282,31 +282,115 @@
                                 <div class="row row-gap-4">
                                     <div class="col-xl-3">
                                         <h6 class="mb-1">Équipements</h6>
-                                        <p>Configurer les options disponibles</p>
+                                        <p>Configurer les options disponibles (7 équipements)</p>
                                     </div>
 
                                     <div class="col-xl-9">
                                         <div class="row">
-                                            <div class="col-lg-6">
+                                            {{-- Equipment 1: GPS --}}
+                                            <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <div class="form-check form-checkbox mb-0">
-                                                        <input class="form-check-input" type="checkbox" id="has_gps" form="vehicleMainForm">
-                                                        <label class="form-check-label" for="has_gps">GPS</label>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_gps" name="has_gps" value="1" form="vehicleMainForm" @checked(old('has_gps'))>
+                                                        <label class="form-check-label" for="has_gps">
+                                                            <i class="ti ti-map-pin me-1 text-primary"></i>
+                                                            GPS
+                                                        </label>
                                                     </div>
-                                                    <input type="hidden" name="has_gps" value="{{ old('has_gps', 0) }}" form="vehicleMainForm">
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-6">
+                                            {{-- Equipment 2: Climatisation --}}
+                                            <div class="col-lg-4 col-md-6">
                                                 <div class="mb-3">
-                                                    <div class="form-check form-checkbox mb-0">
-                                                        <input class="form-check-input" type="checkbox" id="has_air_conditioning" form="vehicleMainForm">
-                                                        <label class="form-check-label" for="has_air_conditioning">Climatisation</label>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_air_conditioning" name="has_air_conditioning" value="1" form="vehicleMainForm" checked>
+                                                        <label class="form-check-label" for="has_air_conditioning">
+                                                            <i class="ti ti-snowflake me-1 text-info"></i>
+                                                            Climatisation
+                                                        </label>
                                                     </div>
-                                                    <input type="hidden" name="has_air_conditioning" value="{{ old('has_air_conditioning', 0) }}" form="vehicleMainForm">
                                                 </div>
                                             </div>
 
+                                            {{-- Equipment 3: Bluetooth --}}
+                                            <div class="col-lg-4 col-md-6">
+                                                <div class="mb-3">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_bluetooth" name="has_bluetooth" value="1" form="vehicleMainForm" @checked(old('has_bluetooth'))>
+                                                        <label class="form-check-label" for="has_bluetooth">
+                                                            <i class="ti ti-bluetooth me-1 text-primary"></i>
+                                                            Bluetooth
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Equipment 4: Baby Seat (formerly USB) --}}
+                                            <div class="col-lg-4 col-md-6">
+                                                <div class="mb-3">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_baby_seat" name="has_baby_seat" value="1" form="vehicleMainForm" @checked(old('has_baby_seat'))>
+                                                        <label class="form-check-label" for="has_baby_seat">
+                                                            <i class="ti ti-baby-carriage me-1 text-success"></i>
+                                                            Siège bébé
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Equipment 5: Caméra de recul --}}
+                                            <div class="col-lg-4 col-md-6">
+                                                <div class="mb-3">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_camera_recul" name="has_camera_recul" value="1" form="vehicleMainForm" @checked(old('has_camera_recul'))>
+                                                        <label class="form-check-label" for="has_camera_recul">
+                                                            <i class="ti ti-camera me-1 text-warning"></i>
+                                                            Caméra de recul
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Equipment 6: Régulateur de vitesse --}}
+                                            <div class="col-lg-4 col-md-6">
+                                                <div class="mb-3">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_regulateur_vitesse" name="has_regulateur_vitesse" value="1" form="vehicleMainForm" @checked(old('has_regulateur_vitesse'))>
+                                                        <label class="form-check-label" for="has_regulateur_vitesse">
+                                                            <i class="ti ti-speedometer me-1 text-danger"></i>
+                                                            Régulateur de vitesse
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Equipment 7: Sièges chauffants --}}
+                                            <div class="col-lg-4 col-md-6">
+                                                <div class="mb-3">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="has_siege_chauffant" name="has_siege_chauffant" value="1" form="vehicleMainForm" @checked(old('has_siege_chauffant'))>
+                                                        <label class="form-check-label" for="has_siege_chauffant">
+                                                            <i class="ti ti-heat me-1 text-warning"></i>
+                                                            Sièges chauffants
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-bottom mb-2 pb-2">
+                                <div class="row row-gap-4">
+                                    <div class="col-xl-3">
+                                        <h6 class="mb-1">Carburant</h6>
+                                        <p>Configurer la politique carburant</p>
+                                    </div>
+
+                                    <div class="col-xl-9">
+                                        <div class="row">
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Politique carburant</label>
@@ -435,7 +519,7 @@
 {{-- TOAST CONTAINER --}}
 <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
-{{-- JS: preview + bootstrap validation + checkbox hidden sync + duplicate check + toast --}}
+{{-- JS: preview + bootstrap validation + checkbox sync + duplicate check + toast --}}
 <script>
 // Toast notification function
 function showToast(title, message, type = 'info') {
@@ -506,26 +590,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (clearBtn && input && preview) {
         clearBtn.addEventListener('click', function() {
             input.value = '';
-            preview.src = "{{ asset('images/placeholder.jpg') }}";
+            preview.src = "{{ asset('assets/place-holder.webp') }}";
         });
     }
-
-    // ===== Checkbox -> hidden fields
-    function syncCheckboxToHidden(checkboxId, hiddenName) {
-        const cb = document.getElementById(checkboxId);
-        const hidden = document.querySelector('input[type="hidden"][name="' + hiddenName + '"][form="vehicleMainForm"]');
-        if (!cb || !hidden) return;
-
-        const oldVal = hidden.value === '1';
-        cb.checked = oldVal;
-
-        cb.addEventListener('change', function() {
-            hidden.value = cb.checked ? '1' : '0';
-        });
-    }
-
-    syncCheckboxToHidden('has_gps', 'has_gps');
-    syncCheckboxToHidden('has_air_conditioning', 'has_air_conditioning');
 
     // ===== DUPLICATE PLATE CHECK - AJAX
     const plateInput = document.getElementById('registration_number');

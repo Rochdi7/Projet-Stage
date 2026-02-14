@@ -22,7 +22,6 @@
                                 <i class="ti ti-info-circle me-1"></i>Informations
                             </a>
                         </li>
-                        {{-- ... other steps ... --}}
                     </ul>
 
                     <form action="{{ route('backoffice.vehicles.update', $vehicle) }}" method="POST"
@@ -49,18 +48,18 @@
                                         <div class="d-flex align-items-center flex-wrap row-gap-3 upload-pic">
                                             <div
                                                 class="d-flex align-items-center justify-content-center avatar avatar-xxl me-3 flex-shrink-0 border rounded-circle frames">
-                                                <img src="{{ $vehicle->featured_image_url ?? URL::asset('admin_assets/img/car/car-02.jpg') }}"
-                                                    class="img-fluid rounded-circle" alt="vehicle">
+                                                <img src="{{ $vehicle->getMainPhotoUrlAttribute() }}"
+                                                    class="img-fluid rounded-circle" alt="vehicle" style="width: 100px; height: 100px; object-fit: cover;">
                                             </div>
                                             <div>
                                                 <div
                                                     class="drag-upload-btn btn btn-md btn-dark d-inline-flex align-items-center mb-2">
                                                     <i class="ti ti-photo me-1"></i>Changer
-                                                    <input type="file" name="featured_image"
-                                                        class="form-control image-sign" accept="image/*">
+                                                    <input type="file" name="photos[]"
+                                                        class="form-control image-sign" accept="image/*" multiple>
                                                 </div>
                                                 <p>Taille recommandée : 500px x 500px</p>
-                                                @error('featured_image')
+                                                @error('photos')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -108,7 +107,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Marque</label>
                                                     <input type="text" class="form-control"
-                                                        value="{{ $vehicle->model->brand->name ?? 'N/A' }}" readonly>
+                                                        value="{{ optional($vehicle->model?->brand)->name ?? 'N/A' }}" readonly>
                                                 </div>
                                             </div>
 
@@ -123,8 +122,7 @@
                                                         <option value="">Sélectionner</option>
                                                         @foreach ($models ?? [] as $model)
                                                         <option value="{{ $model->id }}"
-                                                            @selected(old('vehicle_model_id', $vehicle->
-                                                            vehicle_model_id) == $model->id)>
+                                                            @selected(old('vehicle_model_id', $vehicle->vehicle_model_id) == $model->id)>
                                                             {{ $model->name }}
                                                         </option>
                                                         @endforeach
@@ -204,15 +202,11 @@
                                                     <select name="status"
                                                         class="select @error('status') is-invalid @enderror" required>
                                                         <option value="">Sélectionner</option>
-                                                        <option value="available" @selected(old('status', $vehicle->
-                                                            status) === 'available')>Disponible</option>
-                                                        <option value="booked" @selected(old('status', $vehicle->status)
-                                                            === 'booked')>Réservé/Loué</option>
-                                                        <!-- Changed from 'rented' to 'booked' -->
-                                                        <option value="maintenance" @selected(old('status', $vehicle->
-                                                            status) === 'maintenance')>En maintenance</option>
-                                                        <option value="unavailable" @selected(old('status', $vehicle->
-                                                            status) === 'unavailable')>Indisponible</option>
+                                                        <option value="available" @selected(old('status', $vehicle->status) === 'available')>Disponible</option>
+                                                        <option value="unavailable" @selected(old('status', $vehicle->status) === 'unavailable')>Indisponible</option>
+                                                        <option value="maintenance" @selected(old('status', $vehicle->status) === 'maintenance')>En maintenance</option>
+                                                        <option value="sold" @selected(old('status', $vehicle->status) === 'sold')>Vendu</option>
+                                                        <option value="booked" @selected(old('status', $vehicle->status) === 'booked')>Réservé</option>
                                                     </select>
                                                     @error('status')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -229,12 +223,8 @@
                                                         class="select @error('fuel_policy') is-invalid @enderror"
                                                         required>
                                                         <option value="">Sélectionner</option>
-                                                        <option value="full_to_full" @selected(old('fuel_policy',
-                                                            $vehicle->fuel_policy) === 'full_to_full')>Plein à plein
-                                                        </option>
-                                                        <option value="same_to_same" @selected(old('fuel_policy',
-                                                            $vehicle->fuel_policy) === 'same_to_same')>Même niveau
-                                                        </option>
+                                                        <option value="full_to_full" @selected(old('fuel_policy', $vehicle->fuel_policy) === 'full_to_full')>Plein à plein</option>
+                                                        <option value="same_to_same" @selected(old('fuel_policy', $vehicle->fuel_policy) === 'same_to_same')>Même niveau</option>
                                                     </select>
                                                     @error('fuel_policy')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -268,22 +258,74 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Options --}}
+                                            {{-- All 7 Equipment Options --}}
                                             <div class="col-lg-12">
                                                 <div class="mb-3">
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="has_gps" id="has_gps" value="1"
-                                                            class="form-check-input" @checked(old('has_gps',
-                                                            $vehicle->has_gps))>
-                                                        <label class="form-check-label" for="has_gps">GPS</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="has_air_conditioning"
-                                                            id="has_air_conditioning" value="1" class="form-check-input"
-                                                            @checked(old('has_air_conditioning',
-                                                            $vehicle->has_air_conditioning))>
-                                                        <label class="form-check-label"
-                                                            for="has_air_conditioning">Climatisation</label>
+                                                    <h6 class="mb-2">Équipements</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_gps" id="has_gps" value="1"
+                                                                    class="form-check-input" @checked(old('has_gps', $vehicle->has_gps))>
+                                                                <label class="form-check-label" for="has_gps">
+                                                                    <i class="ti ti-map-pin me-1 text-primary"></i>GPS
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_air_conditioning" id="has_air_conditioning" value="1"
+                                                                    class="form-check-input" @checked(old('has_air_conditioning', $vehicle->has_air_conditioning))>
+                                                                <label class="form-check-label" for="has_air_conditioning">
+                                                                    <i class="ti ti-snowflake me-1 text-info"></i>Climatisation
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_bluetooth" id="has_bluetooth" value="1"
+                                                                    class="form-check-input" @checked(old('has_bluetooth', $vehicle->has_bluetooth))>
+                                                                <label class="form-check-label" for="has_bluetooth">
+                                                                    <i class="ti ti-bluetooth me-1 text-primary"></i>Bluetooth
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_baby_seat" id="has_baby_seat" value="1"
+                                                                    class="form-check-input" @checked(old('has_baby_seat', $vehicle->has_baby_seat))>
+                                                                <label class="form-check-label" for="has_baby_seat">
+                                                                    <i class="ti ti-baby-carriage me-1 text-success"></i>Siège bébé
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_camera_recul" id="has_camera_recul" value="1"
+                                                                    class="form-check-input" @checked(old('has_camera_recul', $vehicle->has_camera_recul))>
+                                                                <label class="form-check-label" for="has_camera_recul">
+                                                                    <i class="ti ti-camera me-1 text-warning"></i>Caméra de recul
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_regulateur_vitesse" id="has_regulateur_vitesse" value="1"
+                                                                    class="form-check-input" @checked(old('has_regulateur_vitesse', $vehicle->has_regulateur_vitesse))>
+                                                                <label class="form-check-label" for="has_regulateur_vitesse">
+                                                                    <i class="ti ti-speedometer me-1 text-danger"></i>Régulateur de vitesse
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-check form-switch">
+                                                                <input type="checkbox" name="has_siege_chauffant" id="has_siege_chauffant" value="1"
+                                                                    class="form-check-input" @checked(old('has_siege_chauffant', $vehicle->has_siege_chauffant))>
+                                                                <label class="form-check-label" for="has_siege_chauffant">
+                                                                    <i class="ti ti-heat me-1 text-warning"></i>Sièges chauffants
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -328,7 +370,7 @@
             <a href="javascript:void(0);">Politique de confidentialité</a>
             <a href="javascript:void(0);" class="ms-4">Conditions d'utilisation</a>
         </p>
-        <p>&copy; {{ date('Y') }} RentalCar</p>
+        <p>&copy; 2025 Dreamsrent</p>
     </div>
 </div>
 @endsection
