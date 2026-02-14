@@ -14,41 +14,41 @@ class AgencyController extends Controller
 {
     use AuthorizesRequests;
 
-public function index(): View
-{
-    $this->authorize('viewAny', Agency::class);
+    public function index(): View
+    {
+        $this->authorize('viewAny', Agency::class);
 
-    $query = Agency::query();
+        $query = Agency::query();
 
-    // SEARCH
-    if (request()->filled('search')) {
-        $query->where('name', 'like', '%' . request('search') . '%');
-    }
-
-    // FAKE STATUS LOGIC (NO DATABASE COLUMN)
-    if (request()->has('status')) {
-
-        if (request('status') == 0) {
-            // Inactive → force empty result
-            $query->whereRaw('1 = 0');
+        // SEARCH
+        if (request()->filled('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
         }
 
-        // If status = 1 → do nothing (show all as active)
+        // FAKE STATUS LOGIC (NO DATABASE COLUMN)
+        if (request()->has('status')) {
+
+            if (request('status') == 0) {
+                // Inactive → force empty result
+                $query->whereRaw('1 = 0');
+            }
+
+            // If status = 1 → do nothing (show all as active)
+        }
+
+        // SORT
+        if (request('sort') === 'az') {
+            $query->orderBy('name', 'asc');
+        } elseif (request('sort') === 'za') {
+            $query->orderBy('name', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $agencies = $query->paginate(15)->withQueryString();
+
+        return view('backoffice.agencies.index', compact('agencies'));
     }
-
-    // SORT
-    if (request('sort') === 'az') {
-        $query->orderBy('name', 'asc');
-    } elseif (request('sort') === 'za') {
-        $query->orderBy('name', 'desc');
-    } else {
-        $query->latest();
-    }
-
-    $agencies = $query->paginate(15)->withQueryString();
-
-    return view('backoffice.agencies.index', compact('agencies'));
-}
 
 
     public function create(): View
@@ -117,10 +117,17 @@ public function index(): View
             ->route('backoffice.agencies.index')
             ->with('toast', [
                 'title'   => 'Deleted',
-                'message' => "L’agence « {$name} » a été supprimée avec succès.",
+                'message' => "L'agence « {$name} » a été supprimée avec succès.",
                 'dot'     => '#dc3545', // red
                 'delay'   => 3500,
                 'time'    => 'now',
             ]);
+    }
+
+    public function profile(Agency $agency): View
+    {
+        $this->authorize('view', $agency);
+
+        return view('Backoffice.profile.profile-setting', compact('agency'));
     }
 }

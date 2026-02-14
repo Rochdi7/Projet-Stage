@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Agency extends Model
+class Agency extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'name',
@@ -34,6 +36,25 @@ class Agency extends Model
         'settings' => 'array',
         'creation_date' => 'date',
     ];
+
+    /* =======================
+     |  MEDIA LIBRARY
+     ======================= */
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->useDisk('media')
+            ->singleFile();
+
+        $this->addMediaCollection('signature')
+            ->useDisk('media')
+            ->singleFile();
+
+        $this->addMediaCollection('stamp')
+            ->useDisk('media')
+            ->singleFile();
+    }
 
     /* =======================
      |  RELATIONSHIPS
@@ -64,5 +85,31 @@ class Agency extends Model
     {
         return $this->subscription?->trial_ends_at !== null
             && now()->lt($this->subscription->trial_ends_at);
+    }
+
+    /**
+     * Get a nested setting value using dot notation
+     * Example: getSetting('system.default_currency') or getSetting('invoice_template')
+     */
+    public function getSetting(string $key, $default = null)
+    {
+        $settings = $this->settings ?? [];
+
+        if (strpos($key, '.') === false) {
+            return $settings[$key] ?? $default;
+        }
+
+        $keys = explode('.', $key);
+        $value = $settings;
+
+        foreach ($keys as $k) {
+            if (is_array($value) && isset($value[$k])) {
+                $value = $value[$k];
+            } else {
+                return $default;
+            }
+        }
+
+        return $value;
     }
 }
