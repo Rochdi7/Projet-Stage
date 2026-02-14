@@ -83,8 +83,17 @@
         <tbody>
             @forelse($vehicles as $vehicle)
                 @php
-                    $photoUrl = $vehicle->getFirstMediaUrl('vehicle_photos') ?: asset('images/placeholder.jpg');
-
+                    // Get media URL
+                    $mediaUrl = $vehicle->getFirstMediaUrl('vehicle_photos');
+                    
+                    // Set photo URL - use media if exists, otherwise use placeholder
+                    if (!empty($mediaUrl)) {
+                        $photoUrl = $mediaUrl;
+                    } else {
+                        $photoUrl = asset('assets/place-holder.webp');
+                    }
+                    
+                    // Get car title
                     $brandName = optional(optional($vehicle->model)->brand)->name;
                     $modelName = optional($vehicle->model)->name;
 
@@ -92,6 +101,19 @@
                     if ($carTitle === '') {
                         $carTitle = $vehicle->registration_number;
                     }
+
+                    // Generate initials for ultra fallback (if image fails)
+                    $words = explode(' ', trim($carTitle));
+                    if (count($words) >= 2) {
+                        $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+                    } else {
+                        $initials = strtoupper(substr($carTitle, 0, 2));
+                    }
+                    
+                    // Generate consistent color for initials fallback
+                    $colors = ['#4361ee', '#3a0ca3', '#4cc9f0', '#f72585', '#b5179e', '#4895ef', '#560bad', '#06d6a0', '#ffbe0b', '#ef476f'];
+                    $colorIndex = abs(crc32($vehicle->id ?? $carTitle)) % count($colors);
+                    $bgColor = $colors[$colorIndex];
 
                     // Status
                     $status = $vehicle->status;
@@ -113,7 +135,7 @@
                     $createdDate = optional($vehicle->created_at)->format('d M Y');
                     $createdTime = optional($vehicle->created_at)->format('h:i A');
 
-                    // “Base location” : on met registration_city
+                    // Base location
                     $baseLocation = $vehicle->registration_city ?: '—';
 
                     $daily = $vehicle->daily_rate !== null ? number_format((float) $vehicle->daily_rate, 2) : null;
@@ -130,7 +152,15 @@
                     <td style="vertical-align: middle;">
                         <div class="d-flex align-items-center">
                             <a href="{{ route('backoffice.vehicles.show', $vehicle) }}" class="avatar me-2 flex-shrink-0">
-                                <img src="{{ $photoUrl }}" class="rounded-3" alt="car" style="width: 50px; height: 50px; object-fit: cover;">
+                                <img src="{{ $photoUrl }}" 
+                                     class="rounded-3" 
+                                     alt="{{ $carTitle }}" 
+                                     style="width: 50px; height: 50px; object-fit: cover;"
+                                     onerror="this.onerror=null; this.src='{{ asset('assets/place-holder.webp') }}'; 
+                                              this.onerror=function(){ 
+                                                  this.style.display='none'; 
+                                                  this.parentElement.innerHTML += '<div style=\'width:50px;height:50px;background-color:{{ $bgColor }};color:white;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:600;font-size:18px;\'>{{ $initials }}</div>';
+                                              };">
                             </a>
                             <div>
                                 <h6 class="mb-1">
@@ -220,17 +250,7 @@
                 <tr>
                     <td colspan="8" class="text-center py-5">
                         <div class="empty-state">
-                            <!-- <i class="ti ti-car-off fs-48 text-gray-4 mb-3"></i> -->
                             <h5 class="mb-2">Aucun véhicule trouvé</h5>
-                            @if(request()->hasAny(['search', 'status', 'select_cars', 'type', 'location', 'date_from', 'date_to', 'model_id']))
-                                <!-- <a href="{{ route('backoffice.vehicles.index') }}" class="btn btn-primary mt-3">
-                                    <i class="ti ti-refresh me-2"></i> Effacer tous les filtres
-                                </a> -->
-                            @else
-                                <!-- <a href="{{ route('backoffice.vehicles.create') }}" class="btn btn-primary mt-3">
-                                    <i class="ti ti-plus me-2"></i> Ajouter un véhicule
-                                </a> -->
-                            @endif
                         </div>
                     </td>
                 </tr>
@@ -238,9 +258,6 @@
         </tbody>
     </table>
 </div>
-<!-- /Custom Data Table -->
-
-{{-- PAGINATION SUPPRIMÉE D'ICI - ELLE DOIT ÊTRE DANS INDEX.BLADE.PHP --}}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

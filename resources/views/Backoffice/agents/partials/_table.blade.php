@@ -1,10 +1,18 @@
 <head>
     <style>
         .table-responsive,
-.custom-datatable-filter,
-.dataTables_wrapper {
-    overflow: visible !important;
-}
+        .custom-datatable-filter,
+        .dataTables_wrapper {
+            overflow: visible !important;
+        }
+        
+        /* Agent avatar styles */
+        .agent-avatar-table {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
     </style>
 </head>
 
@@ -37,11 +45,12 @@
                 @if($agent->avatar_url)
                     <img src="{{ $agent->avatar_url }}" 
                          alt="{{ $agent->full_name }}"
-                         class="agent-avatar-table">
+                         class="agent-avatar-table"
+                         onerror="this.src='{{ asset('assets/place-holder.webp') }}';">
                 @else
-                    <div class="agent-avatar-placeholder-table">
-                        {{ $agent->avatar_initials }}
-                    </div>
+                    <img src="{{ asset('assets/place-holder.webp') }}" 
+                         alt="{{ $agent->full_name }}"
+                         class="agent-avatar-table">
                 @endif
             </td>
             <td>
@@ -104,13 +113,7 @@
         <tr>
             <td colspan="8" class="text-center py-5">
                 <div class="text-center">
-                    <!-- <i class="ti ti-users fs-48 text-gray-4 mb-3"></i> -->
                     <h5 class="mb-2">Aucun agent trouvé</h5>
-                    <!-- <p class="text-muted mb-3">Commencez par ajouter un nouvel agent</p> -->
-                    <!-- <a href="{{ route('backoffice.agents.create') }}" class="btn btn-primary">
-                        <i class="ti ti-plus me-2"></i>
-                        Ajouter un agent
-                    </a> -->
                 </div>
             </td>
         </tr>
