@@ -48,6 +48,14 @@ class Invoice extends Model
     }
 
     /**
+ * Get the payments for this invoice.
+ */
+public function payments()
+{
+    return $this->hasMany(Payment::class);
+}
+
+    /**
      * Get the rental contract associated with the invoice.
      */
     public function rentalContract()

@@ -29,7 +29,7 @@ use App\Http\Controllers\Backoffice\Finance\FinancialAccountController;
 use App\Http\Controllers\Backoffice\Finance\TransactionCategoryController;
 use App\Http\Controllers\Backoffice\Finance\FinancialTransactionController;
 use App\Http\Controllers\Backoffice\InvoiceItemController;
-
+use App\Http\Controllers\Backoffice\PaymentController;
 Route::prefix('backoffice')
     ->name('backoffice.')
     ->group(function () {
@@ -497,6 +497,20 @@ Route::prefix('invoice-items')
         Route::get('/{invoiceItem}/edit', [InvoiceItemController::class, 'edit'])->name('edit');
         Route::put('/{invoiceItem}', [InvoiceItemController::class, 'update'])->name('update');
         Route::delete('/{invoiceItem}', [InvoiceItemController::class, 'destroy'])->name('destroy');
+    });
+    // ==================== PAYMENTS ====================
+Route::prefix('payments')
+    ->name('payments.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [PaymentController::class, 'index'])->name('index');
+        Route::get('/create', [PaymentController::class, 'create'])->name('create');
+        Route::post('/', [PaymentController::class, 'store'])->name('store');
+        Route::get('/{payment}', [PaymentController::class, 'show'])->name('show');
+        Route::get('/{payment}/edit', [PaymentController::class, 'edit'])->name('edit');
+        Route::put('/{payment}', [PaymentController::class, 'update'])->name('update');
+        Route::delete('/{payment}', [PaymentController::class, 'destroy'])->name('destroy');
+        Route::post('/{payment}/status', [PaymentController::class, 'updateStatus'])->name('status');
     });
 
         }); // END AUTH GROUP
