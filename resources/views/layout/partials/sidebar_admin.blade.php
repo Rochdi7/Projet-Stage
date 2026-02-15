@@ -116,25 +116,29 @@
                 <li class="menu-title"><span>VÉHICULE SUIVI</span></li>
                 <li>
                     <ul>
-                        <li class="{{ request()->routeIs('backoffice.vehicles.vignettes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.vignettes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.vignettes.index', ['vehicle' => 'all']) }}">
                                 <i class="ti ti-ticket"></i>
                                 <span>Vignettes</span>
                             </a>
                         </li>
-                        <li class="{{ request()->routeIs('backoffice.vehicles.insurances.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.insurances.index') && request('vehicle') == 'all' ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.insurances.index', ['vehicle' => 'all']) }}">
                                 <i class="ti ti-shield"></i>
                                 <span>Assurances</span>
                             </a>
                         </li>
-                        <li class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.oil-changes.index') && request('vehicle') == 'all' ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.oil-changes.index', ['vehicle' => 'all']) }}">
                                 <i class="ti ti-droplet"></i>
                                 <span>Vidanges</span>
                             </a>
                         </li>
-                        <li class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index') && request('vehicle') == 'all' ? 'active' : '' }}">
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.technical-checks.index') && request('vehicle') == 'all' ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.technical-checks.index', ['vehicle' => 'all']) }}">
                                 <i class="ti ti-clipboard-check"></i>
                                 <span>Contrôle technique</span>
@@ -142,7 +146,7 @@
                         </li>
                         <li class="submenu">
                             <a href="javascript:void(0);"
-                               class="{{ request()->routeIs('backoffice.vehicles.controls.*') ? 'active subdrop' : '' }}">
+                                class="{{ request()->routeIs('backoffice.vehicles.controls.*') ? 'active subdrop' : '' }}">
                                 <i class="ti ti-clipboard-list"></i>
                                 <span>Contrôles</span>
                                 <span class="menu-arrow"></span>
@@ -150,14 +154,14 @@
                             <ul>
                                 <li>
                                     <a href="{{ route('backoffice.vehicle-documents.controls.index') }}"
-                                       class="{{ request()->routeIs('backoffice.vehicle-documents.controls.index') ? 'active' : '' }}">
+                                        class="{{ request()->routeIs('backoffice.vehicle-documents.controls.index') ? 'active' : '' }}">
                                         <i class="ti ti-list me-1"></i>
                                         Tous les contrôles
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{{ route('backoffice.vehicle-documents.control-items.index') }}"
-                                       class="{{ request()->routeIs('backoffice.vehicle-documents.control-items.index') ? 'active' : '' }}">
+                                        class="{{ request()->routeIs('backoffice.vehicle-documents.control-items.index') ? 'active' : '' }}">
                                         <i class="ti ti-checklist me-1"></i>
                                         Tous les éléments
                                     </a>
@@ -180,7 +184,7 @@
                                 <span>Contrats</span>
                             </a>
                         </li>
-                        
+
                         <!-- Clients du contrat - Manage relationships -->
                         <li class="{{ request()->routeIs('backoffice.contract-clients.*') ? 'active' : '' }}">
                             <a href="{{ route('backoffice.contract-clients.index') }}">
@@ -197,7 +201,8 @@
                 <li class="menu-title"><span>VÉHICULES</span></li>
                 <li>
                     <ul>
-                        <li class="{{ request()->routeIs('backoffice.vehicles.index') && !request()->routeIs('backoffice.vehicles.vignettes.*', 'backoffice.vehicles.insurances.*', 'backoffice.vehicles.oil-changes.*') ? 'active' : '' }}">
+                        <li
+                            class="{{ request()->routeIs('backoffice.vehicles.index') && !request()->routeIs('backoffice.vehicles.vignettes.*', 'backoffice.vehicles.insurances.*', 'backoffice.vehicles.oil-changes.*') ? 'active' : '' }}">
                             <a href="{{ route('backoffice.vehicles.index') }}">
                                 <i class="ti ti-car"></i>
                                 <span>Cars</span>
@@ -224,6 +229,20 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
+                <!-- ==================== RÉSERVATIONS SECTION ==================== -->
+                @role('super-admin|admin|manager')
+                <li class="menu-title"><span>RÉSERVATIONS</span></li>
+                <li>
+                    <ul>
+                        <li class="{{ request()->routeIs('backoffice.bookings.*') ? 'active' : '' }}">
+                            <a href="{{ route('backoffice.bookings.index') }}">
+                                <i class="ti ti-calendar-stats"></i>
+                                <span>Réservations</span>
+                            </a>
                         </li>
                     </ul>
                 </li>

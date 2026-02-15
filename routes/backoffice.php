@@ -11,6 +11,7 @@ use App\Http\Controllers\Backoffice\AgencyController;
 use App\Http\Controllers\Backoffice\AgentController;
 use App\Http\Controllers\Backoffice\ClientController;
 use App\Http\Controllers\Backoffice\AgencySubscriptionController;
+use App\Http\Controllers\Backoffice\BookingController;
 use App\Http\Controllers\Backoffice\RoleController;
 use App\Http\Controllers\Backoffice\PermissionController;
 use App\Http\Controllers\Backoffice\RolesPermissionsController;
@@ -398,5 +399,20 @@ Route::prefix('backoffice')
                     Route::put('/{contractClient}', [ContractClientController::class, 'update'])->name('update');
                     Route::delete('/{contractClient}', [ContractClientController::class, 'destroy'])->name('destroy');
                 });
+                // ==================== BOOKINGS ====================
+Route::prefix('bookings')
+    ->name('bookings.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [BookingController::class, 'index'])->name('index');
+        Route::get('/create', [BookingController::class, 'create'])->name('create');
+        Route::post('/', [BookingController::class, 'store'])->name('store');
+        Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
+        Route::get('/{booking}/edit', [BookingController::class, 'edit'])->name('edit');
+        Route::put('/{booking}', [BookingController::class, 'update'])->name('update');
+        Route::delete('/{booking}', [BookingController::class, 'destroy'])->name('destroy');
+        Route::post('/{booking}/status', [BookingController::class, 'updateStatus'])->name('status');
+        Route::post('/{booking}/convert-to-contract', [BookingController::class, 'convertToContract'])->name('convert-to-contract');
+    });
         }); // END AUTH GROUP
     }); // END BACKOFFICE PREFIX
