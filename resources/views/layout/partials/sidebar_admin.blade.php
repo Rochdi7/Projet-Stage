@@ -247,6 +247,45 @@
                     </ul>
                 </li>
                 @endrole
+                <!-- ==================== FINANCE SECTION ==================== -->
+                @role('super-admin|admin|manager')
+                <li class="menu-title"><span>FINANCE</span></li>
+                <li>
+                    <ul>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"
+                                class="{{ request()->routeIs('backoffice.finance.accounts.*') || request()->routeIs('backoffice.finance.categories.*') || request()->routeIs('backoffice.finance.transactions.*') ? 'active subdrop' : '' }}">
+                                <i class="ti ti-coin"></i>
+                                <span>Gestion financière</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <ul>
+                                <li>
+                                    <a href="{{ route('backoffice.finance.accounts.index') }}"
+                                        class="{{ request()->routeIs('backoffice.finance.accounts.*') ? 'active' : '' }}">
+                                        <i class="ti ti-building-bank me-1"></i>
+                                        Comptes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('backoffice.finance.categories.index') }}"
+                                        class="{{ request()->routeIs('backoffice.finance.categories.*') ? 'active' : '' }}">
+                                        <i class="ti ti-category me-1"></i>
+                                        Catégories
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('backoffice.finance.transactions.index') }}"
+                                        class="{{ request()->routeIs('backoffice.finance.transactions.*') ? 'active' : '' }}">
+                                        <i class="ti ti-transfer me-1"></i>
+                                        Transactions
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
             </ul>
         </div>
     </div>

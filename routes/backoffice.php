@@ -24,6 +24,9 @@ use App\Http\Controllers\Backoffice\Vehicles\ControlController;
 use App\Http\Controllers\Backoffice\Vehicles\ControlItemController;
 use App\Http\Controllers\Backoffice\RentalContractController;
 use App\Http\Controllers\Backoffice\ContractClientController;
+use App\Http\Controllers\Backoffice\Finance\FinancialAccountController;
+use App\Http\Controllers\Backoffice\Finance\TransactionCategoryController;
+use App\Http\Controllers\Backoffice\Finance\FinancialTransactionController;
 
 Route::prefix('backoffice')
     ->name('backoffice.')
@@ -324,7 +327,6 @@ Route::prefix('backoffice')
                         ->name('controls.')
                         ->group(function () {
                             Route::get('/', [ControlController::class, 'index'])->name('index');
-                            Route::get('/create', [ControlController::class, 'create'])->name('create'); // This might be duplicate
                             Route::post('/', [ControlController::class, 'store'])->name('store');
                             Route::get('/{control}', [ControlController::class, 'show'])->name('show');
                             Route::get('/{control}/edit', [ControlController::class, 'edit'])->name('edit');
@@ -344,6 +346,8 @@ Route::prefix('backoffice')
                                     Route::delete('/{item}', [ControlItemController::class, 'destroy'])->name('destroy');
                                 });
                         });
+                        
+                    // Note: Removed duplicate '/create' route in vehicle-specific controls
                 }); // END VEHICLES GROUP
 
             // ==================== GLOBAL VEHICLE DOCUMENTS ====================
@@ -399,20 +403,69 @@ Route::prefix('backoffice')
                     Route::put('/{contractClient}', [ContractClientController::class, 'update'])->name('update');
                     Route::delete('/{contractClient}', [ContractClientController::class, 'destroy'])->name('destroy');
                 });
-                // ==================== BOOKINGS ====================
-Route::prefix('bookings')
-    ->name('bookings.')
-    ->middleware('role:super-admin|admin|manager,backoffice')
-    ->group(function () {
-        Route::get('/', [BookingController::class, 'index'])->name('index');
-        Route::get('/create', [BookingController::class, 'create'])->name('create');
-        Route::post('/', [BookingController::class, 'store'])->name('store');
-        Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
-        Route::get('/{booking}/edit', [BookingController::class, 'edit'])->name('edit');
-        Route::put('/{booking}', [BookingController::class, 'update'])->name('update');
-        Route::delete('/{booking}', [BookingController::class, 'destroy'])->name('destroy');
-        Route::post('/{booking}/status', [BookingController::class, 'updateStatus'])->name('status');
-        Route::post('/{booking}/convert-to-contract', [BookingController::class, 'convertToContract'])->name('convert-to-contract');
-    });
+
+            // ==================== BOOKINGS ====================
+            Route::prefix('bookings')
+                ->name('bookings.')
+                ->middleware('role:super-admin|admin|manager,backoffice')
+                ->group(function () {
+                    Route::get('/', [BookingController::class, 'index'])->name('index');
+                    Route::get('/create', [BookingController::class, 'create'])->name('create');
+                    Route::post('/', [BookingController::class, 'store'])->name('store');
+                    Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
+                    Route::get('/{booking}/edit', [BookingController::class, 'edit'])->name('edit');
+                    Route::put('/{booking}', [BookingController::class, 'update'])->name('update');
+                    Route::delete('/{booking}', [BookingController::class, 'destroy'])->name('destroy');
+                    Route::post('/{booking}/status', [BookingController::class, 'updateStatus'])->name('status');
+                    Route::post('/{booking}/convert-to-contract', [BookingController::class, 'convertToContract'])->name('convert-to-contract');
+                });
+
+            // ==================== FINANCE ====================
+            Route::prefix('finance')
+                ->name('finance.')
+                ->middleware('role:super-admin|admin|manager,backoffice')
+                ->group(function () {
+                    
+                    // Financial Accounts
+                    Route::prefix('accounts')
+                        ->name('accounts.')
+                        ->group(function () {
+                            Route::get('/', [FinancialAccountController::class, 'index'])->name('index');
+                            Route::get('/create', [FinancialAccountController::class, 'create'])->name('create');
+                            Route::post('/', [FinancialAccountController::class, 'store'])->name('store');
+                            Route::get('/{financialAccount}', [FinancialAccountController::class, 'show'])->name('show');
+                            Route::get('/{financialAccount}/edit', [FinancialAccountController::class, 'edit'])->name('edit');
+                            Route::put('/{financialAccount}', [FinancialAccountController::class, 'update'])->name('update');
+                            Route::delete('/{financialAccount}', [FinancialAccountController::class, 'destroy'])->name('destroy');
+                        });
+
+                    // Transaction Categories
+                    Route::prefix('categories')
+                        ->name('categories.')
+                        ->group(function () {
+                            Route::get('/', [TransactionCategoryController::class, 'index'])->name('index');
+                            Route::get('/create', [TransactionCategoryController::class, 'create'])->name('create');
+                            Route::post('/', [TransactionCategoryController::class, 'store'])->name('store');
+                            Route::get('/{transactionCategory}', [TransactionCategoryController::class, 'show'])->name('show');
+                            Route::get('/{transactionCategory}/edit', [TransactionCategoryController::class, 'edit'])->name('edit');
+                            Route::put('/{transactionCategory}', [TransactionCategoryController::class, 'update'])->name('update');
+                            Route::delete('/{transactionCategory}', [TransactionCategoryController::class, 'destroy'])->name('destroy');
+                        });
+
+                    // Financial Transactions
+                    Route::prefix('transactions')
+                        ->name('transactions.')
+                        ->group(function () {
+                            Route::get('/', [FinancialTransactionController::class, 'index'])->name('index');
+                            Route::get('/create', [FinancialTransactionController::class, 'create'])->name('create');
+                            Route::post('/', [FinancialTransactionController::class, 'store'])->name('store');
+                            Route::get('/{financialTransaction}', [FinancialTransactionController::class, 'show'])->name('show');
+                            Route::get('/{financialTransaction}/edit', [FinancialTransactionController::class, 'edit'])->name('edit');
+                            Route::put('/{financialTransaction}', [FinancialTransactionController::class, 'update'])->name('update');
+                            Route::delete('/{financialTransaction}', [FinancialTransactionController::class, 'destroy'])->name('destroy');
+                            Route::get('/summary/data', [FinancialTransactionController::class, 'summary'])->name('summary');
+                        });
+                });
+
         }); // END AUTH GROUP
     }); // END BACKOFFICE PREFIX
