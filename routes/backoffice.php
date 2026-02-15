@@ -24,9 +24,11 @@ use App\Http\Controllers\Backoffice\Vehicles\ControlController;
 use App\Http\Controllers\Backoffice\Vehicles\ControlItemController;
 use App\Http\Controllers\Backoffice\RentalContractController;
 use App\Http\Controllers\Backoffice\ContractClientController;
+use App\Http\Controllers\Backoffice\InvoiceController;
 use App\Http\Controllers\Backoffice\Finance\FinancialAccountController;
 use App\Http\Controllers\Backoffice\Finance\TransactionCategoryController;
 use App\Http\Controllers\Backoffice\Finance\FinancialTransactionController;
+use App\Http\Controllers\Backoffice\InvoiceItemController;
 
 Route::prefix('backoffice')
     ->name('backoffice.')
@@ -465,7 +467,37 @@ Route::prefix('backoffice')
                             Route::delete('/{financialTransaction}', [FinancialTransactionController::class, 'destroy'])->name('destroy');
                             Route::get('/summary/data', [FinancialTransactionController::class, 'summary'])->name('summary');
                         });
+
                 });
+
+                                        // ==================== INVOICES ====================
+Route::prefix('invoices')
+    ->name('invoices.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/create', [InvoiceController::class, 'create'])->name('create');
+        Route::post('/', [InvoiceController::class, 'store'])->name('store');
+        Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
+        Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
+        Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+        Route::post('/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('status');
+    });
+
+// ==================== INVOICE ITEMS (Standalone) ====================
+Route::prefix('invoice-items')
+    ->name('invoice-items.')
+    ->middleware('role:super-admin|admin|manager,backoffice')
+    ->group(function () {
+        Route::get('/', [InvoiceItemController::class, 'index'])->name('index');
+        Route::get('/create', [InvoiceItemController::class, 'create'])->name('create');
+        Route::post('/', [InvoiceItemController::class, 'store'])->name('store');
+        Route::get('/{invoiceItem}', [InvoiceItemController::class, 'show'])->name('show');
+        Route::get('/{invoiceItem}/edit', [InvoiceItemController::class, 'edit'])->name('edit');
+        Route::put('/{invoiceItem}', [InvoiceItemController::class, 'update'])->name('update');
+        Route::delete('/{invoiceItem}', [InvoiceItemController::class, 'destroy'])->name('destroy');
+    });
 
         }); // END AUTH GROUP
     }); // END BACKOFFICE PREFIX

@@ -248,10 +248,10 @@
                         <div class="empty-state">
                             <i class="ti ti-car"></i>
                             <h5 class="mb-2">Aucun véhicule trouvé</h5>
-                            <p class="text-muted mb-3">Commencez par ajouter un véhicule</p>
-                            <a href="{{ route('backoffice.vehicles.create') }}" class="btn btn-primary">
+                            <!-- <p class="text-muted mb-3">Commencez par ajouter un véhicule</p> -->
+                            <!-- <a href="{{ route('backoffice.vehicles.create') }}" class="btn btn-primary">
                                 <i class="ti ti-plus me-2"></i>Ajouter un véhicule
-                            </a>
+                            </a> -->
                         </div>
                     </td>
                 </tr>

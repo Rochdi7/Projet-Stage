@@ -286,6 +286,29 @@
                     </ul>
                 </li>
                 @endrole
+<!-- ==================== FACTURATION SECTION ==================== -->
+@role('super-admin|admin|manager')
+<li class="menu-title"><span>FACTURATION</span></li>
+<li>
+    <ul>
+        <!-- Factures -->
+        <li class="{{ request()->routeIs('backoffice.invoices.*') ? 'active' : '' }}">
+            <a href="{{ route('backoffice.invoices.index') }}">
+                <i class="ti ti-file-invoice"></i>
+                <span>Factures</span>
+            </a>
+        </li>
+        
+        <!-- Items de facture -->
+        <li class="{{ request()->routeIs('backoffice.invoice-items.*') ? 'active' : '' }}">
+            <a href="{{ route('backoffice.invoice-items.index') }}">
+                <i class="ti ti-file-description"></i>
+                <span>Items de facture</span>
+            </a>
+        </li>
+    </ul>
+</li>
+@endrole
             </ul>
         </div>
     </div>
