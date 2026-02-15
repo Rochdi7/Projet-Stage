@@ -28,7 +28,7 @@
     {{-- ✅ Toasts (à ajouter) --}}
     @include('backoffice.layout.partials._toasts')
 
-    @component('admin/components.modalpopup')
+    @component('components.modalpopup')
     @endcomponent
 
     {{-- ✅ Scripts UNE seule fois --}}
