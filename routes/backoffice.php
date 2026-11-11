@@ -43,16 +43,21 @@ use App\Http\Controllers\Backoffice\TrashController;
 |--------------------------------------------------------------------------
 */
 
+// ==================== GUEST ROUTES (served at /login) ====================
+Route::name('backoffice.')
+    ->middleware('guest:backoffice')
+    ->group(function () {
+        Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+        Route::get('/login/demo', [AuthController::class, 'demoLogin'])->name('login.demo');
+    });
+
+// Old URL kept as a redirect
+Route::redirect('/backoffice/login', '/login');
+
 Route::prefix('backoffice')
     ->name('backoffice.')
     ->group(function () {
-
-        // ==================== GUEST ROUTES ====================
-        Route::middleware('guest:backoffice')->group(function () {
-            Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-            Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-            Route::get('/login/demo', [AuthController::class, 'demoLogin'])->name('login.demo');
-        });
 
         // ==================== AUTHENTICATED ROUTES ====================
         Route::middleware(['auth:backoffice'])->group(function () {

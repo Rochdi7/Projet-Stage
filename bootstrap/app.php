@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
 
+        // Unauthenticated users go to /login, logged-in users skip it
+        $middleware->redirectGuestsTo('/login');
+        $middleware->redirectUsersTo('/backoffice/dashboard');
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

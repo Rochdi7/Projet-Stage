@@ -1,0 +1,104 @@
+[
+  {
+    "slug": "dashboard",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/dashboard",
+    "file": "current-dashboard-desktop.png"
+  },
+  {
+    "slug": "rental-contracts",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/rental-contracts",
+    "file": "current-rental-contracts-desktop.png"
+  },
+  {
+    "slug": "vehicles",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/vehicles",
+    "file": "current-vehicles-desktop.png"
+  },
+  {
+    "slug": "bookings",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/bookings",
+    "file": "current-bookings-desktop.png"
+  },
+  {
+    "slug": "bookings-calendar",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/bookings/calendar/view",
+    "file": "current-bookings-calendar-desktop.png"
+  },
+  {
+    "slug": "clients",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/clients",
+    "file": "current-clients-desktop.png"
+  },
+  {
+    "slug": "payments",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/payments",
+    "file": "current-payments-desktop.png"
+  },
+  {
+    "slug": "invoices",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/invoices",
+    "file": "current-invoices-desktop.png"
+  },
+  {
+    "slug": "finance-transactions",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/finance/transactions",
+    "file": "current-finance-transactions-desktop.png"
+  },
+  {
+    "slug": "vehicle-credits",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/vehicle-credits",
+    "file": "current-vehicle-credits-desktop.png"
+  },
+  {
+    "slug": "oil-changes",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/vehicle-documents/oil-changes",
+    "file": "current-oil-changes-desktop.png"
+  },
+  {
+    "slug": "users",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/users",
+    "file": "current-users-desktop.png"
+  },
+  {
+    "slug": "notifications",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/notifications",
+    "file": "current-notifications-desktop.png"
+  },
+  {
+    "slug": "profile",
+    "view": "desktop",
+    "url": "http://127.0.0.1:8000/backoffice/profile",
+    "file": "current-profile-desktop.png"
+  },
+  {
+    "slug": "dashboard",
+    "view": "mobile",
+    "url": "http://127.0.0.1:8000/backoffice/dashboard",
+    "file": "current-dashboard-mobile.png"
+  },
+  {
+    "slug": "rental-contracts",
+    "view": "mobile",
+    "url": "http://127.0.0.1:8000/backoffice/rental-contracts",
+    "file": "current-rental-contracts-mobile.png"
+  },
+  {
+    "slug": "vehicles",
+    "view": "mobile",
+    "url": "http://127.0.0.1:8000/backoffice/vehicles",
+    "file": "current-vehicles-mobile.png"
+  }
+]

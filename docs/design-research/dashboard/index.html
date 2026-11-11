@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparatif maquettes</title>
+<style>
+  :root{--bg:#f6f6f4;--surface:#fff;--border:#e4e3df;--text:#1a1a18;--muted:#6b6a66;--accent:#4f46e5;color-scheme:light}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--surface:#1d1d1b;--border:#33322f;--text:#f0efec;--muted:#a3a29c;--accent:#8b85f0;color-scheme:dark}}
+  :root[data-theme="dark"]{--bg:#141413;--surface:#1d1d1b;--border:#33322f;--text:#f0efec;--muted:#a3a29c;--accent:#8b85f0;color-scheme:dark}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:28px 24px 8px;max-width:1600px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  p{margin:0;color:var(--muted)}
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:16px 24px;max-width:1600px;margin:0 auto;position:sticky;top:0;background:var(--bg);z-index:2;border-bottom:1px solid var(--border)}
+  nav button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+  nav button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+  main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:16px 24px 40px;max-width:1600px;margin:0 auto}
+  .col{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .col h2{font-size:15px;margin:0}
+  .head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .head a{color:var(--accent);font-size:13px;text-decoration:none;white-space:nowrap}
+  .head small{display:block;color:var(--muted);font-size:12px}
+  .shot{display:block;background:var(--bg);max-height:78vh;overflow:auto}
+  .shot img{display:block;width:100%;height:auto}
+  .shot.mobile img{max-width:390px;margin:0 auto}
+  .rec{font-size:11px;font-weight:600;color:var(--accent);border:1px solid currentColor;border-radius:999px;padding:1px 8px;margin-left:6px}
+  @media (max-width:900px){main{grid-template-columns:1fr;padding:12px 16px}header,nav{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Comparatif des 3 maquettes du backoffice</h1>
+  <p>Même écran, trois directions. Cliquez une image pour l’ouvrir en taille réelle, ou « Ouvrir le prototype » pour naviguer.</p>
+</header>
+<nav id="tabs" aria-label="Écrans"></nav>
+<main id="grid"></main>
+<script>
+  const concepts = [
+    { slug: 'concept-a-minimal-premium', name: 'A · Minimal Premium', sub: 'Calme, éditorial, typographie', href: 'prototypes/concept-a-minimal/index.html' },
+    { slug: 'concept-b-modern-saas', name: 'B · Modern SaaS', sub: 'Équilibre densité / clarté', href: 'prototypes/concept-b-saas/index.html', rec: true },
+    { slug: 'concept-c-enterprise', name: 'C · Enterprise', sub: 'Dense, multi-agences, files de travail', href: 'prototypes/concept-c-enterprise/index.html' },
+  ];
+  const shots = [
+    ['01-overview-desktop', 'Tableau de bord'], ['02-overview-mobile', 'Tableau de bord · mobile'],
+    ['03-analytics-desktop', 'Statistiques'], ['04-listing-contracts-desktop', 'Liste des contrats'],
+    ['05-detail-contract-desktop', 'Détail contrat'], ['06-form-new-contract-desktop', 'Nouveau contrat'],
+    ['07-users-roles-desktop', 'Équipe & rôles'], ['08-settings-notifications-desktop', 'Paramètres & notifications'],
+    ['09-modal-desktop', 'Modale'], ['10-notifications-dropdown-desktop', 'Menu notifications'],
+    ['11-listing-contracts-mobile', 'Contrats · mobile'], ['12-menu-drawer-mobile', 'Menu · mobile'],
+    ['13-detail-contract-mobile', 'Détail · mobile'],
+  ];
+  const routes = { '01': 'overview', '02': 'overview', '03': 'analytics', '04': 'contracts', '05': 'contract', '06': 'new-contract', '07': 'users', '08': 'settings', '09': 'contracts', '10': 'overview', '11': 'contracts', '12': 'overview', '13': 'contract' };
+  let current = '01-overview-desktop';
+  try { current = localStorage.getItem('cmp-shot') || current; } catch (e) {}
+  const tabs = document.getElementById('tabs'), grid = document.getElementById('grid');
+  function render() {
+    tabs.innerHTML = shots.map(([k, l]) => `<button aria-pressed="${k === current}" data-k="${k}">${l}</button>`).join('');
+    const mobile = current.endsWith('mobile');
+    grid.innerHTML = concepts.map((c) => {
+      const src = `generated/${c.slug}--${current}.png`;
+      return `<section class="col"><div class="head"><div><h2>${c.name}${c.rec ? '<span class="rec">Recommandé</span>' : ''}</h2><small>${c.sub}</small></div>
+        <a href="${c.href}#${routes[current.slice(0, 2)]}" target="_blank" rel="noopener">Ouvrir le prototype →</a></div>
+        <a class="shot ${mobile ? 'mobile' : ''}" href="${src}" target="_blank" rel="noopener"><img src="${src}" alt="${c.name} — ${current}" loading="lazy"></a></section>`;
+    }).join('');
+  }
+  tabs.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    current = b.dataset.k; try { localStorage.setItem('cmp-shot', current); } catch (err) {}
+    render();
+  });
+  render();
+</script>
+</body>
+</html>

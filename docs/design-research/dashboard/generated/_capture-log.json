@@ -1,0 +1,275 @@
+[
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "01-overview-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--01-overview-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "02-overview-mobile",
+    "ok": true,
+    "file": "concept-a-minimal-premium--02-overview-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "03-analytics-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--03-analytics-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "04-listing-contracts-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--04-listing-contracts-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "05-detail-contract-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--05-detail-contract-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "06-form-new-contract-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--06-form-new-contract-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "07-users-roles-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--07-users-roles-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "08-settings-notifications-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--08-settings-notifications-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "09-modal-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--09-modal-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "10-notifications-dropdown-desktop",
+    "ok": true,
+    "file": "concept-a-minimal-premium--10-notifications-dropdown-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "11-listing-contracts-mobile",
+    "ok": true,
+    "file": "concept-a-minimal-premium--11-listing-contracts-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "12-menu-drawer-mobile",
+    "ok": true,
+    "file": "concept-a-minimal-premium--12-menu-drawer-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-a-minimal-premium",
+    "shot": "13-detail-contract-mobile",
+    "ok": true,
+    "file": "concept-a-minimal-premium--13-detail-contract-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "01-overview-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--01-overview-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "02-overview-mobile",
+    "ok": true,
+    "file": "concept-b-modern-saas--02-overview-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "03-analytics-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--03-analytics-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "04-listing-contracts-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--04-listing-contracts-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "05-detail-contract-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--05-detail-contract-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "06-form-new-contract-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--06-form-new-contract-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "07-users-roles-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--07-users-roles-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "08-settings-notifications-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--08-settings-notifications-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "09-modal-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--09-modal-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "10-notifications-dropdown-desktop",
+    "ok": true,
+    "file": "concept-b-modern-saas--10-notifications-dropdown-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "11-listing-contracts-mobile",
+    "ok": true,
+    "file": "concept-b-modern-saas--11-listing-contracts-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "12-menu-drawer-mobile",
+    "ok": true,
+    "file": "concept-b-modern-saas--12-menu-drawer-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-b-modern-saas",
+    "shot": "13-detail-contract-mobile",
+    "ok": true,
+    "file": "concept-b-modern-saas--13-detail-contract-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "01-overview-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--01-overview-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "02-overview-mobile",
+    "ok": true,
+    "file": "concept-c-enterprise--02-overview-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "03-analytics-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--03-analytics-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "04-listing-contracts-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--04-listing-contracts-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "05-detail-contract-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--05-detail-contract-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "06-form-new-contract-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--06-form-new-contract-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "07-users-roles-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--07-users-roles-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "08-settings-notifications-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--08-settings-notifications-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "09-modal-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--09-modal-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "10-notifications-dropdown-desktop",
+    "ok": true,
+    "file": "concept-c-enterprise--10-notifications-dropdown-desktop.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "11-listing-contracts-mobile",
+    "ok": true,
+    "file": "concept-c-enterprise--11-listing-contracts-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "12-menu-drawer-mobile",
+    "ok": true,
+    "file": "concept-c-enterprise--12-menu-drawer-mobile.png",
+    "errors": []
+  },
+  {
+    "concept": "concept-c-enterprise",
+    "shot": "13-detail-contract-mobile",
+    "ok": true,
+    "file": "concept-c-enterprise--13-detail-contract-mobile.png",
+    "errors": []
+  }
+]
