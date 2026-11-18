@@ -57,6 +57,17 @@ Statuses come from the models. For example, `RentalContract` uses Brouillon, En 
 
 All 17 captures are in [current/](current/), covering 14 pages on desktop plus 3 on mobile.
 
+**Device mockups of the current design.** The same screens, placed in a generic laptop and phone frame with no manufacturer logo and no branding, are in [mockups/current/](mockups/current/). Open its [gallery](mockups/current/index.html). It contains:
+
+- 3 laptop + phone scenes
+- 6 laptop mockups
+- 3 phone mockups
+- the same 12 images with a transparent background in `transparent/`
+
+![](mockups/current/scene-vehicles-laptop-phone.png)
+
+The local database is empty (0 vehicles, contracts and clients), so these screens show zeros and empty states.
+
 ### 1.4 What to improve
 
 1. **Navigation overload.** There are 13 section titles and about 30 links in one long column, and some section titles are cut off ("ÉHICULE SUIVI", "OYEE"). There is no grouping by job (daily activity, fleet, money, administration).
@@ -314,7 +325,9 @@ docs/design-research/dashboard/
 │   └── concept-c-enterprise/index.html
 └── scripts/
     ├── capture_current.py            screenshots of the live app (demo login, logo hidden)
-    └── capture_prototypes.py         screenshots of the maquettes and error log
+    ├── capture_prototypes.py         screenshots of the maquettes and error log
+    ├── capture_current_device_sources.py   2x screens of the live app for device mockups
+    └── render_device_mockups.py      puts them in laptop / phone frames (mockups/current/)
 ```
 
 Re-run the captures (Python Playwright is already installed):

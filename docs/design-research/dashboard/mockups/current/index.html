@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design actuel en mockups</title>
+<style>
+  :root{--bg:#f4f5f7;--surface:#fff;--border:#e3e5ea;--text:#16181d;--muted:#666b75;color-scheme:light}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121316;--surface:#1b1c20;--border:#2e3036;--text:#eef0f3;--muted:#a1a6b0;color-scheme:dark}}
+  :root[data-theme="dark"]{--bg:#121316;--surface:#1b1c20;--border:#2e3036;--text:#eef0f3;--muted:#a1a6b0;color-scheme:dark}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1400px;margin:0 auto;padding:28px 24px 48px}
+  h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:32px 0 12px}
+  p{margin:0;color:var(--muted)}
+  .grid{display:grid;gap:16px}
+  .g1{grid-template-columns:1fr}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  figure{margin:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  figure a{display:block}
+  figure img{display:block;width:100%;height:auto}
+  figcaption{padding:10px 14px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)}
+  @media (max-width:900px){.g2,.g3{grid-template-columns:1fr}.wrap{padding:20px 16px 40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Design actuel du backoffice — mockups ordinateur &amp; mobile</h1>
+  <p>Captures réelles de l’application (compte démo, base locale vide), logo et mentions de marque masqués. Versions sans fond dans <code>transparent/</code>.</p>
+
+  <h2>Scènes ordinateur + mobile</h2>
+  <div class="grid g1" id="scenes"></div>
+  <h2>Ordinateur portable</h2>
+  <div class="grid g2" id="laptops"></div>
+  <h2>Mobile</h2>
+  <div class="grid g3" id="phones"></div>
+</div>
+<script>
+  const label = { dashboard: 'Tableau de bord', vehicles: 'Véhicules', contracts: 'Contrats de location', clients: 'Clients', finance: 'Transactions financières', calendar: 'Calendrier des réservations' };
+  const fig = (src, cap) => `<figure><a href="${src}" target="_blank" rel="noopener"><img src="${src}" alt="${cap}" loading="lazy"></a><figcaption>${cap}</figcaption></figure>`;
+  document.getElementById('scenes').innerHTML = ['dashboard', 'vehicles', 'contracts'].map((k) => fig(`scene-${k}-laptop-phone.png`, label[k])).join('');
+  document.getElementById('laptops').innerHTML = ['dashboard', 'vehicles', 'contracts', 'clients', 'finance', 'calendar'].map((k) => fig(`laptop-${k}.png`, label[k])).join('');
+  document.getElementById('phones').innerHTML = ['dashboard', 'vehicles', 'contracts'].map((k) => fig(`phone-${k}.png`, label[k])).join('');
+</script>
+</body>
+</html>

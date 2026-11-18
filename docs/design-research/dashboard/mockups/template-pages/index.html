@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockups pages admin</title>
+<style>
+  :root{--bg:#f4f5f7;--surface:#fff;--border:#e3e5ea;--text:#16181d;--muted:#666b75;--accent:#c2410c;--accent-bg:#fff4ec;color-scheme:light}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121316;--surface:#1b1c20;--border:#2e3036;--text:#eef0f3;--muted:#a1a6b0;--accent:#fb923c;--accent-bg:#2a1d14;color-scheme:dark}}
+  :root[data-theme="dark"]{--bg:#121316;--surface:#1b1c20;--border:#2e3036;--text:#eef0f3;--muted:#a1a6b0;--accent:#fb923c;--accent-bg:#2a1d14;color-scheme:dark}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1400px;margin:0 auto;padding:28px 24px 48px}
+  h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:0}
+  p{margin:0;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}
+  figure{margin:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  figure.best{grid-column:1/-1;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  figure a{display:block;background:var(--bg)}
+  figure img{display:block;width:100%;height:auto}
+  figcaption{padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:2px}
+  .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .rank{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}
+  .tag{font-size:11px;font-weight:600;border-radius:999px;padding:1px 8px;background:var(--accent-bg);color:var(--accent)}
+  .use{font-size:13px;color:var(--muted)}
+  nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+  nav button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer}
+  nav button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}.wrap{padding:20px 16px 40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pages admin — 9 modèles de mockup par page</h1>
+  <p>4 pages : Tableau de bord, Voitures, Réservations, Calendrier. Nom et logo de la marque masqués, appareils génériques sans logo. Classés du meilleur au moins adapté. Versions sans fond dans <code>&lt;page&gt;/transparent/</code>.</p>
+  <nav id="tabs" aria-label="Pages"></nav>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+  const models = [
+    ['family', 'Ordinateur + tablette + mobile', 'Meilleur choix', 'Image principale : montre le même tableau de bord sur les 3 tailles d’écran — le message « responsive » en une seule image.'],
+    ['combo', 'Ordinateur + mobile', 'Présentation', 'Le plus équilibré pour une diapositive ou un e-mail : grand écran lisible + version mobile.'],
+    ['browser', 'Fenêtre de navigateur', 'Le plus lisible', 'Pour documenter ou faire relire le design : l’écran est grand et net, sans distraction.'],
+    ['perspective', 'Perspective 3D + mobile', 'Marketing', 'Très moderne et dynamique pour une page de présentation ; les textes sont moins lisibles.'],
+    ['laptop', 'Ordinateur portable', 'Classique', 'Simple et propre ; bon pour un portfolio.'],
+    ['phones-trio', 'Trois mobiles', 'Mobile', 'Montre tout le parcours mobile (haut, milieu, bas du tableau de bord).'],
+    ['tablet', 'Tablette (paysage)', 'Tablette', 'Utile seulement si la tablette est un usage réel des agents.'],
+    ['phone', 'Mobile seul', 'Détail', 'Un écran mobile isolé ; à combiner avec d’autres images.'],
+    ['browser-full', 'Navigateur — page complète', 'Référence', 'Toute la page en une image très haute ; pour l’archive, pas pour une présentation.'],
+  ];
+  const pages = [['dashboard', 'Tableau de bord'], ['cars', 'Voitures'], ['reservations', 'Réservations'], ['calendar', 'Calendrier']];
+  let cur = 'dashboard';
+  try { cur = localStorage.getItem('tpl-page') || cur; } catch (e) {}
+  const tabs = document.getElementById('tabs'), grid = document.getElementById('grid');
+  function render() {
+    tabs.innerHTML = pages.map(([k, l]) => `<button data-k="${k}" aria-pressed="${k === cur}">${l}</button>`).join('');
+    grid.innerHTML = models.map(([k, name, tag, use], i) => `
+      <figure class="${i === 0 ? 'best' : ''}"><a href="${cur}/model-${k}.png" target="_blank" rel="noopener"><img src="${cur}/model-${k}.png" alt="${name}" loading="lazy"></a>
+        <figcaption><div class="top"><span class="rank">${i + 1}.</span><h2>${name}</h2><span class="tag">${tag}</span></div><span class="use">${use}</span></figcaption></figure>`).join('');
+  }
+  tabs.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.k; try { localStorage.setItem('tpl-page', cur); } catch (err) {} render(); });
+  render();
+</script>
+</body>
+</html>
